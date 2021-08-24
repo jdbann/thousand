@@ -4,14 +4,21 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"emailaddress.horse/thousand/app"
 )
 
 func main() {
 	app := app.NewApp()
-	fmt.Println("Listening on http://localhost:4000")
-	if err := http.ListenAndServe(":4000", app.Engine()); err != nil {
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "4000"
+	}
+
+	addr := fmt.Sprintf(":%s", port)
+	if err := http.ListenAndServe(addr, app.Engine()); err != nil {
 		log.Fatal(err)
 	}
 }
