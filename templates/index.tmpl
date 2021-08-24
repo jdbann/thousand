@@ -1,0 +1,15 @@
+<html>
+<head>
+<title>Thousand</title>
+</head>
+<body>
+<h1>Thousand</h1>
+{{ if . }}
+<span id="details">{{ .Name }}</span>
+{{ end }}
+<form method="POST" action="/details">
+<input name="name">
+<input type="submit">
+</form>
+</body>
+</html>
