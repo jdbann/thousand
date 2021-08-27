@@ -43,19 +43,25 @@ func (bt *BrowserTest) Run(actions ...BrowserAction) {
 	ctx, cancel := chromedp.NewContext(bt.ctx)
 	defer cancel()
 
-	for _, action := range actions {
+	bt.executeAction(ctx, actions[0])
+
+	for _, action := range actions[1:] {
 		ctx, cancel := context.WithTimeout(ctx, bt.timeout)
 		defer cancel()
 
-		if err := chromedp.Run(ctx, action); err != nil {
-			if errors.Is(err, context.Canceled) {
-				bt.Fatalf("%s: %q", action.msg, err)
-			}
-			bt.Fatal(err)
-		}
-
-		bt.Log(action.msg)
+		bt.executeAction(ctx, action)
 	}
+}
+
+func (bt *BrowserTest) executeAction(ctx context.Context, action BrowserAction) {
+	if err := chromedp.Run(ctx, action); err != nil {
+		if errors.Is(err, context.Canceled) {
+			bt.Fatalf("%s: %q", action.msg, err)
+		}
+		bt.Fatal(err)
+	}
+
+	bt.Log(action.msg)
 }
 
 func (bt *BrowserTest) Navigate(url string) BrowserAction {
