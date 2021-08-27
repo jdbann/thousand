@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 
 	"emailaddress.horse/thousand/app"
@@ -18,7 +17,7 @@ func main() {
 	}
 
 	addr := fmt.Sprintf(":%s", port)
-	if err := http.ListenAndServe(addr, app.Engine()); err != nil {
+	if err := app.Start(addr); err != nil {
 		log.Fatal(err)
 	}
 }

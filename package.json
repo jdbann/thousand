@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "scripts": {
+    "lint:html": "yarn run prettier --check \"templates/**/*.tmpl\"",
+    "lint:css": "yarn run stylelint \"static/**/*.css\""
+  },
+  "devDependencies": {
+    "prettier": "^2.3.2",
+    "prettier-plugin-go-template": "^0.0.11",
+    "stylelint": "^13.13.1",
+    "stylelint-config-standard": "^22.0.0"
+  }
+}

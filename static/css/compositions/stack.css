@@ -1,0 +1,14 @@
+.stack {
+  --stack-space: var(--s0);
+
+  display: flex;
+  flex-direction: column;
+}
+
+.stack > * + * {
+  margin-top: var(--stack-space);
+}
+
+.stack-small {
+  --stack-space: var(--s-2);
+}

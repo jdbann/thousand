@@ -26,7 +26,7 @@ type BrowserAction struct {
 
 func NewBrowserTest(t *testing.T) *BrowserTest {
 	app := app.NewApp()
-	ts := httptest.NewServer(app.Engine())
+	ts := httptest.NewServer(app)
 	t.Cleanup(func() {
 		ts.Close()
 	})

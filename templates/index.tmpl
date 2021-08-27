@@ -1,15 +1,37 @@
+<!DOCTYPE html>
 <html>
-<head>
-<title>Thousand</title>
-</head>
-<body>
-<h1>Thousand</h1>
-{{ if . }}
-<span id="details">{{ .Name }}</span>
-{{ end }}
-<form method="POST" action="/details">
-<input name="name">
-<input type="submit">
-</form>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thousand</title>
+    <link href="/css/main.css" rel="stylesheet" />
+  </head>
+  <body>
+    <body>
+      <div class="centre stack max-width:measure">
+        <header>
+          <h1>Thousand</h1>
+        </header>
+
+        {{ with .Character }}
+          {{ if .Details }}
+            <span id="details">{{ .Details.Name }}</span>
+          {{ else }}
+            <form
+              method="POST"
+              action="{{ $.Reverse "create-details" }}"
+              class="stack"
+            >
+              <div class="stack stack-small">
+                <label for="name">Name</label>
+                <input id="name" name="name" type="text" />
+              </div>
+
+              <input type="submit" />
+            </form>
+          {{ end }}
+        {{ end }}
+      </div>
+    </body>
+  </body>
 </html>

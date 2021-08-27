@@ -1,52 +1,60 @@
 package app
 
 import (
-	"html/template"
-	"log"
 	"net/http"
 
 	"emailaddress.horse/thousand/app/models"
+	"emailaddress.horse/thousand/static"
 	"emailaddress.horse/thousand/templates"
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 // App is a configured instance of the application, ready to be served by a
 // server or interacted with by CLI commands.
 type App struct {
+	*echo.Echo
 	Character *models.Character
 }
 
 // NewApp configures an instance of the application with helpful defaults.
 func NewApp() *App {
-	return &App{
+	app := &App{
+		Echo:      echo.New(),
 		Character: &models.Character{},
 	}
+
+	app.configure()
+	app.setupRoutes()
+
+	return app
 }
 
-// Engine returns the configured set of routes for the app to be used by an HTTP
-// server.
-func (app *App) Engine() http.Handler {
-	r := gin.Default()
+func (app *App) configure() {
+	app.Debug = true
+	app.Renderer = templates.NewRenderer()
+}
 
-	templates, err := template.ParseFS(templates.Templates, "*.tmpl")
-	if err != nil {
-		log.Fatal(err)
+func (app *App) setupRoutes() {
+	app.Use(middleware.Logger())
+	app.Use(static.Middleware())
+
+	app.GET("/", app.root).Name = "root"
+
+	app.POST("/details", app.createDetails).Name = "create-details"
+}
+
+func (app *App) root(c echo.Context) error {
+	return c.Render(http.StatusOK, "index", app)
+}
+
+func (app *App) createDetails(c echo.Context) error {
+	var details = new(models.Details)
+	if err := c.Bind(details); err != nil {
+		return err
 	}
 
-	r.SetHTMLTemplate(templates)
+	app.Character.Details = details
 
-	r.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.tmpl", app.Character)
-	})
-
-	r.POST("/details", func(c *gin.Context) {
-		if err := c.ShouldBind(app.Character); err != nil {
-			_ = c.AbortWithError(http.StatusUnprocessableEntity, err)
-			return
-		}
-
-		c.Redirect(http.StatusFound, "/")
-	})
-
-	return r
+	return c.Redirect(http.StatusFound, "/")
 }
