@@ -2,7 +2,6 @@ package browser
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http/httptest"
 	"testing"
@@ -55,10 +54,7 @@ func (bt *BrowserTest) Run(actions ...BrowserAction) {
 
 func (bt *BrowserTest) executeAction(ctx context.Context, action BrowserAction) {
 	if err := chromedp.Run(ctx, action); err != nil {
-		if errors.Is(err, context.Canceled) {
-			bt.Fatalf("%s: %q", action.msg, err)
-		}
-		bt.Fatal(err)
+		bt.Fatalf("%s: %q", action.msg, err)
 	}
 
 	bt.Log(action.msg)

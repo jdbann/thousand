@@ -2,6 +2,7 @@ package app
 
 import (
 	"net/http"
+	"strconv"
 
 	"emailaddress.horse/thousand/app/models"
 	"emailaddress.horse/thousand/static"
@@ -42,6 +43,8 @@ func (app *App) setupRoutes() {
 	app.GET("/", app.root).Name = "root"
 
 	app.POST("/details", app.createDetails).Name = "create-details"
+
+	app.POST("/memories/:id/experiences", app.createExperience).Name = "create-experience"
 }
 
 func (app *App) root(c echo.Context) error {
@@ -55,6 +58,19 @@ func (app *App) createDetails(c echo.Context) error {
 	}
 
 	app.Character.Details = details
+
+	return c.Redirect(http.StatusFound, "/")
+}
+
+func (app *App) createExperience(c echo.Context) error {
+	memoryID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return err
+	}
+
+	if err := app.Character.AddExperience(memoryID, c.FormValue("experience")); err != nil {
+		return err
+	}
 
 	return c.Redirect(http.StatusFound, "/")
 }

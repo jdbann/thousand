@@ -30,6 +30,42 @@
               <input type="submit" />
             </form>
           {{ end }}
+
+
+          <div id="memories" class="stack">
+            <h2>Memories</h2>
+
+            {{ range $index, $memory := .Memories }}
+              <div id="memory-{{ $index }}">
+                <ul>
+                  {{ range .Experiences }}
+                    <li class="experience">{{ . }}</li>
+                  {{ end }}
+                </ul>
+
+                {{ if not $memory.Full }}
+                  <form
+                    method="POST"
+                    action="{{ $.Reverse "create-experience" $index }}"
+                    class="stack"
+                  >
+                    <div class="stack stack-small">
+                      <label for="memory-{{ $index }}-experience"
+                        >Experience</label
+                      >
+                      <input
+                        id="memory-{{ $index }}-experience"
+                        name="experience"
+                        type="text"
+                      />
+                    </div>
+
+                    <input type="submit" />
+                  </form>
+                {{ end }}
+              </div>
+            {{ end }}
+          </div>
         {{ end }}
       </div>
     </body>
