@@ -14,23 +14,24 @@
         </header>
 
         {{ with .Character }}
-          {{ if .Details }}
-            <span id="details">{{ .Details.Name }}</span>
-          {{ else }}
-            <form
-              method="POST"
-              action="{{ $.Reverse "create-details" }}"
-              class="stack"
-            >
-              <div class="stack stack-small">
-                <label for="name">Name</label>
-                <input id="name" name="name" type="text" />
-              </div>
+          <div id="details">
+            {{ if .Details }}
+              {{ .Details.Name }}
+            {{ else }}
+              <form
+                method="POST"
+                action="{{ $.Reverse "create-details" }}"
+                class="stack"
+              >
+                <div class="stack stack-small">
+                  <label for="name">Name</label>
+                  <input id="name" name="name" type="text" />
+                </div>
 
-              <input type="submit" />
-            </form>
-          {{ end }}
-
+                <input type="submit" value="Save Details" />
+              </form>
+            {{ end }}
+          </div>
 
           <div id="memories" class="stack">
             <h2>Memories</h2>
@@ -60,11 +61,52 @@
                       />
                     </div>
 
-                    <input type="submit" />
+                    <input type="submit" value="Add Experience" />
                   </form>
                 {{ end }}
               </div>
             {{ end }}
+          </div>
+
+          <div id="skills" class="stack">
+            <h2>Skills</h2>
+
+            {{ with .Skills }}
+              <ul>
+                {{ range . }}
+                  <li>
+                    {{ if .Checked }}
+                      <s>{{ .Description }}</s>
+                    {{ else }}
+                      {{ .Description }}
+                      <form
+                        method="POST"
+                        action="{{ $.Reverse "update-skill" .ID }}"
+                        class="stack"
+                      >
+                        <input type="hidden" name="_method" value="PATCH" />
+                        <input type="hidden" name="checked" value="1" />
+                        <input type="submit" value="Check Skill" />
+                      </form>
+                    {{ end }}
+                  </li>
+                {{ end }}
+              </ul>
+            {{ end }}
+
+
+            <form
+              method="POST"
+              action="{{ $.Reverse "create-skill" }}"
+              class="stack"
+            >
+              <div class="stack stack-small">
+                <label for="description">Description</label>
+                <input id="description" name="description" type="text" />
+              </div>
+
+              <input type="submit" value="Add Skill" />
+            </form>
           </div>
         {{ end }}
       </div>

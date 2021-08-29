@@ -16,6 +16,7 @@ type BrowserTest struct {
 	ctx     context.Context
 	timeout time.Duration
 	baseURL string
+	app     *app.App
 }
 
 type BrowserAction struct {
@@ -35,6 +36,7 @@ func NewBrowserTest(t *testing.T) *BrowserTest {
 		context.Background(),
 		time.Second * 2,
 		ts.URL,
+		app,
 	}
 }
 
@@ -74,10 +76,24 @@ func (bt *BrowserTest) Text(sel interface{}, text *string, opts ...chromedp.Quer
 	}
 }
 
+func (bt *BrowserTest) InnerHTML(sel interface{}, text *string, opts ...chromedp.QueryOption) BrowserAction {
+	return BrowserAction{
+		chromedp.InnerHTML(sel, text, opts...),
+		fmt.Sprintf("[InnerHTML] %v", sel),
+	}
+}
+
 func (bt *BrowserTest) WaitVisible(sel interface{}, opts ...chromedp.QueryOption) BrowserAction {
 	return BrowserAction{
 		chromedp.WaitVisible(sel, opts...),
 		fmt.Sprintf("[WaitVisible] %v", sel),
+	}
+}
+
+func (bt *BrowserTest) WaitReady(sel interface{}, opts ...chromedp.QueryOption) BrowserAction {
+	return BrowserAction{
+		chromedp.WaitReady(sel, opts...),
+		fmt.Sprintf("[WaitReady] %v", sel),
 	}
 }
 

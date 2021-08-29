@@ -3,6 +3,8 @@ package browser
 import (
 	"strings"
 	"testing"
+
+	"emailaddress.horse/thousand/app/models"
 )
 
 func TestAppTitle(t *testing.T) {
@@ -64,5 +66,58 @@ func TestAddExperience(t *testing.T) {
 
 	if !strings.Contains(memories, expectedExperience) {
 		t.Errorf("expected %q to contain %q", memories, expectedExperience)
+	}
+}
+
+func TestAddSkill(t *testing.T) {
+	t.Parallel()
+
+	bt := NewBrowserTest(t)
+
+	var skills string
+	expectedSkill := "Basic agricultural practices"
+
+	skillFieldSelector := `input[name="description"]`
+
+	bt.Run(
+		bt.Navigate("/"),
+		bt.WaitVisible(skillFieldSelector),
+		bt.SendKeys(skillFieldSelector, expectedSkill),
+		bt.Submit(skillFieldSelector),
+		bt.Text("#skills", &skills),
+	)
+
+	if !strings.Contains(skills, expectedSkill) {
+		t.Errorf("expected %q to contain %q", skills, expectedSkill)
+	}
+}
+
+func TestCheckSkill(t *testing.T) {
+	t.Parallel()
+
+	bt := NewBrowserTest(t)
+	bt.app.Character = &models.Character{
+		Skills: []models.Skill{
+			{
+				ID:          1,
+				Description: "Basic agricultural practices",
+			},
+		},
+	}
+
+	var skills string
+	expectedSkill := "<s>Basic agricultural practices</s>"
+
+	skillCheckSelector := `input[name="checked"]`
+
+	bt.Run(
+		bt.Navigate("/"),
+		bt.WaitReady(skillCheckSelector),
+		bt.Submit(skillCheckSelector),
+		bt.InnerHTML("#skills", &skills),
+	)
+
+	if !strings.Contains(skills, expectedSkill) {
+		t.Errorf("expected %q to contain %q", skills, expectedSkill)
 	}
 }

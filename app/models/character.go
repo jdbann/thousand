@@ -10,6 +10,7 @@ var ErrNotFound = errors.New("Record not found")
 type Character struct {
 	Details  *Details
 	Memories [5]Memory
+	Skills   []Skill
 }
 
 // AddExperience adds an experience to the indicated memory.
@@ -21,4 +22,45 @@ func (c *Character) AddExperience(memoryID int, experienceString string) error {
 	}
 
 	return c.Memories[memoryID].AddExperience(experience)
+}
+
+// AddSkill adds an unchecked skill to the character.
+func (c *Character) AddSkill(skill *Skill) {
+	skill.ID = len(c.Skills) + 1
+	c.Skills = append(c.Skills, *skill)
+}
+
+// FindSkill retrieves a skill based on an ID from the Character's list of
+// skills.
+func (c *Character) FindSkill(skillID int) (*Skill, error) {
+	for _, skill := range c.Skills {
+		if skill.ID == skillID {
+			return &skill, nil
+		}
+	}
+
+	return nil, ErrNotFound
+}
+
+// UpdateSkill replaces a Character's existing skill with the new one based on
+// the new skill's ID.
+func (c *Character) UpdateSkill(newSkill *Skill) error {
+	var skills []Skill
+	found := false
+
+	for _, originalSkill := range c.Skills {
+		if originalSkill.ID == newSkill.ID {
+			found = true
+			skills = append(skills, *newSkill)
+		} else {
+			skills = append(skills, originalSkill)
+		}
+	}
+
+	if found {
+		c.Skills = skills
+		return nil
+	}
+
+	return ErrNotFound
 }
