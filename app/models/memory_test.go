@@ -7,6 +7,8 @@ import (
 )
 
 func TestFull(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name           string
 		memory         *Memory
@@ -70,6 +72,8 @@ func TestFull(t *testing.T) {
 }
 
 func TestMemory_AddExperience(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name           string
 		memory         *Memory

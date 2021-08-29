@@ -7,6 +7,8 @@ import (
 )
 
 func TestCharacter_AddExperience(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name              string
 		character         *Character

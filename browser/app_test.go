@@ -6,6 +6,8 @@ import (
 )
 
 func TestAppTitle(t *testing.T) {
+	t.Parallel()
+
 	bt := NewBrowserTest(t)
 
 	var title string
@@ -21,15 +23,19 @@ func TestAppTitle(t *testing.T) {
 }
 
 func TestSetName(t *testing.T) {
+	t.Parallel()
+
 	bt := NewBrowserTest(t)
 
 	var name string
 
+	nameFieldSelector := `input[name="name"]`
+
 	bt.Run(
 		bt.Navigate("/"),
-		bt.WaitVisible(`input[name="name"]`),
-		bt.SendKeys(`input[name="name"]`, "Gruffudd"),
-		bt.Submit(`input[name="name"]`),
+		bt.WaitVisible(nameFieldSelector),
+		bt.SendKeys(nameFieldSelector, "Gruffudd"),
+		bt.Submit(nameFieldSelector),
 		bt.Text(`#details`, &name),
 	)
 
@@ -39,6 +45,8 @@ func TestSetName(t *testing.T) {
 }
 
 func TestAddExperience(t *testing.T) {
+	t.Parallel()
+
 	bt := NewBrowserTest(t)
 
 	var memories string
