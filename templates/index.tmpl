@@ -108,6 +108,47 @@
               <input type="submit" value="Add Skill" />
             </form>
           </div>
+
+          <div id="resources" class="stack">
+            <h2>Resources</h2>
+
+            {{ with .Resources }}
+              <ul>
+                {{ range . }}
+                  <li>
+                    {{ .Description }}
+                    {{ if .Stationary }}
+                      (Stationary)
+                    {{ end }}
+                  </li>
+                {{ end }}
+              </ul>
+            {{ end }}
+
+
+            <form
+              method="POST"
+              action="{{ $.Reverse "create-resource" }}"
+              class="stack"
+            >
+              <div class="stack stack-small">
+                <label for="description">Description</label>
+                <input id="description" name="description" type="text" />
+              </div>
+
+              <div class="stack stack-small">
+                <label for="stationary">Stationary</label>
+                <input
+                  id="stationary"
+                  name="stationary"
+                  type="checkbox"
+                  value="1"
+                />
+              </div>
+
+              <input type="submit" value="Add Resource" />
+            </form>
+          </div>
         {{ end }}
       </div>
     </body>

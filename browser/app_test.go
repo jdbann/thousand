@@ -77,7 +77,7 @@ func TestAddSkill(t *testing.T) {
 	var skills string
 	expectedSkill := "Basic agricultural practices"
 
-	skillFieldSelector := `input[name="description"]`
+	skillFieldSelector := `#skills input[name="description"]`
 
 	bt.Run(
 		bt.Navigate("/"),
@@ -119,5 +119,30 @@ func TestCheckSkill(t *testing.T) {
 
 	if !strings.Contains(skills, expectedSkill) {
 		t.Errorf("expected %q to contain %q", skills, expectedSkill)
+	}
+}
+
+func TestAddResource(t *testing.T) {
+	t.Parallel()
+
+	bt := NewBrowserTest(t)
+
+	var resources string
+	expectedResource := "Calweddyn Farm, rich but challenging soils"
+
+	descriptionFieldSelector := `#resources input[name="description"]`
+	stationaryFieldSelector := `#resources input[name="stationary"]`
+
+	bt.Run(
+		bt.Navigate("/"),
+		bt.WaitVisible(descriptionFieldSelector),
+		bt.SendKeys(descriptionFieldSelector, expectedResource),
+		bt.Click(stationaryFieldSelector),
+		bt.Submit(descriptionFieldSelector),
+		bt.Text("#resources", &resources),
+	)
+
+	if !strings.Contains(resources, expectedResource+" (Stationary)") {
+		t.Errorf("expected %q to contain %q", resources, expectedResource)
 	}
 }

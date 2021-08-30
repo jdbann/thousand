@@ -37,7 +37,7 @@ func (app *App) createExperience(c echo.Context) error {
 }
 
 func (app *App) createSkill(c echo.Context) error {
-	var skill = new(models.Skill)
+	skill := new(models.Skill)
 	if err := c.Bind(skill); err != nil {
 		return err
 	}
@@ -65,6 +65,17 @@ func (app *App) updateSkill(c echo.Context) error {
 	if err := app.Character.UpdateSkill(skill); err != nil {
 		return err
 	}
+
+	return c.Redirect(http.StatusFound, "/")
+}
+
+func (app *App) createResource(c echo.Context) error {
+	resource := new(models.Resource)
+	if err := c.Bind(resource); err != nil {
+		return err
+	}
+
+	app.Character.AddResource(resource)
 
 	return c.Redirect(http.StatusFound, "/")
 }

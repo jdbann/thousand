@@ -24,4 +24,7 @@ func (app *App) setupRoutes() {
 	// Skills
 	app.POST("/skills", app.createSkill).Name = "create-skill"
 	app.PATCH("/skills/:id", app.updateSkill).Name = "update-skill"
+
+	// Resources
+	app.POST("/resources", app.createResource).Name = "create-resource"
 }

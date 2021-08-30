@@ -8,9 +8,10 @@ var ErrNotFound = errors.New("Record not found")
 
 // Character holds everything related to a character.
 type Character struct {
-	Details  *Details
-	Memories [5]Memory
-	Skills   []Skill
+	Details   *Details
+	Memories  [5]Memory
+	Skills    []Skill
+	Resources []Resource
 }
 
 // AddExperience adds an experience to the indicated memory.
@@ -24,7 +25,7 @@ func (c *Character) AddExperience(memoryID int, experienceString string) error {
 	return c.Memories[memoryID].AddExperience(experience)
 }
 
-// AddSkill adds an unchecked skill to the character.
+// AddSkill adds an unchecked skill to the Character.
 func (c *Character) AddSkill(skill *Skill) {
 	skill.ID = len(c.Skills) + 1
 	c.Skills = append(c.Skills, *skill)
@@ -63,4 +64,10 @@ func (c *Character) UpdateSkill(newSkill *Skill) error {
 	}
 
 	return ErrNotFound
+}
+
+// AddResource adds a resource to the Character.
+func (c *Character) AddResource(resource *Resource) {
+	resource.ID = len(c.Resources) + 1
+	c.Resources = append(c.Resources, *resource)
 }

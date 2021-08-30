@@ -337,3 +337,73 @@ func TestUpdateSkill(t *testing.T) {
 		})
 	}
 }
+
+func TestCreateResource(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name              string
+		character         *models.Character
+		body              string
+		expectedStatus    int
+		expectedLocation  string
+		expectedCharacter *models.Character
+		expectedError     error
+	}{
+		{
+			name:      "successful",
+			character: &models.Character{},
+			body: url.Values{
+				"description": []string{"Calweddyn Farm, rich but challenging soils"},
+				"stationary":  []string{"1"},
+			}.Encode(),
+			expectedStatus:   http.StatusFound,
+			expectedLocation: "/",
+			expectedCharacter: &models.Character{
+				Resources: []models.Resource{
+					{
+						ID:          1,
+						Description: "Calweddyn Farm, rich but challenging soils",
+						Stationary:  true,
+					},
+				},
+			},
+			expectedError: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			app := NewApp()
+			app.Character = tt.character
+
+			request := httptest.NewRequest(http.MethodPost, "/resources", strings.NewReader(tt.body))
+			request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+
+			response := httptest.NewRecorder()
+			ctx := app.NewContext(request, response)
+
+			err := app.createResource(ctx)
+
+			if tt.expectedStatus != response.Code {
+				t.Errorf("expected %d; got %d", tt.expectedStatus, response.Code)
+			}
+
+			if location := response.Header().Get(echo.HeaderLocation); tt.expectedLocation != location {
+				t.Errorf("expected %q; got %q", tt.expectedLocation, location)
+			}
+
+			if diff := cmp.Diff(tt.expectedCharacter, app.Character); diff != "" {
+				t.Error(diff)
+			}
+
+			if tt.expectedError != err {
+				t.Errorf("expected %v; got %v", tt.expectedError, err)
+			}
+		})
+	}
+}

@@ -69,6 +69,13 @@ func (bt *BrowserTest) Navigate(url string) BrowserAction {
 	}
 }
 
+func (bt *BrowserTest) Click(sel interface{}, opts ...chromedp.QueryOption) BrowserAction {
+	return BrowserAction{
+		chromedp.Click(sel, opts...),
+		fmt.Sprintf("[Click] %v", sel),
+	}
+}
+
 func (bt *BrowserTest) Text(sel interface{}, text *string, opts ...chromedp.QueryOption) BrowserAction {
 	return BrowserAction{
 		chromedp.Text(sel, text, opts...),

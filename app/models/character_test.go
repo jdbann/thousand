@@ -281,3 +281,70 @@ func TestUpdateSkill(t *testing.T) {
 		})
 	}
 }
+
+func TestAddResource(t *testing.T) {
+	tests := []struct {
+		name              string
+		character         *Character
+		resource          *Resource
+		expectedCharacter *Character
+	}{
+		{
+			name:      "success with no resources",
+			character: &Character{},
+			resource: &Resource{
+				Description: "one",
+			},
+			expectedCharacter: &Character{
+				Resources: []Resource{
+					Resource{
+						ID:          1,
+						Description: "one",
+					},
+				},
+			},
+		},
+		{
+			name: "success with existing resources",
+			character: &Character{
+				Resources: []Resource{
+					Resource{
+						ID:          1,
+						Description: "one",
+					},
+				},
+			},
+			resource: &Resource{
+				Description: "two",
+				Stationary:  true,
+			},
+			expectedCharacter: &Character{
+				Resources: []Resource{
+					Resource{
+						ID:          1,
+						Description: "one",
+					},
+					Resource{
+						ID:          2,
+						Description: "two",
+						Stationary:  true,
+					},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			tt.character.AddResource(tt.resource)
+
+			if diff := cmp.Diff(tt.expectedCharacter, tt.character); diff != "" {
+				t.Error(diff)
+			}
+		})
+	}
+}
