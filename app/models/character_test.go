@@ -348,3 +348,130 @@ func TestAddResource(t *testing.T) {
 		})
 	}
 }
+
+func TestFindResource(t *testing.T) {
+	tests := []struct {
+		name             string
+		character        *Character
+		resourceID       int
+		expectedResource *Resource
+		expectedError    error
+	}{
+		{
+			name: "success",
+			character: &Character{
+				Resources: []Resource{
+					Resource{
+						ID:          1,
+						Description: "one",
+					},
+				},
+			},
+			resourceID: 1,
+			expectedResource: &Resource{
+				ID:          1,
+				Description: "one",
+			},
+		},
+		{
+			name:          "failure with unknown ID",
+			character:     &Character{},
+			resourceID:    1,
+			expectedError: ErrNotFound,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			resource, err := tt.character.FindResource(tt.resourceID)
+
+			if diff := cmp.Diff(tt.expectedResource, resource); diff != "" {
+				t.Error(diff)
+			}
+
+			if tt.expectedError != err {
+				t.Errorf("expected %s; actual %s", tt.expectedError, err)
+			}
+		})
+	}
+}
+
+func TestUpdateResource(t *testing.T) {
+	tests := []struct {
+		name              string
+		character         *Character
+		resource          *Resource
+		expectedCharacter *Character
+		expectedError     error
+	}{
+		{
+			name: "success",
+			character: &Character{
+				Resources: []Resource{
+					Resource{
+						ID:          1,
+						Description: "one",
+						Lost:        false,
+					},
+					Resource{
+						ID:          2,
+						Description: "one",
+						Lost:        true,
+					},
+				},
+			},
+			resource: &Resource{
+				ID:          1,
+				Description: "one",
+				Lost:        true,
+			},
+			expectedCharacter: &Character{
+				Resources: []Resource{
+					Resource{
+						ID:          1,
+						Description: "one",
+						Lost:        true,
+					},
+					Resource{
+						ID:          2,
+						Description: "one",
+						Lost:        true,
+					},
+				},
+			},
+		},
+		{
+			name:      "failure with unknown resource",
+			character: &Character{},
+			resource: &Resource{
+				ID:          1,
+				Description: "one",
+				Lost:        true,
+			},
+			expectedCharacter: &Character{},
+			expectedError:     ErrNotFound,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			err := tt.character.UpdateResource(tt.resource)
+
+			if diff := cmp.Diff(tt.expectedCharacter, tt.character); diff != "" {
+				t.Error(diff)
+			}
+
+			if tt.expectedError != err {
+				t.Errorf("expected %s; actual %s", tt.expectedError, err)
+			}
+		})
+	}
+}

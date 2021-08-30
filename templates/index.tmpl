@@ -115,10 +115,26 @@
             {{ with .Resources }}
               <ul>
                 {{ range . }}
+                  {{ $description := .Description }}
+                  {{ if .Stationary }}
+                    {{ $description = print $description " (Stationary)" }}
+                  {{ end }}
                   <li>
-                    {{ .Description }}
-                    {{ if .Stationary }}
-                      (Stationary)
+                    {{ if .Lost }}
+                      <s>{{ $description }}</s>
+                    {{ else }}
+                      {{ $description }}
+
+
+                      <form
+                        method="POST"
+                        action="{{ $.Reverse "update-resource" .ID }}"
+                        class="stack"
+                      >
+                        <input type="hidden" name="_method" value="PATCH" />
+                        <input type="hidden" name="lost" value="1" />
+                        <input type="submit" value="Lose Resource" />
+                      </form>
                     {{ end }}
                   </li>
                 {{ end }}

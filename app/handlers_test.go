@@ -407,3 +407,86 @@ func TestCreateResource(t *testing.T) {
 		})
 	}
 }
+
+func TestUpdateResource(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name              string
+		character         *models.Character
+		body              string
+		expectedStatus    int
+		expectedLocation  string
+		expectedCharacter *models.Character
+		expectedError     error
+	}{
+		{
+			name: "successful",
+			character: &models.Character{
+				Resources: []models.Resource{
+					{
+						ID:          1,
+						Description: "Basic agricultural practices",
+						Stationary:  true,
+						Lost:        false,
+					},
+				},
+			},
+			body: url.Values{
+				"_method": []string{"PATCH"},
+				"lost":    []string{"1"},
+			}.Encode(),
+			expectedStatus:   http.StatusFound,
+			expectedLocation: "/",
+			expectedCharacter: &models.Character{
+				Resources: []models.Resource{
+					{
+						ID:          1,
+						Description: "Basic agricultural practices",
+						Stationary:  true,
+						Lost:        true,
+					},
+				},
+			},
+			expectedError: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			app := NewApp()
+			app.Character = tt.character
+
+			request := httptest.NewRequest(http.MethodPost, "/resources/1", strings.NewReader(tt.body))
+			request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+
+			response := httptest.NewRecorder()
+			ctx := app.NewContext(request, response)
+			ctx.SetPath("/resources/1")
+			ctx.SetParamNames("id")
+			ctx.SetParamValues("1")
+
+			err := app.updateResource(ctx)
+
+			if tt.expectedStatus != response.Code {
+				t.Errorf("expected %d; got %d", tt.expectedStatus, response.Code)
+			}
+
+			if location := response.Header().Get(echo.HeaderLocation); tt.expectedLocation != location {
+				t.Errorf("expected %q; got %q", tt.expectedLocation, location)
+			}
+
+			if diff := cmp.Diff(tt.expectedCharacter, app.Character); diff != "" {
+				t.Error(diff)
+			}
+
+			if tt.expectedError != err {
+				t.Errorf("expected %v; got %v", tt.expectedError, err)
+			}
+		})
+	}
+}

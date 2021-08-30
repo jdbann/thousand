@@ -27,4 +27,5 @@ func (app *App) setupRoutes() {
 
 	// Resources
 	app.POST("/resources", app.createResource).Name = "create-resource"
+	app.PATCH("/resources/:id", app.updateResource).Name = "update-resource"
 }

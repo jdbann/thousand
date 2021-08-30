@@ -5,4 +5,5 @@ type Resource struct {
 	ID          int
 	Description string `form:"description"`
 	Stationary  bool   `form:"stationary"`
+	Lost        bool   `form:"lost"`
 }

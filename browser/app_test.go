@@ -146,3 +146,34 @@ func TestAddResource(t *testing.T) {
 		t.Errorf("expected %q to contain %q", resources, expectedResource)
 	}
 }
+
+func TestLoseResource(t *testing.T) {
+	t.Parallel()
+
+	bt := NewBrowserTest(t)
+	bt.app.Character = &models.Character{
+		Resources: []models.Resource{
+			{
+				ID:          1,
+				Description: "Calweddyn Farm, rich but challenging soils",
+				Stationary:  true,
+			},
+		},
+	}
+
+	var resources string
+	expectedResource := "<s>Calweddyn Farm, rich but challenging soils (Stationary)</s>"
+
+	resourceLoseSelector := `input[name="lost"]`
+
+	bt.Run(
+		bt.Navigate("/"),
+		bt.WaitReady(resourceLoseSelector),
+		bt.Submit(resourceLoseSelector),
+		bt.InnerHTML("#resources", &resources),
+	)
+
+	if !strings.Contains(resources, expectedResource) {
+		t.Errorf("expected %q to contain %q", resources, expectedResource)
+	}
+}

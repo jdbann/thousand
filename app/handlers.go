@@ -79,3 +79,25 @@ func (app *App) createResource(c echo.Context) error {
 
 	return c.Redirect(http.StatusFound, "/")
 }
+
+func (app *App) updateResource(c echo.Context) error {
+	resourceID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return err
+	}
+
+	resource, err := app.Character.FindResource(resourceID)
+	if err != nil {
+		return err
+	}
+
+	if err := c.Bind(resource); err != nil {
+		return err
+	}
+
+	if err := app.Character.UpdateResource(resource); err != nil {
+		return err
+	}
+
+	return c.Redirect(http.StatusFound, "/")
+}

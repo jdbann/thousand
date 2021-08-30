@@ -71,3 +71,38 @@ func (c *Character) AddResource(resource *Resource) {
 	resource.ID = len(c.Resources) + 1
 	c.Resources = append(c.Resources, *resource)
 }
+
+// FindResource retrieves a resource based on an ID from the Character's list of
+// resources.
+func (c *Character) FindResource(resourceID int) (*Resource, error) {
+	for _, resource := range c.Resources {
+		if resource.ID == resourceID {
+			return &resource, nil
+		}
+	}
+
+	return nil, ErrNotFound
+}
+
+// UpdateResource replaces a Character's existing resource with the new one
+// based on the new resource's ID.
+func (c *Character) UpdateResource(newResource *Resource) error {
+	var resources []Resource
+	found := false
+
+	for _, originalResource := range c.Resources {
+		if originalResource.ID == newResource.ID {
+			found = true
+			resources = append(resources, *newResource)
+		} else {
+			resources = append(resources, originalResource)
+		}
+	}
+
+	if found {
+		c.Resources = resources
+		return nil
+	}
+
+	return ErrNotFound
+}
