@@ -56,23 +56,23 @@ func TestCreateDetails(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name              string
-		character         *models.Character
-		body              string
-		expectedStatus    int
-		expectedLocation  string
-		expectedCharacter *models.Character
-		expectedError     error
+		name             string
+		vampire          *models.Vampire
+		body             string
+		expectedStatus   int
+		expectedLocation string
+		expectedVampire  *models.Vampire
+		expectedError    error
 	}{
 		{
-			name:      "successful",
-			character: &models.Character{},
+			name:    "successful",
+			vampire: &models.Vampire{},
 			body: url.Values{
 				"name": []string{"Gruffudd"},
 			}.Encode(),
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
-			expectedCharacter: &models.Character{
+			expectedVampire: &models.Vampire{
 				Details: &models.Details{
 					Name: "Gruffudd",
 				},
@@ -88,7 +88,7 @@ func TestCreateDetails(t *testing.T) {
 			t.Parallel()
 
 			app := NewApp()
-			app.Character = tt.character
+			app.Vampire = tt.vampire
 
 			request := httptest.NewRequest(http.MethodPost, "/details", strings.NewReader(tt.body))
 			request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
@@ -106,7 +106,7 @@ func TestCreateDetails(t *testing.T) {
 				t.Errorf("expected %q; got %q", tt.expectedLocation, location)
 			}
 
-			if diff := cmp.Diff(tt.expectedCharacter, app.Character); diff != "" {
+			if diff := cmp.Diff(tt.expectedVampire, app.Vampire); diff != "" {
 				t.Error(diff)
 			}
 
@@ -121,23 +121,23 @@ func TestCreateExperience(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name              string
-		character         *models.Character
-		body              string
-		expectedStatus    int
-		expectedLocation  string
-		expectedCharacter *models.Character
-		expectedError     error
+		name             string
+		vampire          *models.Vampire
+		body             string
+		expectedStatus   int
+		expectedLocation string
+		expectedVampire  *models.Vampire
+		expectedError    error
 	}{
 		{
-			name:      "successful",
-			character: &models.Character{},
+			name:    "successful",
+			vampire: &models.Vampire{},
 			body: url.Values{
 				"experience": []string{"one"},
 			}.Encode(),
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
-			expectedCharacter: &models.Character{
+			expectedVampire: &models.Vampire{
 				Memories: [5]models.Memory{
 					{
 						Experiences: []models.Experience{
@@ -157,7 +157,7 @@ func TestCreateExperience(t *testing.T) {
 			t.Parallel()
 
 			app := NewApp()
-			app.Character = tt.character
+			app.Vampire = tt.vampire
 
 			request := httptest.NewRequest(http.MethodPost, "/memories/0/experiences", strings.NewReader(tt.body))
 			request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
@@ -178,7 +178,7 @@ func TestCreateExperience(t *testing.T) {
 				t.Errorf("expected %q; got %q", tt.expectedLocation, location)
 			}
 
-			if diff := cmp.Diff(tt.expectedCharacter, app.Character); diff != "" {
+			if diff := cmp.Diff(tt.expectedVampire, app.Vampire); diff != "" {
 				t.Error(diff)
 			}
 
@@ -193,23 +193,23 @@ func TestCreateSkill(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name              string
-		character         *models.Character
-		body              string
-		expectedStatus    int
-		expectedLocation  string
-		expectedCharacter *models.Character
-		expectedError     error
+		name             string
+		vampire          *models.Vampire
+		body             string
+		expectedStatus   int
+		expectedLocation string
+		expectedVampire  *models.Vampire
+		expectedError    error
 	}{
 		{
-			name:      "successful",
-			character: &models.Character{},
+			name:    "successful",
+			vampire: &models.Vampire{},
 			body: url.Values{
 				"description": []string{"Basic agricultural practices"},
 			}.Encode(),
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
-			expectedCharacter: &models.Character{
+			expectedVampire: &models.Vampire{
 				Skills: []models.Skill{
 					{
 						ID:          1,
@@ -228,7 +228,7 @@ func TestCreateSkill(t *testing.T) {
 			t.Parallel()
 
 			app := NewApp()
-			app.Character = tt.character
+			app.Vampire = tt.vampire
 
 			request := httptest.NewRequest(http.MethodPost, "/skills", strings.NewReader(tt.body))
 			request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
@@ -246,7 +246,7 @@ func TestCreateSkill(t *testing.T) {
 				t.Errorf("expected %q; got %q", tt.expectedLocation, location)
 			}
 
-			if diff := cmp.Diff(tt.expectedCharacter, app.Character); diff != "" {
+			if diff := cmp.Diff(tt.expectedVampire, app.Vampire); diff != "" {
 				t.Error(diff)
 			}
 
@@ -261,17 +261,17 @@ func TestUpdateSkill(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name              string
-		character         *models.Character
-		body              string
-		expectedStatus    int
-		expectedLocation  string
-		expectedCharacter *models.Character
-		expectedError     error
+		name             string
+		vampire          *models.Vampire
+		body             string
+		expectedStatus   int
+		expectedLocation string
+		expectedVampire  *models.Vampire
+		expectedError    error
 	}{
 		{
 			name: "successful",
-			character: &models.Character{
+			vampire: &models.Vampire{
 				Skills: []models.Skill{
 					{
 						ID:          1,
@@ -286,7 +286,7 @@ func TestUpdateSkill(t *testing.T) {
 			}.Encode(),
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
-			expectedCharacter: &models.Character{
+			expectedVampire: &models.Vampire{
 				Skills: []models.Skill{
 					{
 						ID:          1,
@@ -306,7 +306,7 @@ func TestUpdateSkill(t *testing.T) {
 			t.Parallel()
 
 			app := NewApp()
-			app.Character = tt.character
+			app.Vampire = tt.vampire
 
 			request := httptest.NewRequest(http.MethodPost, "/skills/1", strings.NewReader(tt.body))
 			request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
@@ -327,7 +327,7 @@ func TestUpdateSkill(t *testing.T) {
 				t.Errorf("expected %q; got %q", tt.expectedLocation, location)
 			}
 
-			if diff := cmp.Diff(tt.expectedCharacter, app.Character); diff != "" {
+			if diff := cmp.Diff(tt.expectedVampire, app.Vampire); diff != "" {
 				t.Error(diff)
 			}
 
@@ -342,24 +342,24 @@ func TestCreateResource(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name              string
-		character         *models.Character
-		body              string
-		expectedStatus    int
-		expectedLocation  string
-		expectedCharacter *models.Character
-		expectedError     error
+		name             string
+		vampire          *models.Vampire
+		body             string
+		expectedStatus   int
+		expectedLocation string
+		expectedVampire  *models.Vampire
+		expectedError    error
 	}{
 		{
-			name:      "successful",
-			character: &models.Character{},
+			name:    "successful",
+			vampire: &models.Vampire{},
 			body: url.Values{
 				"description": []string{"Calweddyn Farm, rich but challenging soils"},
 				"stationary":  []string{"1"},
 			}.Encode(),
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
-			expectedCharacter: &models.Character{
+			expectedVampire: &models.Vampire{
 				Resources: []models.Resource{
 					{
 						ID:          1,
@@ -379,7 +379,7 @@ func TestCreateResource(t *testing.T) {
 			t.Parallel()
 
 			app := NewApp()
-			app.Character = tt.character
+			app.Vampire = tt.vampire
 
 			request := httptest.NewRequest(http.MethodPost, "/resources", strings.NewReader(tt.body))
 			request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
@@ -397,7 +397,7 @@ func TestCreateResource(t *testing.T) {
 				t.Errorf("expected %q; got %q", tt.expectedLocation, location)
 			}
 
-			if diff := cmp.Diff(tt.expectedCharacter, app.Character); diff != "" {
+			if diff := cmp.Diff(tt.expectedVampire, app.Vampire); diff != "" {
 				t.Error(diff)
 			}
 
@@ -412,17 +412,17 @@ func TestUpdateResource(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name              string
-		character         *models.Character
-		body              string
-		expectedStatus    int
-		expectedLocation  string
-		expectedCharacter *models.Character
-		expectedError     error
+		name             string
+		vampire          *models.Vampire
+		body             string
+		expectedStatus   int
+		expectedLocation string
+		expectedVampire  *models.Vampire
+		expectedError    error
 	}{
 		{
 			name: "successful",
-			character: &models.Character{
+			vampire: &models.Vampire{
 				Resources: []models.Resource{
 					{
 						ID:          1,
@@ -438,7 +438,7 @@ func TestUpdateResource(t *testing.T) {
 			}.Encode(),
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
-			expectedCharacter: &models.Character{
+			expectedVampire: &models.Vampire{
 				Resources: []models.Resource{
 					{
 						ID:          1,
@@ -459,7 +459,7 @@ func TestUpdateResource(t *testing.T) {
 			t.Parallel()
 
 			app := NewApp()
-			app.Character = tt.character
+			app.Vampire = tt.vampire
 
 			request := httptest.NewRequest(http.MethodPost, "/resources/1", strings.NewReader(tt.body))
 			request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
@@ -480,7 +480,77 @@ func TestUpdateResource(t *testing.T) {
 				t.Errorf("expected %q; got %q", tt.expectedLocation, location)
 			}
 
-			if diff := cmp.Diff(tt.expectedCharacter, app.Character); diff != "" {
+			if diff := cmp.Diff(tt.expectedVampire, app.Vampire); diff != "" {
+				t.Error(diff)
+			}
+
+			if tt.expectedError != err {
+				t.Errorf("expected %v; got %v", tt.expectedError, err)
+			}
+		})
+	}
+}
+
+func TestCreateCharacter(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name             string
+		vampire          *models.Vampire
+		body             string
+		expectedStatus   int
+		expectedLocation string
+		expectedVampire  *models.Vampire
+		expectedError    error
+	}{
+		{
+			name:    "successful",
+			vampire: &models.Vampire{},
+			body: url.Values{
+				"name": []string{"Lord Othian, English gentry visiting a cathedral in St. Davids."},
+				"type": []string{"immortal"},
+			}.Encode(),
+			expectedStatus:   http.StatusFound,
+			expectedLocation: "/",
+			expectedVampire: &models.Vampire{
+				Characters: []models.Character{
+					{
+						ID:   1,
+						Name: "Lord Othian, English gentry visiting a cathedral in St. Davids.",
+						Type: "immortal",
+					},
+				},
+			},
+			expectedError: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			app := NewApp()
+			app.Vampire = tt.vampire
+
+			request := httptest.NewRequest(http.MethodPost, "/characters", strings.NewReader(tt.body))
+			request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+
+			response := httptest.NewRecorder()
+			ctx := app.NewContext(request, response)
+
+			err := app.createCharacter(ctx)
+
+			if tt.expectedStatus != response.Code {
+				t.Errorf("expected %d; got %d", tt.expectedStatus, response.Code)
+			}
+
+			if location := response.Header().Get(echo.HeaderLocation); tt.expectedLocation != location {
+				t.Errorf("expected %q; got %q", tt.expectedLocation, location)
+			}
+
+			if diff := cmp.Diff(tt.expectedVampire, app.Vampire); diff != "" {
 				t.Error(diff)
 			}
 

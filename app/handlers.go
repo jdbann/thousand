@@ -18,7 +18,7 @@ func (app *App) createDetails(c echo.Context) error {
 		return err
 	}
 
-	app.Character.Details = details
+	app.Vampire.Details = details
 
 	return c.Redirect(http.StatusFound, "/")
 }
@@ -29,7 +29,7 @@ func (app *App) createExperience(c echo.Context) error {
 		return err
 	}
 
-	if err := app.Character.AddExperience(memoryID, c.FormValue("experience")); err != nil {
+	if err := app.Vampire.AddExperience(memoryID, c.FormValue("experience")); err != nil {
 		return err
 	}
 
@@ -42,7 +42,7 @@ func (app *App) createSkill(c echo.Context) error {
 		return err
 	}
 
-	app.Character.AddSkill(skill)
+	app.Vampire.AddSkill(skill)
 
 	return c.Redirect(http.StatusFound, "/")
 }
@@ -53,7 +53,7 @@ func (app *App) updateSkill(c echo.Context) error {
 		return err
 	}
 
-	skill, err := app.Character.FindSkill(skillID)
+	skill, err := app.Vampire.FindSkill(skillID)
 	if err != nil {
 		return err
 	}
@@ -62,7 +62,7 @@ func (app *App) updateSkill(c echo.Context) error {
 		return err
 	}
 
-	if err := app.Character.UpdateSkill(skill); err != nil {
+	if err := app.Vampire.UpdateSkill(skill); err != nil {
 		return err
 	}
 
@@ -75,7 +75,7 @@ func (app *App) createResource(c echo.Context) error {
 		return err
 	}
 
-	app.Character.AddResource(resource)
+	app.Vampire.AddResource(resource)
 
 	return c.Redirect(http.StatusFound, "/")
 }
@@ -86,7 +86,7 @@ func (app *App) updateResource(c echo.Context) error {
 		return err
 	}
 
-	resource, err := app.Character.FindResource(resourceID)
+	resource, err := app.Vampire.FindResource(resourceID)
 	if err != nil {
 		return err
 	}
@@ -95,9 +95,20 @@ func (app *App) updateResource(c echo.Context) error {
 		return err
 	}
 
-	if err := app.Character.UpdateResource(resource); err != nil {
+	if err := app.Vampire.UpdateResource(resource); err != nil {
 		return err
 	}
+
+	return c.Redirect(http.StatusFound, "/")
+}
+
+func (app *App) createCharacter(c echo.Context) error {
+	character := new(models.Character)
+	if err := c.Bind(character); err != nil {
+		return err
+	}
+
+	app.Vampire.AddCharacter(character)
 
 	return c.Redirect(http.StatusFound, "/")
 }

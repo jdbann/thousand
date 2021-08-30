@@ -96,7 +96,7 @@ func TestCheckSkill(t *testing.T) {
 	t.Parallel()
 
 	bt := NewBrowserTest(t)
-	bt.app.Character = &models.Character{
+	bt.app.Vampire = &models.Vampire{
 		Skills: []models.Skill{
 			{
 				ID:          1,
@@ -151,7 +151,7 @@ func TestLoseResource(t *testing.T) {
 	t.Parallel()
 
 	bt := NewBrowserTest(t)
-	bt.app.Character = &models.Character{
+	bt.app.Vampire = &models.Vampire{
 		Resources: []models.Resource{
 			{
 				ID:          1,
@@ -175,5 +175,30 @@ func TestLoseResource(t *testing.T) {
 
 	if !strings.Contains(resources, expectedResource) {
 		t.Errorf("expected %q to contain %q", resources, expectedResource)
+	}
+}
+
+func TestAddCharacter(t *testing.T) {
+	t.Parallel()
+
+	bt := NewBrowserTest(t)
+
+	var characters string
+	expectedCharacter := "Lord Othian, English gentry visiting a cathedral in St. Davids."
+
+	nameFieldSelector := `#characters input[name="name"]`
+	typeFieldSelector := `#characters input[name="type"][value="immortal"]`
+
+	bt.Run(
+		bt.Navigate("/"),
+		bt.WaitVisible(nameFieldSelector),
+		bt.SendKeys(nameFieldSelector, expectedCharacter),
+		bt.Click(typeFieldSelector),
+		bt.Submit(nameFieldSelector),
+		bt.Text("#characters", &characters),
+	)
+
+	if !strings.Contains(characters, expectedCharacter+" (Immortal)") {
+		t.Errorf("expected %q to contain %q", characters, expectedCharacter)
 	}
 }

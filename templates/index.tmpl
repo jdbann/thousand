@@ -13,7 +13,7 @@
           <h1>Thousand</h1>
         </header>
 
-        {{ with .Character }}
+        {{ with .Vampire }}
           <div id="details">
             {{ if .Details }}
               {{ .Details.Name }}
@@ -153,16 +153,74 @@
               </div>
 
               <div class="stack stack-small">
-                <label for="stationary">Stationary</label>
-                <input
-                  id="stationary"
-                  name="stationary"
-                  type="checkbox"
-                  value="1"
-                />
+                <label for="stationary">
+                  <input
+                    id="stationary"
+                    name="stationary"
+                    type="checkbox"
+                    value="1"
+                  />
+                  Stationary
+                </label>
               </div>
 
               <input type="submit" value="Add Resource" />
+            </form>
+          </div>
+
+          <div id="characters" class="stack">
+            <h2>Characters</h2>
+
+            {{ with .Characters }}
+              <ul>
+                {{ range . }}
+                  {{ $description := .Name }}
+                  {{ if eq .Type "immortal" }}
+                    {{ $description = print $description " (Immortal)" }}
+                  {{ else if eq .Type "mortal" }}
+                    {{ $description = print $description " (Mortal)" }}
+                  {{ end }}
+                  <li>{{ $description }}</li>
+                {{ end }}
+              </ul>
+            {{ end }}
+
+
+            <form
+              method="POST"
+              action="{{ $.Reverse "create-character" }}"
+              class="stack"
+            >
+              <div class="stack stack-small">
+                <label for="name">Name</label>
+                <input id="name" name="name" type="text" />
+              </div>
+
+              <div class="stack stack-small">
+                <label for="type-mortal">
+                  <input
+                    id="type-mortal"
+                    name="type"
+                    type="radio"
+                    value="mortal"
+                  />
+                  Mortal
+                </label>
+              </div>
+
+              <div class="stack stack-small">
+                <label for="type-immortal">
+                  <input
+                    id="type-immortal"
+                    name="type"
+                    type="radio"
+                    value="immortal"
+                  />
+                  Immortal
+                </label>
+              </div>
+
+              <input type="submit" value="Add Character" />
             </form>
           </div>
         {{ end }}

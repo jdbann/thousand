@@ -10,14 +10,14 @@ import (
 // server or interacted with by CLI commands.
 type App struct {
 	*echo.Echo
-	Character *models.Character
+	Vampire *models.Vampire
 }
 
 // NewApp configures an instance of the application with helpful defaults.
 func NewApp() *App {
 	app := &App{
-		Echo:      echo.New(),
-		Character: &models.Character{},
+		Echo:    echo.New(),
+		Vampire: &models.Vampire{},
 	}
 
 	app.configure()

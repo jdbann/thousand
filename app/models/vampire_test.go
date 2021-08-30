@@ -6,23 +6,23 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-func TestCharacter_AddExperience(t *testing.T) {
+func TestVampire_AddExperience(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name              string
-		character         *Character
-		memoryID          int
-		experienceString  string
-		expectedCharacter *Character
-		expectedError     error
+		name             string
+		vampire          *Vampire
+		memoryID         int
+		experienceString string
+		expectedVampire  *Vampire
+		expectedError    error
 	}{
 		{
 			name:             "success with recognised memoryID",
-			character:        &Character{},
+			vampire:          &Vampire{},
 			memoryID:         0,
 			experienceString: "one",
-			expectedCharacter: &Character{
+			expectedVampire: &Vampire{
 				Memories: [5]Memory{
 					Memory{Experiences: []Experience{Experience("one")}},
 				},
@@ -31,7 +31,7 @@ func TestCharacter_AddExperience(t *testing.T) {
 		},
 		{
 			name: "failure with memoryID for full memory",
-			character: &Character{
+			vampire: &Vampire{
 				Memories: [5]Memory{
 					Memory{Experiences: []Experience{
 						Experience("one"),
@@ -42,7 +42,7 @@ func TestCharacter_AddExperience(t *testing.T) {
 			},
 			memoryID:         0,
 			experienceString: "four",
-			expectedCharacter: &Character{
+			expectedVampire: &Vampire{
 				Memories: [5]Memory{
 					Memory{Experiences: []Experience{
 						Experience("one"),
@@ -54,20 +54,20 @@ func TestCharacter_AddExperience(t *testing.T) {
 			expectedError: ErrMemoryFull,
 		},
 		{
-			name:              "failure with negative memoryID",
-			character:         &Character{},
-			memoryID:          -1,
-			experienceString:  "one",
-			expectedCharacter: &Character{},
-			expectedError:     ErrNotFound,
+			name:             "failure with negative memoryID",
+			vampire:          &Vampire{},
+			memoryID:         -1,
+			experienceString: "one",
+			expectedVampire:  &Vampire{},
+			expectedError:    ErrNotFound,
 		},
 		{
-			name:              "failure with unrecognised memoryID",
-			character:         &Character{},
-			memoryID:          5,
-			experienceString:  "one",
-			expectedCharacter: &Character{},
-			expectedError:     ErrNotFound,
+			name:             "failure with unrecognised memoryID",
+			vampire:          &Vampire{},
+			memoryID:         5,
+			experienceString: "one",
+			expectedVampire:  &Vampire{},
+			expectedError:    ErrNotFound,
 		},
 	}
 
@@ -77,9 +77,9 @@ func TestCharacter_AddExperience(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			err := tt.character.AddExperience(tt.memoryID, tt.experienceString)
+			err := tt.vampire.AddExperience(tt.memoryID, tt.experienceString)
 
-			if diff := cmp.Diff(tt.expectedCharacter, tt.character); diff != "" {
+			if diff := cmp.Diff(tt.expectedVampire, tt.vampire); diff != "" {
 				t.Error(diff)
 			}
 
@@ -92,18 +92,18 @@ func TestCharacter_AddExperience(t *testing.T) {
 
 func TestAddSkill(t *testing.T) {
 	tests := []struct {
-		name              string
-		character         *Character
-		skill             *Skill
-		expectedCharacter *Character
+		name            string
+		vampire         *Vampire
+		skill           *Skill
+		expectedVampire *Vampire
 	}{
 		{
-			name:      "success with no skills",
-			character: &Character{},
+			name:    "success with no skills",
+			vampire: &Vampire{},
 			skill: &Skill{
 				Description: "one",
 			},
-			expectedCharacter: &Character{
+			expectedVampire: &Vampire{
 				Skills: []Skill{
 					Skill{
 						ID:          1,
@@ -114,7 +114,7 @@ func TestAddSkill(t *testing.T) {
 		},
 		{
 			name: "success with existing skills",
-			character: &Character{
+			vampire: &Vampire{
 				Skills: []Skill{
 					Skill{
 						ID:          1,
@@ -125,7 +125,7 @@ func TestAddSkill(t *testing.T) {
 			skill: &Skill{
 				Description: "two",
 			},
-			expectedCharacter: &Character{
+			expectedVampire: &Vampire{
 				Skills: []Skill{
 					Skill{
 						ID:          1,
@@ -146,9 +146,9 @@ func TestAddSkill(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			tt.character.AddSkill(tt.skill)
+			tt.vampire.AddSkill(tt.skill)
 
-			if diff := cmp.Diff(tt.expectedCharacter, tt.character); diff != "" {
+			if diff := cmp.Diff(tt.expectedVampire, tt.vampire); diff != "" {
 				t.Error(diff)
 			}
 		})
@@ -158,14 +158,14 @@ func TestAddSkill(t *testing.T) {
 func TestFindSkill(t *testing.T) {
 	tests := []struct {
 		name          string
-		character     *Character
+		vampire       *Vampire
 		skillID       int
 		expectedSkill *Skill
 		expectedError error
 	}{
 		{
 			name: "success",
-			character: &Character{
+			vampire: &Vampire{
 				Skills: []Skill{
 					Skill{
 						ID:          1,
@@ -181,7 +181,7 @@ func TestFindSkill(t *testing.T) {
 		},
 		{
 			name:          "failure with unknown ID",
-			character:     &Character{},
+			vampire:       &Vampire{},
 			skillID:       1,
 			expectedError: ErrNotFound,
 		},
@@ -193,7 +193,7 @@ func TestFindSkill(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			skill, err := tt.character.FindSkill(tt.skillID)
+			skill, err := tt.vampire.FindSkill(tt.skillID)
 
 			if diff := cmp.Diff(tt.expectedSkill, skill); diff != "" {
 				t.Error(diff)
@@ -208,15 +208,15 @@ func TestFindSkill(t *testing.T) {
 
 func TestUpdateSkill(t *testing.T) {
 	tests := []struct {
-		name              string
-		character         *Character
-		skill             *Skill
-		expectedCharacter *Character
-		expectedError     error
+		name            string
+		vampire         *Vampire
+		skill           *Skill
+		expectedVampire *Vampire
+		expectedError   error
 	}{
 		{
 			name: "success",
-			character: &Character{
+			vampire: &Vampire{
 				Skills: []Skill{
 					Skill{
 						ID:          1,
@@ -235,7 +235,7 @@ func TestUpdateSkill(t *testing.T) {
 				Description: "one",
 				Checked:     true,
 			},
-			expectedCharacter: &Character{
+			expectedVampire: &Vampire{
 				Skills: []Skill{
 					Skill{
 						ID:          1,
@@ -251,15 +251,15 @@ func TestUpdateSkill(t *testing.T) {
 			},
 		},
 		{
-			name:      "failure with unknown skill",
-			character: &Character{},
+			name:    "failure with unknown skill",
+			vampire: &Vampire{},
 			skill: &Skill{
 				ID:          1,
 				Description: "one",
 				Checked:     true,
 			},
-			expectedCharacter: &Character{},
-			expectedError:     ErrNotFound,
+			expectedVampire: &Vampire{},
+			expectedError:   ErrNotFound,
 		},
 	}
 
@@ -269,9 +269,9 @@ func TestUpdateSkill(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			err := tt.character.UpdateSkill(tt.skill)
+			err := tt.vampire.UpdateSkill(tt.skill)
 
-			if diff := cmp.Diff(tt.expectedCharacter, tt.character); diff != "" {
+			if diff := cmp.Diff(tt.expectedVampire, tt.vampire); diff != "" {
 				t.Error(diff)
 			}
 
@@ -284,18 +284,18 @@ func TestUpdateSkill(t *testing.T) {
 
 func TestAddResource(t *testing.T) {
 	tests := []struct {
-		name              string
-		character         *Character
-		resource          *Resource
-		expectedCharacter *Character
+		name            string
+		vampire         *Vampire
+		resource        *Resource
+		expectedVampire *Vampire
 	}{
 		{
-			name:      "success with no resources",
-			character: &Character{},
+			name:    "success with no resources",
+			vampire: &Vampire{},
 			resource: &Resource{
 				Description: "one",
 			},
-			expectedCharacter: &Character{
+			expectedVampire: &Vampire{
 				Resources: []Resource{
 					Resource{
 						ID:          1,
@@ -306,7 +306,7 @@ func TestAddResource(t *testing.T) {
 		},
 		{
 			name: "success with existing resources",
-			character: &Character{
+			vampire: &Vampire{
 				Resources: []Resource{
 					Resource{
 						ID:          1,
@@ -318,7 +318,7 @@ func TestAddResource(t *testing.T) {
 				Description: "two",
 				Stationary:  true,
 			},
-			expectedCharacter: &Character{
+			expectedVampire: &Vampire{
 				Resources: []Resource{
 					Resource{
 						ID:          1,
@@ -340,9 +340,9 @@ func TestAddResource(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			tt.character.AddResource(tt.resource)
+			tt.vampire.AddResource(tt.resource)
 
-			if diff := cmp.Diff(tt.expectedCharacter, tt.character); diff != "" {
+			if diff := cmp.Diff(tt.expectedVampire, tt.vampire); diff != "" {
 				t.Error(diff)
 			}
 		})
@@ -352,14 +352,14 @@ func TestAddResource(t *testing.T) {
 func TestFindResource(t *testing.T) {
 	tests := []struct {
 		name             string
-		character        *Character
+		vampire          *Vampire
 		resourceID       int
 		expectedResource *Resource
 		expectedError    error
 	}{
 		{
 			name: "success",
-			character: &Character{
+			vampire: &Vampire{
 				Resources: []Resource{
 					Resource{
 						ID:          1,
@@ -375,7 +375,7 @@ func TestFindResource(t *testing.T) {
 		},
 		{
 			name:          "failure with unknown ID",
-			character:     &Character{},
+			vampire:       &Vampire{},
 			resourceID:    1,
 			expectedError: ErrNotFound,
 		},
@@ -387,7 +387,7 @@ func TestFindResource(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			resource, err := tt.character.FindResource(tt.resourceID)
+			resource, err := tt.vampire.FindResource(tt.resourceID)
 
 			if diff := cmp.Diff(tt.expectedResource, resource); diff != "" {
 				t.Error(diff)
@@ -402,15 +402,15 @@ func TestFindResource(t *testing.T) {
 
 func TestUpdateResource(t *testing.T) {
 	tests := []struct {
-		name              string
-		character         *Character
-		resource          *Resource
-		expectedCharacter *Character
-		expectedError     error
+		name            string
+		vampire         *Vampire
+		resource        *Resource
+		expectedVampire *Vampire
+		expectedError   error
 	}{
 		{
 			name: "success",
-			character: &Character{
+			vampire: &Vampire{
 				Resources: []Resource{
 					Resource{
 						ID:          1,
@@ -429,7 +429,7 @@ func TestUpdateResource(t *testing.T) {
 				Description: "one",
 				Lost:        true,
 			},
-			expectedCharacter: &Character{
+			expectedVampire: &Vampire{
 				Resources: []Resource{
 					Resource{
 						ID:          1,
@@ -445,15 +445,15 @@ func TestUpdateResource(t *testing.T) {
 			},
 		},
 		{
-			name:      "failure with unknown resource",
-			character: &Character{},
+			name:    "failure with unknown resource",
+			vampire: &Vampire{},
 			resource: &Resource{
 				ID:          1,
 				Description: "one",
 				Lost:        true,
 			},
-			expectedCharacter: &Character{},
-			expectedError:     ErrNotFound,
+			expectedVampire: &Vampire{},
+			expectedError:   ErrNotFound,
 		},
 	}
 
@@ -463,14 +463,85 @@ func TestUpdateResource(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			err := tt.character.UpdateResource(tt.resource)
+			err := tt.vampire.UpdateResource(tt.resource)
 
-			if diff := cmp.Diff(tt.expectedCharacter, tt.character); diff != "" {
+			if diff := cmp.Diff(tt.expectedVampire, tt.vampire); diff != "" {
 				t.Error(diff)
 			}
 
 			if tt.expectedError != err {
 				t.Errorf("expected %s; actual %s", tt.expectedError, err)
+			}
+		})
+	}
+}
+
+func TestAddCharacter(t *testing.T) {
+	tests := []struct {
+		name            string
+		vampire         *Vampire
+		character       *Character
+		expectedVampire *Vampire
+	}{
+		{
+			name:    "success with no characters",
+			vampire: &Vampire{},
+			character: &Character{
+				Name: "one",
+				Type: "mortal",
+			},
+			expectedVampire: &Vampire{
+				Characters: []Character{
+					Character{
+						ID:   1,
+						Name: "one",
+						Type: "mortal",
+					},
+				},
+			},
+		},
+		{
+			name: "success with existing characters",
+			vampire: &Vampire{
+				Characters: []Character{
+					Character{
+						ID:   1,
+						Name: "one",
+						Type: "mortal",
+					},
+				},
+			},
+			character: &Character{
+				Name: "two",
+				Type: "immortal",
+			},
+			expectedVampire: &Vampire{
+				Characters: []Character{
+					Character{
+						ID:   1,
+						Name: "one",
+						Type: "mortal",
+					},
+					Character{
+						ID:   2,
+						Name: "two",
+						Type: "immortal",
+					},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			tt.vampire.AddCharacter(tt.character)
+
+			if diff := cmp.Diff(tt.expectedVampire, tt.vampire); diff != "" {
+				t.Error(diff)
 			}
 		})
 	}
