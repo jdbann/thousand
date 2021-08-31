@@ -547,6 +547,141 @@ func TestAddCharacter(t *testing.T) {
 	}
 }
 
+func TestFindCharacter(t *testing.T) {
+	tests := []struct {
+		name              string
+		vampire           *Vampire
+		characterID       int
+		expectedCharacter *Character
+		expectedError     error
+	}{
+		{
+			name: "success",
+			vampire: &Vampire{
+				Characters: []Character{
+					Character{
+						ID:   1,
+						Name: "one",
+						Type: "mortal",
+					},
+				},
+			},
+			characterID: 1,
+			expectedCharacter: &Character{
+				ID:   1,
+				Name: "one",
+				Type: "mortal",
+			},
+		},
+		{
+			name:          "failure with unknown ID",
+			vampire:       &Vampire{},
+			characterID:   1,
+			expectedError: ErrNotFound,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			resource, err := tt.vampire.FindCharacter(tt.characterID)
+
+			if diff := cmp.Diff(tt.expectedCharacter, resource); diff != "" {
+				t.Error(diff)
+			}
+
+			if tt.expectedError != err {
+				t.Errorf("expected %s; actual %s", tt.expectedError, err)
+			}
+		})
+	}
+}
+
+func TestUpdateCharacter(t *testing.T) {
+	tests := []struct {
+		name            string
+		vampire         *Vampire
+		character       *Character
+		expectedVampire *Vampire
+		expectedError   error
+	}{
+		{
+			name: "success",
+			vampire: &Vampire{
+				Characters: []Character{
+					Character{
+						ID:       1,
+						Name:     "one",
+						Type:     "mortal",
+						Deceased: true,
+					},
+					Character{
+						ID:       2,
+						Name:     "two",
+						Type:     "mortal",
+						Deceased: false,
+					},
+				},
+			},
+			character: &Character{
+				ID:       2,
+				Name:     "two",
+				Type:     "mortal",
+				Deceased: true,
+			},
+			expectedVampire: &Vampire{
+				Characters: []Character{
+					Character{
+						ID:       1,
+						Name:     "one",
+						Type:     "mortal",
+						Deceased: true,
+					},
+					Character{
+						ID:       2,
+						Name:     "two",
+						Type:     "mortal",
+						Deceased: true,
+					},
+				},
+			},
+		},
+		{
+			name:    "failure with unknown resource",
+			vampire: &Vampire{},
+			character: &Character{
+				ID:       1,
+				Name:     "one",
+				Type:     "mortal",
+				Deceased: true,
+			},
+			expectedVampire: &Vampire{},
+			expectedError:   ErrNotFound,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			err := tt.vampire.UpdateCharacter(tt.character)
+
+			if diff := cmp.Diff(tt.expectedVampire, tt.vampire); diff != "" {
+				t.Error(diff)
+			}
+
+			if tt.expectedError != err {
+				t.Errorf("expected %s; actual %s", tt.expectedError, err)
+			}
+		})
+	}
+}
+
 func TestAddMark(t *testing.T) {
 	tests := []struct {
 		name            string

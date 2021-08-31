@@ -174,13 +174,25 @@
             {{ with .Characters }}
               <ul>
                 {{ range . }}
-                  {{ $description := .Name }}
-                  {{ if eq .Type "immortal" }}
-                    {{ $description = print $description " (Immortal)" }}
-                  {{ else if eq .Type "mortal" }}
-                    {{ $description = print $description " (Mortal)" }}
+                  {{ if not .Deceased }}
+                    {{ $description := .Name }}
+                    {{ if eq .Type "immortal" }}
+                      {{ $description = print $description " (Immortal)" }}
+                    {{ else if eq .Type "mortal" }}
+                      {{ $description = print $description " (Mortal)" }}
+                    {{ end }}
+                    <li>{{ $description }}</li>
+
+                    <form
+                      method="POST"
+                      action="{{ $.Reverse "update-character" .ID }}"
+                      class="stack"
+                    >
+                      <input type="hidden" name="_method" value="PATCH" />
+                      <input type="hidden" name="deceased" value="1" />
+                      <input type="submit" value="Report Deceased" />
+                    </form>
                   {{ end }}
-                  <li>{{ $description }}</li>
                 {{ end }}
               </ul>
             {{ end }}

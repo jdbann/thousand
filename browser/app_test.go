@@ -203,6 +203,37 @@ func TestAddCharacter(t *testing.T) {
 	}
 }
 
+func TestKillCharacter(t *testing.T) {
+	t.Parallel()
+
+	bt := NewBrowserTest(t)
+	bt.app.Vampire = &models.Vampire{
+		Characters: []models.Character{
+			{
+				ID:       1,
+				Name:     "Lord Othian, English gentry visiting a cathedral in St. Davids.",
+				Deceased: false,
+			},
+		},
+	}
+
+	var characters string
+	notExpectedCharacter := "Lord Othian, English gentry visiting a cathedral in St. Davids."
+
+	characterDeceasedSelector := `input[name="deceased"]`
+
+	bt.Run(
+		bt.Navigate("/"),
+		bt.WaitReady(characterDeceasedSelector),
+		bt.Submit(characterDeceasedSelector),
+		bt.InnerHTML("#characters", &characters),
+	)
+
+	if strings.Contains(characters, notExpectedCharacter) {
+		t.Errorf("expected %q not to contain %q", characters, notExpectedCharacter)
+	}
+}
+
 func TestAddMark(t *testing.T) {
 	t.Parallel()
 

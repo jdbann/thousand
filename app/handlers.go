@@ -113,6 +113,28 @@ func (app *App) createCharacter(c echo.Context) error {
 	return c.Redirect(http.StatusFound, "/")
 }
 
+func (app *App) updateCharacter(c echo.Context) error {
+	characterID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return err
+	}
+
+	character, err := app.Vampire.FindCharacter(characterID)
+	if err != nil {
+		return err
+	}
+
+	if err := c.Bind(character); err != nil {
+		return err
+	}
+
+	if err := app.Vampire.UpdateCharacter(character); err != nil {
+		return err
+	}
+
+	return c.Redirect(http.StatusFound, "/")
+}
+
 func (app *App) createMark(c echo.Context) error {
 	mark := new(models.Mark)
 	if err := c.Bind(mark); err != nil {

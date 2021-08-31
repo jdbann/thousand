@@ -115,6 +115,41 @@ func (v *Vampire) AddCharacter(character *Character) {
 	v.Characters = append(v.Characters, *character)
 }
 
+// FindCharacter retrieves a character based on an ID from the Vampire's list of
+// characters.
+func (v *Vampire) FindCharacter(characterID int) (*Character, error) {
+	for _, character := range v.Characters {
+		if character.ID == characterID {
+			return &character, nil
+		}
+	}
+
+	return nil, ErrNotFound
+}
+
+// UpdateCharacter replaces a Vampire's existing character with the new one
+// based on the new character's ID.
+func (v *Vampire) UpdateCharacter(newCharacter *Character) error {
+	var characters []Character
+	found := false
+
+	for _, originalCharacter := range v.Characters {
+		if originalCharacter.ID == newCharacter.ID {
+			found = true
+			characters = append(characters, *newCharacter)
+		} else {
+			characters = append(characters, originalCharacter)
+		}
+	}
+
+	if found {
+		v.Characters = characters
+		return nil
+	}
+
+	return ErrNotFound
+}
+
 // AddMark adds a mark to the Vampire.
 func (v *Vampire) AddMark(mark *Mark) {
 	mark.ID = len(v.Marks) + 1
