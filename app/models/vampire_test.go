@@ -546,3 +546,68 @@ func TestAddCharacter(t *testing.T) {
 		})
 	}
 }
+
+func TestAddMark(t *testing.T) {
+	tests := []struct {
+		name            string
+		vampire         *Vampire
+		mark            *Mark
+		expectedVampire *Vampire
+	}{
+		{
+			name:    "success with no characters",
+			vampire: &Vampire{},
+			mark: &Mark{
+				Description: "one",
+			},
+			expectedVampire: &Vampire{
+				Marks: []Mark{
+					Mark{
+						ID:          1,
+						Description: "one",
+					},
+				},
+			},
+		},
+		{
+			name: "success with existing characters",
+			vampire: &Vampire{
+				Marks: []Mark{
+					Mark{
+						ID:          1,
+						Description: "one",
+					},
+				},
+			},
+			mark: &Mark{
+				Description: "two",
+			},
+			expectedVampire: &Vampire{
+				Marks: []Mark{
+					Mark{
+						ID:          1,
+						Description: "one",
+					},
+					Mark{
+						ID:          2,
+						Description: "two",
+					},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			tt.vampire.AddMark(tt.mark)
+
+			if diff := cmp.Diff(tt.expectedVampire, tt.vampire); diff != "" {
+				t.Error(diff)
+			}
+		})
+	}
+}

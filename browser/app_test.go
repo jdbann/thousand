@@ -202,3 +202,26 @@ func TestAddCharacter(t *testing.T) {
 		t.Errorf("expected %q to contain %q", characters, expectedCharacter)
 	}
 }
+
+func TestAddMark(t *testing.T) {
+	t.Parallel()
+
+	bt := NewBrowserTest(t)
+
+	var marks string
+	expectedMark := "Muddy footprints, muddy handprints, muddy sheets - I leave a trail of dirt wherever I travel."
+
+	descriptionFieldSelector := `#marks input[name="description"]`
+
+	bt.Run(
+		bt.Navigate("/"),
+		bt.WaitVisible(descriptionFieldSelector),
+		bt.SendKeys(descriptionFieldSelector, expectedMark),
+		bt.Submit(descriptionFieldSelector),
+		bt.Text("#marks", &marks),
+	)
+
+	if !strings.Contains(marks, expectedMark) {
+		t.Errorf("expected %q to contain %q", marks, expectedMark)
+	}
+}

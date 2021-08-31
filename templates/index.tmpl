@@ -223,6 +223,32 @@
               <input type="submit" value="Add Character" />
             </form>
           </div>
+
+          <div id="marks" class="stack">
+            <h2>Marks</h2>
+
+            {{ with .Marks }}
+              <ul>
+                {{ range . }}
+                  <li>{{ .Description }}</li>
+                {{ end }}
+              </ul>
+            {{ end }}
+
+
+            <form
+              method="POST"
+              action="{{ $.Reverse "create-mark" }}"
+              class="stack"
+            >
+              <div class="stack stack-small">
+                <label for="description">Description</label>
+                <input id="description" name="description" type="text" />
+              </div>
+
+              <input type="submit" value="Add Mark" />
+            </form>
+          </div>
         {{ end }}
       </div>
     </body>

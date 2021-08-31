@@ -31,4 +31,7 @@ func (app *App) setupRoutes() {
 
 	// Characters
 	app.POST("/characters", app.createCharacter).Name = "create-character"
+
+	// Marks
+	app.POST("/marks", app.createMark).Name = "create-mark"
 }

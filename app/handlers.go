@@ -112,3 +112,14 @@ func (app *App) createCharacter(c echo.Context) error {
 
 	return c.Redirect(http.StatusFound, "/")
 }
+
+func (app *App) createMark(c echo.Context) error {
+	mark := new(models.Mark)
+	if err := c.Bind(mark); err != nil {
+		return err
+	}
+
+	app.Vampire.AddMark(mark)
+
+	return c.Redirect(http.StatusFound, "/")
+}

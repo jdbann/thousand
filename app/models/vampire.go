@@ -13,6 +13,7 @@ type Vampire struct {
 	Skills     []Skill
 	Resources  []Resource
 	Characters []Character
+	Marks      []Mark
 }
 
 // AddExperience adds an experience to the indicated memory.
@@ -112,4 +113,10 @@ func (v *Vampire) UpdateResource(newResource *Resource) error {
 func (v *Vampire) AddCharacter(character *Character) {
 	character.ID = len(v.Characters) + 1
 	v.Characters = append(v.Characters, *character)
+}
+
+// AddMark adds a mark to the Vampire.
+func (v *Vampire) AddMark(mark *Mark) {
+	mark.ID = len(v.Marks) + 1
+	v.Marks = append(v.Marks, *mark)
 }
