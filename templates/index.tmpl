@@ -175,13 +175,7 @@
               <ul>
                 {{ range . }}
                   {{ if not .Deceased }}
-                    {{ $description := .Name }}
-                    {{ if eq .Type "immortal" }}
-                      {{ $description = print $description " (Immortal)" }}
-                    {{ else if eq .Type "mortal" }}
-                      {{ $description = print $description " (Mortal)" }}
-                    {{ end }}
-                    <li>{{ $description }}</li>
+                    <li>{{ .Description }}</li>
 
                     <form
                       method="POST"
@@ -206,6 +200,11 @@
               <div class="stack stack-small">
                 <label for="name">Name</label>
                 <input id="name" name="name" type="text" />
+              </div>
+
+              <div class="stack stack-small">
+                <label for="descriptor">Descriptor</label>
+                <input id="descriptor" name="descriptor[]" type="text" />
               </div>
 
               <div class="stack stack-small">

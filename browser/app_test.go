@@ -1,6 +1,7 @@
 package browser
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -184,21 +185,26 @@ func TestAddCharacter(t *testing.T) {
 	bt := NewBrowserTest(t)
 
 	var characters string
-	expectedCharacter := "Lord Othian, English gentry visiting a cathedral in St. Davids."
+	name := "Lord Othian"
+	descriptor := "English gentry visiting a cathedral in St. Davids"
+
+	expectedCharacter := fmt.Sprintf("%s, %s. (Immortal)", name, descriptor)
 
 	nameFieldSelector := `#characters input[name="name"]`
+	descriptorFieldSelector := `#characters input[name="descriptor[]"]`
 	typeFieldSelector := `#characters input[name="type"][value="immortal"]`
 
 	bt.Run(
 		bt.Navigate("/"),
 		bt.WaitVisible(nameFieldSelector),
-		bt.SendKeys(nameFieldSelector, expectedCharacter),
+		bt.SendKeys(nameFieldSelector, name),
+		bt.SendKeys(descriptorFieldSelector, descriptor),
 		bt.Click(typeFieldSelector),
 		bt.Submit(nameFieldSelector),
 		bt.Text("#characters", &characters),
 	)
 
-	if !strings.Contains(characters, expectedCharacter+" (Immortal)") {
+	if !strings.Contains(characters, expectedCharacter) {
 		t.Errorf("expected %q to contain %q", characters, expectedCharacter)
 	}
 }
@@ -210,8 +216,11 @@ func TestKillCharacter(t *testing.T) {
 	bt.app.Vampire = &models.Vampire{
 		Characters: []models.Character{
 			{
-				ID:       1,
-				Name:     "Lord Othian, English gentry visiting a cathedral in St. Davids.",
+				ID:   1,
+				Name: "Lord Othian",
+				Descriptors: []string{
+					"English gentry visiting a cathedral in St. Davids",
+				},
 				Deceased: false,
 			},
 		},

@@ -507,8 +507,9 @@ func TestCreateCharacter(t *testing.T) {
 			name:    "successful",
 			vampire: &models.Vampire{},
 			body: url.Values{
-				"name": []string{"Lord Othian, English gentry visiting a cathedral in St. Davids."},
-				"type": []string{"immortal"},
+				"name":         []string{"Lord Othian"},
+				"descriptor[]": []string{"English gentry visiting a cathedral in St. Davids"},
+				"type":         []string{"immortal"},
 			}.Encode(),
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
@@ -516,7 +517,10 @@ func TestCreateCharacter(t *testing.T) {
 				Characters: []models.Character{
 					{
 						ID:   1,
-						Name: "Lord Othian, English gentry visiting a cathedral in St. Davids.",
+						Name: "Lord Othian",
+						Descriptors: []string{
+							"English gentry visiting a cathedral in St. Davids",
+						},
 						Type: "immortal",
 					},
 				},
@@ -579,8 +583,6 @@ func TestUpdateCharacter(t *testing.T) {
 				Characters: []models.Character{
 					{
 						ID:       1,
-						Name:     "Lord Othian, English gentry visiting a cathedral in St. Davids.",
-						Type:     "immortal",
 						Deceased: false,
 					},
 				},
@@ -595,8 +597,6 @@ func TestUpdateCharacter(t *testing.T) {
 				Characters: []models.Character{
 					{
 						ID:       1,
-						Name:     "Lord Othian, English gentry visiting a cathedral in St. Davids.",
-						Type:     "immortal",
 						Deceased: true,
 					},
 				},
