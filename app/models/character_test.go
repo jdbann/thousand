@@ -1,6 +1,10 @@
 package models
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/google/go-cmp/cmp"
+)
 
 func TestDescription(t *testing.T) {
 	t.Parallel()
@@ -70,6 +74,48 @@ func TestDescription(t *testing.T) {
 
 			if tt.expectedDescription != description {
 				t.Errorf("wanted %q; got %q", tt.expectedDescription, description)
+			}
+		})
+	}
+}
+
+func TestAddDescriptor(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name              string
+		character         *Character
+		descriptor        string
+		expectedCharacter *Character
+	}{
+		{
+			name:       "success",
+			character:  &Character{},
+			descriptor: "one",
+			expectedCharacter: &Character{
+				Descriptors: []string{"one"},
+			},
+		},
+		{
+			name: "success with existing descriptors",
+			character: &Character{
+				Descriptors: []string{"one"},
+			},
+			descriptor: "two",
+			expectedCharacter: &Character{
+				Descriptors: []string{"one", "two"},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			tt.character.AddDescriptor(tt.descriptor)
+
+			if diff := cmp.Diff(tt.expectedCharacter, tt.character); diff != "" {
+				t.Error(diff)
 			}
 		})
 	}

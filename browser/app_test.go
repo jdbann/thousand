@@ -209,7 +209,7 @@ func TestAddCharacter(t *testing.T) {
 	}
 }
 
-func TestKillCharacter(t *testing.T) {
+func TestAddCharacterDescriptor(t *testing.T) {
 	t.Parallel()
 
 	bt := NewBrowserTest(t)
@@ -221,13 +221,49 @@ func TestKillCharacter(t *testing.T) {
 				Descriptors: []string{
 					"English gentry visiting a cathedral in St. Davids",
 				},
+				Type:     "immortal",
 				Deceased: false,
 			},
 		},
 	}
 
 	var characters string
-	notExpectedCharacter := "Lord Othian, English gentry visiting a cathedral in St. Davids."
+	descriptor := "brought violence upon me as I fled wolves in the forest"
+
+	expectedCharacter := "Lord Othian, English gentry visiting a cathedral in St. Davids, brought violence upon me as I fled wolves in the forest. (Immortal)"
+
+	descriptorFieldSelector := `#character-1 input[name="descriptor"]`
+
+	bt.Run(
+		bt.Navigate("/"),
+		bt.WaitVisible(descriptorFieldSelector),
+		bt.SendKeys(descriptorFieldSelector, descriptor),
+		bt.Click(descriptorFieldSelector),
+		bt.Submit(descriptorFieldSelector),
+		bt.Text("#characters", &characters),
+	)
+
+	if !strings.Contains(characters, expectedCharacter) {
+		t.Errorf("expected %q to contain %q", characters, expectedCharacter)
+	}
+}
+
+func TestKillCharacter(t *testing.T) {
+	t.Parallel()
+
+	bt := NewBrowserTest(t)
+	bt.app.Vampire = &models.Vampire{
+		Characters: []models.Character{
+			{
+				ID:       1,
+				Name:     "Lord Othian",
+				Deceased: false,
+			},
+		},
+	}
+
+	var characters string
+	notExpectedCharacter := "Lord Othian"
 
 	characterDeceasedSelector := `input[name="deceased"]`
 

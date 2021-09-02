@@ -150,6 +150,30 @@ func (v *Vampire) UpdateCharacter(newCharacter *Character) error {
 	return ErrNotFound
 }
 
+// AddDescriptor adds a descriptor to the indicated character.
+func (v *Vampire) AddDescriptor(characterID int, descriptor string) error {
+	var characters []Character
+
+	newCharacter, err := v.FindCharacter(characterID)
+	if err != nil {
+		return err
+	}
+
+	newCharacter.AddDescriptor(descriptor)
+
+	for _, originalCharacter := range v.Characters {
+		if originalCharacter.ID == newCharacter.ID {
+			characters = append(characters, *newCharacter)
+		} else {
+			characters = append(characters, originalCharacter)
+		}
+	}
+
+	v.Characters = characters
+
+	return nil
+}
+
 // AddMark adds a mark to the Vampire.
 func (v *Vampire) AddMark(mark *Mark) {
 	mark.ID = len(v.Marks) + 1

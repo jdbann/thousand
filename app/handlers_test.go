@@ -644,6 +644,84 @@ func TestUpdateCharacter(t *testing.T) {
 	}
 }
 
+func TestCreateDescriptor(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name             string
+		vampire          *models.Vampire
+		body             string
+		expectedStatus   int
+		expectedLocation string
+		expectedVampire  *models.Vampire
+		expectedError    error
+	}{
+		{
+			name: "successful",
+			vampire: &models.Vampire{
+				Characters: []models.Character{
+					{
+						ID:          1,
+						Descriptors: []string{},
+					},
+				},
+			},
+			body: url.Values{
+				"descriptor": []string{"one"},
+			}.Encode(),
+			expectedStatus:   http.StatusFound,
+			expectedLocation: "/",
+			expectedVampire: &models.Vampire{
+				Characters: []models.Character{
+					{
+						ID:          1,
+						Descriptors: []string{"one"},
+					},
+				},
+			},
+			expectedError: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			app := NewApp()
+			app.Vampire = tt.vampire
+
+			request := httptest.NewRequest(http.MethodPost, "/characters/1/descriptor", strings.NewReader(tt.body))
+			request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+
+			response := httptest.NewRecorder()
+			ctx := app.NewContext(request, response)
+			ctx.SetPath("/characters/1/descriptor")
+			ctx.SetParamNames("id")
+			ctx.SetParamValues("1")
+
+			err := app.createDescriptor(ctx)
+
+			if tt.expectedStatus != response.Code {
+				t.Errorf("expected %d; got %d", tt.expectedStatus, response.Code)
+			}
+
+			if location := response.Header().Get(echo.HeaderLocation); tt.expectedLocation != location {
+				t.Errorf("expected %q; got %q", tt.expectedLocation, location)
+			}
+
+			if diff := cmp.Diff(tt.expectedVampire, app.Vampire); diff != "" {
+				t.Error(diff)
+			}
+
+			if tt.expectedError != err {
+				t.Errorf("expected %v; got %v", tt.expectedError, err)
+			}
+		})
+	}
+}
+
 func TestCreateMark(t *testing.T) {
 	t.Parallel()
 

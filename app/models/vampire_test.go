@@ -682,6 +682,65 @@ func TestUpdateCharacter(t *testing.T) {
 	}
 }
 
+func TestVampire_AddDescriptor(t *testing.T) {
+	tests := []struct {
+		name            string
+		vampire         *Vampire
+		characterID     int
+		descriptor      string
+		expectedVampire *Vampire
+		expectedError   error
+	}{
+		{
+			name: "success",
+			vampire: &Vampire{
+				Characters: []Character{
+					Character{
+						ID:          1,
+						Descriptors: []string{},
+					},
+				},
+			},
+			characterID: 1,
+			descriptor:  "one",
+			expectedVampire: &Vampire{
+				Characters: []Character{
+					Character{
+						ID:          1,
+						Descriptors: []string{"one"},
+					},
+				},
+			},
+		},
+		{
+			name:            "failure with unknown resource",
+			vampire:         &Vampire{},
+			characterID:     1,
+			descriptor:      "one",
+			expectedVampire: &Vampire{},
+			expectedError:   ErrNotFound,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			err := tt.vampire.AddDescriptor(tt.characterID, tt.descriptor)
+
+			if diff := cmp.Diff(tt.expectedVampire, tt.vampire); diff != "" {
+				t.Error(diff)
+			}
+
+			if tt.expectedError != err {
+				t.Errorf("expected %s; actual %s", tt.expectedError, err)
+			}
+		})
+	}
+}
+
 func TestAddMark(t *testing.T) {
 	tests := []struct {
 		name            string

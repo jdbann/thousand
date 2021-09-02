@@ -32,6 +32,7 @@ func (app *App) setupRoutes() {
 	// Characters
 	app.POST("/characters", app.createCharacter).Name = "create-character"
 	app.PATCH("/characters/:id", app.updateCharacter).Name = "update-character"
+	app.POST("/characters/:id/descriptor", app.createDescriptor).Name = "create-descriptor"
 
 	// Marks
 	app.POST("/marks", app.createMark).Name = "create-mark"

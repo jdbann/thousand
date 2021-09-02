@@ -27,3 +27,9 @@ func (c *Character) Description() string {
 
 	return description
 }
+
+// AddDescriptor appends a new descriptor to the Character's current list of
+// descriptors.
+func (c *Character) AddDescriptor(descriptor string) {
+	c.Descriptors = append(c.Descriptors, descriptor)
+}
