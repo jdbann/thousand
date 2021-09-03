@@ -20,8 +20,8 @@ func TestVampire_AddExperience(t *testing.T) {
 		{
 			name: "success with recognised memoryID",
 			vampire: &Vampire{
-				Memories: []Memory{
-					Memory{
+				Memories: []*Memory{
+					{
 						ID: 1,
 					},
 				},
@@ -29,8 +29,8 @@ func TestVampire_AddExperience(t *testing.T) {
 			memoryID:         1,
 			experienceString: "one",
 			expectedVampire: &Vampire{
-				Memories: []Memory{
-					Memory{
+				Memories: []*Memory{
+					{
 						ID:          1,
 						Experiences: []Experience{Experience("one")},
 					},
@@ -41,8 +41,8 @@ func TestVampire_AddExperience(t *testing.T) {
 		{
 			name: "failure with memoryID for full memory",
 			vampire: &Vampire{
-				Memories: []Memory{
-					Memory{
+				Memories: []*Memory{
+					{
 						ID: 1,
 						Experiences: []Experience{
 							Experience("one"),
@@ -55,8 +55,8 @@ func TestVampire_AddExperience(t *testing.T) {
 			memoryID:         1,
 			experienceString: "four",
 			expectedVampire: &Vampire{
-				Memories: []Memory{
-					Memory{
+				Memories: []*Memory{
+					{
 						ID: 1,
 						Experiences: []Experience{
 							Experience("one"),

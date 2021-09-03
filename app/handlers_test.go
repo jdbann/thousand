@@ -132,7 +132,7 @@ func TestCreateExperience(t *testing.T) {
 		{
 			name: "successful",
 			vampire: &models.Vampire{
-				Memories: []models.Memory{
+				Memories: []*models.Memory{
 					{
 						ID: 1,
 					},
@@ -144,7 +144,7 @@ func TestCreateExperience(t *testing.T) {
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
 			expectedVampire: &models.Vampire{
-				Memories: []models.Memory{
+				Memories: []*models.Memory{
 					{
 						ID: 1,
 						Experiences: []models.Experience{
