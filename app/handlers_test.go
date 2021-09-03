@@ -750,7 +750,7 @@ func TestCreateMark(t *testing.T) {
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
 			expectedVampire: &models.Vampire{
-				Marks: []models.Mark{
+				Marks: []*models.Mark{
 					{
 						ID:          1,
 						Description: "Muddy footprints, muddy handprints, muddy sheets - I leave a trail of dirt wherever I travel.",

@@ -762,8 +762,8 @@ func TestAddMark(t *testing.T) {
 				Description: "one",
 			},
 			expectedVampire: &Vampire{
-				Marks: []Mark{
-					Mark{
+				Marks: []*Mark{
+					{
 						ID:          1,
 						Description: "one",
 					},
@@ -773,8 +773,8 @@ func TestAddMark(t *testing.T) {
 		{
 			name: "success with existing characters",
 			vampire: &Vampire{
-				Marks: []Mark{
-					Mark{
+				Marks: []*Mark{
+					{
 						ID:          1,
 						Description: "one",
 					},
@@ -784,12 +784,12 @@ func TestAddMark(t *testing.T) {
 				Description: "two",
 			},
 			expectedVampire: &Vampire{
-				Marks: []Mark{
-					Mark{
+				Marks: []*Mark{
+					{
 						ID:          1,
 						Description: "one",
 					},
-					Mark{
+					{
 						ID:          2,
 						Description: "two",
 					},

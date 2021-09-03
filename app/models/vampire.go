@@ -13,7 +13,7 @@ type Vampire struct {
 	Skills     []*Skill
 	Resources  []*Resource
 	Characters []*Character
-	Marks      []Mark
+	Marks      []*Mark
 }
 
 func (v *Vampire) findMemory(memoryID int) (*Memory, error) {
@@ -145,5 +145,5 @@ func (v *Vampire) AddDescriptor(characterID int, descriptor string) error {
 // AddMark adds a mark to the Vampire.
 func (v *Vampire) AddMark(mark *Mark) {
 	mark.ID = len(v.Marks) + 1
-	v.Marks = append(v.Marks, *mark)
+	v.Marks = append(v.Marks, mark)
 }
