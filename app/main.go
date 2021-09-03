@@ -2,7 +2,6 @@ package app
 
 import (
 	"emailaddress.horse/thousand/app/models"
-	"emailaddress.horse/thousand/templates"
 	"github.com/labstack/echo/v4"
 )
 
@@ -10,23 +9,22 @@ import (
 // server or interacted with by CLI commands.
 type App struct {
 	*echo.Echo
+
+	Logger echo.MiddlewareFunc
+
 	Vampire *models.Vampire
 }
 
 // NewApp configures an instance of the application with helpful defaults.
-func NewApp() *App {
+func NewApp(configurer Configurer) *App {
 	app := &App{
 		Echo:    echo.New(),
 		Vampire: &models.Vampire{},
 	}
 
-	app.configure()
+	configurer.apply(app)
+
 	app.setupRoutes()
 
 	return app
-}
-
-func (app *App) configure() {
-	app.Debug = true
-	app.Renderer = templates.NewRenderer()
 }

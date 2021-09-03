@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	app := app.NewApp()
+	app := app.NewApp(app.DevelopmentConfig)
 
 	cli := &cli.App{
 		Name:  "Thousand",

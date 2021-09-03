@@ -25,7 +25,7 @@ type BrowserAction struct {
 }
 
 func NewBrowserTest(t *testing.T) *BrowserTest {
-	app := app.NewApp()
+	app := app.NewApp(app.TestConfig(t))
 	ts := httptest.NewServer(app)
 	t.Cleanup(func() {
 		ts.Close()
@@ -55,11 +55,10 @@ func (bt *BrowserTest) Run(actions ...BrowserAction) {
 }
 
 func (bt *BrowserTest) executeAction(ctx context.Context, action BrowserAction) {
+	bt.Log(action.msg)
 	if err := chromedp.Run(ctx, action); err != nil {
 		bt.Fatalf("%s: %q", action.msg, err)
 	}
-
-	bt.Log(action.msg)
 }
 
 func (bt *BrowserTest) Navigate(url string) BrowserAction {

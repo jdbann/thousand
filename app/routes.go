@@ -6,7 +6,7 @@ import (
 )
 
 func (app *App) setupRoutes() {
-	app.Use(middleware.Logger())
+	app.Use(app.Logger)
 	app.Use(static.Middleware())
 
 	app.Pre(middleware.MethodOverrideWithConfig(middleware.MethodOverrideConfig{

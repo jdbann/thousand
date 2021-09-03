@@ -33,7 +33,7 @@ func TestRoot(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			app := NewApp()
+			app := NewApp(TestConfig(t))
 
 			request := httptest.NewRequest(http.MethodGet, "/", nil)
 			response := httptest.NewRecorder()
@@ -87,7 +87,7 @@ func TestCreateDetails(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			app := NewApp()
+			app := NewApp(TestConfig(t))
 			app.Vampire = tt.vampire
 
 			request := httptest.NewRequest(http.MethodPost, "/details", strings.NewReader(tt.body))
@@ -156,7 +156,7 @@ func TestCreateExperience(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			app := NewApp()
+			app := NewApp(TestConfig(t))
 			app.Vampire = tt.vampire
 
 			request := httptest.NewRequest(http.MethodPost, "/memories/0/experiences", strings.NewReader(tt.body))
@@ -227,7 +227,7 @@ func TestCreateSkill(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			app := NewApp()
+			app := NewApp(TestConfig(t))
 			app.Vampire = tt.vampire
 
 			request := httptest.NewRequest(http.MethodPost, "/skills", strings.NewReader(tt.body))
@@ -305,7 +305,7 @@ func TestUpdateSkill(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			app := NewApp()
+			app := NewApp(TestConfig(t))
 			app.Vampire = tt.vampire
 
 			request := httptest.NewRequest(http.MethodPost, "/skills/1", strings.NewReader(tt.body))
@@ -378,7 +378,7 @@ func TestCreateResource(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			app := NewApp()
+			app := NewApp(TestConfig(t))
 			app.Vampire = tt.vampire
 
 			request := httptest.NewRequest(http.MethodPost, "/resources", strings.NewReader(tt.body))
@@ -458,7 +458,7 @@ func TestUpdateResource(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			app := NewApp()
+			app := NewApp(TestConfig(t))
 			app.Vampire = tt.vampire
 
 			request := httptest.NewRequest(http.MethodPost, "/resources/1", strings.NewReader(tt.body))
@@ -535,7 +535,7 @@ func TestCreateCharacter(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			app := NewApp()
+			app := NewApp(TestConfig(t))
 			app.Vampire = tt.vampire
 
 			request := httptest.NewRequest(http.MethodPost, "/characters", strings.NewReader(tt.body))
@@ -611,7 +611,7 @@ func TestUpdateCharacter(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			app := NewApp()
+			app := NewApp(TestConfig(t))
 			app.Vampire = tt.vampire
 
 			request := httptest.NewRequest(http.MethodPost, "/characters/1", strings.NewReader(tt.body))
@@ -689,7 +689,7 @@ func TestCreateDescriptor(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			app := NewApp()
+			app := NewApp(TestConfig(t))
 			app.Vampire = tt.vampire
 
 			request := httptest.NewRequest(http.MethodPost, "/characters/1/descriptor", strings.NewReader(tt.body))
@@ -760,7 +760,7 @@ func TestCreateMark(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			app := NewApp()
+			app := NewApp(TestConfig(t))
 			app.Vampire = tt.vampire
 
 			request := httptest.NewRequest(http.MethodPost, "/marks", strings.NewReader(tt.body))
