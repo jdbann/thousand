@@ -98,7 +98,7 @@ func TestCheckSkill(t *testing.T) {
 
 	bt := NewBrowserTest(t)
 	bt.app.Vampire = &models.Vampire{
-		Skills: []models.Skill{
+		Skills: []*models.Skill{
 			{
 				ID:          1,
 				Description: "Basic agricultural practices",

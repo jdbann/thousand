@@ -10,7 +10,7 @@ var ErrNotFound = errors.New("Record not found")
 type Vampire struct {
 	Details    *Details
 	Memories   []*Memory
-	Skills     []Skill
+	Skills     []*Skill
 	Resources  []Resource
 	Characters []Character
 	Marks      []Mark
@@ -40,7 +40,7 @@ func (v *Vampire) AddExperience(memoryID int, experienceString string) error {
 // AddSkill adds an unchecked skill to the Vampire.
 func (v *Vampire) AddSkill(skill *Skill) {
 	skill.ID = len(v.Skills) + 1
-	v.Skills = append(v.Skills, *skill)
+	v.Skills = append(v.Skills, skill)
 }
 
 // FindSkill retrieves a skill based on an ID from the Vampire's list of
@@ -48,7 +48,7 @@ func (v *Vampire) AddSkill(skill *Skill) {
 func (v *Vampire) FindSkill(skillID int) (*Skill, error) {
 	for _, skill := range v.Skills {
 		if skill.ID == skillID {
-			return &skill, nil
+			return skill, nil
 		}
 	}
 
@@ -58,24 +58,14 @@ func (v *Vampire) FindSkill(skillID int) (*Skill, error) {
 // UpdateSkill replaces a Vampire's existing skill with the new one based on
 // the new skill's ID.
 func (v *Vampire) UpdateSkill(newSkill *Skill) error {
-	var skills []Skill
-	found := false
-
-	for _, originalSkill := range v.Skills {
-		if originalSkill.ID == newSkill.ID {
-			found = true
-			skills = append(skills, *newSkill)
-		} else {
-			skills = append(skills, originalSkill)
-		}
+	oldSkill, err := v.FindSkill(newSkill.ID)
+	if err != nil {
+		return err
 	}
 
-	if found {
-		v.Skills = skills
-		return nil
-	}
+	*oldSkill = *newSkill
 
-	return ErrNotFound
+	return nil
 }
 
 // AddResource adds a resource to the Vampire.

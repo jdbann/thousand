@@ -111,8 +111,8 @@ func TestAddSkill(t *testing.T) {
 				Description: "one",
 			},
 			expectedVampire: &Vampire{
-				Skills: []Skill{
-					Skill{
+				Skills: []*Skill{
+					{
 						ID:          1,
 						Description: "one",
 					},
@@ -122,8 +122,8 @@ func TestAddSkill(t *testing.T) {
 		{
 			name: "success with existing skills",
 			vampire: &Vampire{
-				Skills: []Skill{
-					Skill{
+				Skills: []*Skill{
+					{
 						ID:          1,
 						Description: "one",
 					},
@@ -133,12 +133,12 @@ func TestAddSkill(t *testing.T) {
 				Description: "two",
 			},
 			expectedVampire: &Vampire{
-				Skills: []Skill{
-					Skill{
+				Skills: []*Skill{
+					{
 						ID:          1,
 						Description: "one",
 					},
-					Skill{
+					{
 						ID:          2,
 						Description: "two",
 					},
@@ -173,8 +173,8 @@ func TestFindSkill(t *testing.T) {
 		{
 			name: "success",
 			vampire: &Vampire{
-				Skills: []Skill{
-					Skill{
+				Skills: []*Skill{
+					{
 						ID:          1,
 						Description: "one",
 					},
@@ -224,13 +224,13 @@ func TestUpdateSkill(t *testing.T) {
 		{
 			name: "success",
 			vampire: &Vampire{
-				Skills: []Skill{
-					Skill{
+				Skills: []*Skill{
+					{
 						ID:          1,
 						Description: "one",
 						Checked:     false,
 					},
-					Skill{
+					{
 						ID:          2,
 						Description: "one",
 						Checked:     true,
@@ -243,13 +243,13 @@ func TestUpdateSkill(t *testing.T) {
 				Checked:     true,
 			},
 			expectedVampire: &Vampire{
-				Skills: []Skill{
-					Skill{
+				Skills: []*Skill{
+					{
 						ID:          1,
 						Description: "one",
 						Checked:     true,
 					},
-					Skill{
+					{
 						ID:          2,
 						Description: "one",
 						Checked:     true,
