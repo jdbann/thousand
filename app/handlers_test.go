@@ -521,7 +521,7 @@ func TestCreateCharacter(t *testing.T) {
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
 			expectedVampire: &models.Vampire{
-				Characters: []models.Character{
+				Characters: []*models.Character{
 					{
 						ID:   1,
 						Name: "Lord Othian",
@@ -587,7 +587,7 @@ func TestUpdateCharacter(t *testing.T) {
 		{
 			name: "successful",
 			vampire: &models.Vampire{
-				Characters: []models.Character{
+				Characters: []*models.Character{
 					{
 						ID:       1,
 						Deceased: false,
@@ -601,7 +601,7 @@ func TestUpdateCharacter(t *testing.T) {
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
 			expectedVampire: &models.Vampire{
-				Characters: []models.Character{
+				Characters: []*models.Character{
 					{
 						ID:       1,
 						Deceased: true,
@@ -666,7 +666,7 @@ func TestCreateDescriptor(t *testing.T) {
 		{
 			name: "successful",
 			vampire: &models.Vampire{
-				Characters: []models.Character{
+				Characters: []*models.Character{
 					{
 						ID:          1,
 						Descriptors: []string{},
@@ -679,7 +679,7 @@ func TestCreateDescriptor(t *testing.T) {
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
 			expectedVampire: &models.Vampire{
-				Characters: []models.Character{
+				Characters: []*models.Character{
 					{
 						ID:          1,
 						Descriptors: []string{"one"},

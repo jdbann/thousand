@@ -214,7 +214,7 @@ func TestAddCharacterDescriptor(t *testing.T) {
 
 	bt := NewBrowserTest(t)
 	bt.app.Vampire = &models.Vampire{
-		Characters: []models.Character{
+		Characters: []*models.Character{
 			{
 				ID:   1,
 				Name: "Lord Othian",
@@ -253,7 +253,7 @@ func TestKillCharacter(t *testing.T) {
 
 	bt := NewBrowserTest(t)
 	bt.app.Vampire = &models.Vampire{
-		Characters: []models.Character{
+		Characters: []*models.Character{
 			{
 				ID:       1,
 				Name:     "Lord Othian",

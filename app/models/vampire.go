@@ -12,7 +12,7 @@ type Vampire struct {
 	Memories   []*Memory
 	Skills     []*Skill
 	Resources  []*Resource
-	Characters []Character
+	Characters []*Character
 	Marks      []Mark
 }
 
@@ -102,7 +102,7 @@ func (v *Vampire) UpdateResource(newResource *Resource) error {
 // AddCharacter adds a character to the Vampire.
 func (v *Vampire) AddCharacter(character *Character) {
 	character.ID = len(v.Characters) + 1
-	v.Characters = append(v.Characters, *character)
+	v.Characters = append(v.Characters, character)
 }
 
 // FindCharacter retrieves a character based on an ID from the Vampire's list of
@@ -110,7 +110,7 @@ func (v *Vampire) AddCharacter(character *Character) {
 func (v *Vampire) FindCharacter(characterID int) (*Character, error) {
 	for _, character := range v.Characters {
 		if character.ID == characterID {
-			return &character, nil
+			return character, nil
 		}
 	}
 
@@ -120,46 +120,24 @@ func (v *Vampire) FindCharacter(characterID int) (*Character, error) {
 // UpdateCharacter replaces a Vampire's existing character with the new one
 // based on the new character's ID.
 func (v *Vampire) UpdateCharacter(newCharacter *Character) error {
-	var characters []Character
-	found := false
-
-	for _, originalCharacter := range v.Characters {
-		if originalCharacter.ID == newCharacter.ID {
-			found = true
-			characters = append(characters, *newCharacter)
-		} else {
-			characters = append(characters, originalCharacter)
-		}
-	}
-
-	if found {
-		v.Characters = characters
-		return nil
-	}
-
-	return ErrNotFound
-}
-
-// AddDescriptor adds a descriptor to the indicated character.
-func (v *Vampire) AddDescriptor(characterID int, descriptor string) error {
-	var characters []Character
-
-	newCharacter, err := v.FindCharacter(characterID)
+	oldCharacter, err := v.FindCharacter(newCharacter.ID)
 	if err != nil {
 		return err
 	}
 
-	newCharacter.AddDescriptor(descriptor)
+	*oldCharacter = *newCharacter
 
-	for _, originalCharacter := range v.Characters {
-		if originalCharacter.ID == newCharacter.ID {
-			characters = append(characters, *newCharacter)
-		} else {
-			characters = append(characters, originalCharacter)
-		}
+	return nil
+}
+
+// AddDescriptor adds a descriptor to the indicated character.
+func (v *Vampire) AddDescriptor(characterID int, descriptor string) error {
+	character, err := v.FindCharacter(characterID)
+	if err != nil {
+		return err
 	}
 
-	v.Characters = characters
+	character.AddDescriptor(descriptor)
 
 	return nil
 }

@@ -498,8 +498,8 @@ func TestAddCharacter(t *testing.T) {
 				Type: "mortal",
 			},
 			expectedVampire: &Vampire{
-				Characters: []Character{
-					Character{
+				Characters: []*Character{
+					{
 						ID:   1,
 						Name: "one",
 						Type: "mortal",
@@ -510,8 +510,8 @@ func TestAddCharacter(t *testing.T) {
 		{
 			name: "success with existing characters",
 			vampire: &Vampire{
-				Characters: []Character{
-					Character{
+				Characters: []*Character{
+					{
 						ID:   1,
 						Name: "one",
 						Type: "mortal",
@@ -523,13 +523,13 @@ func TestAddCharacter(t *testing.T) {
 				Type: "immortal",
 			},
 			expectedVampire: &Vampire{
-				Characters: []Character{
-					Character{
+				Characters: []*Character{
+					{
 						ID:   1,
 						Name: "one",
 						Type: "mortal",
 					},
-					Character{
+					{
 						ID:   2,
 						Name: "two",
 						Type: "immortal",
@@ -565,8 +565,8 @@ func TestFindCharacter(t *testing.T) {
 		{
 			name: "success",
 			vampire: &Vampire{
-				Characters: []Character{
-					Character{
+				Characters: []*Character{
+					{
 						ID:   1,
 						Name: "one",
 						Type: "mortal",
@@ -618,14 +618,14 @@ func TestUpdateCharacter(t *testing.T) {
 		{
 			name: "success",
 			vampire: &Vampire{
-				Characters: []Character{
-					Character{
+				Characters: []*Character{
+					{
 						ID:       1,
 						Name:     "one",
 						Type:     "mortal",
 						Deceased: true,
 					},
-					Character{
+					{
 						ID:       2,
 						Name:     "two",
 						Type:     "mortal",
@@ -640,14 +640,14 @@ func TestUpdateCharacter(t *testing.T) {
 				Deceased: true,
 			},
 			expectedVampire: &Vampire{
-				Characters: []Character{
-					Character{
+				Characters: []*Character{
+					{
 						ID:       1,
 						Name:     "one",
 						Type:     "mortal",
 						Deceased: true,
 					},
-					Character{
+					{
 						ID:       2,
 						Name:     "two",
 						Type:     "mortal",
@@ -701,8 +701,8 @@ func TestVampire_AddDescriptor(t *testing.T) {
 		{
 			name: "success",
 			vampire: &Vampire{
-				Characters: []Character{
-					Character{
+				Characters: []*Character{
+					{
 						ID:          1,
 						Descriptors: []string{},
 					},
@@ -711,8 +711,8 @@ func TestVampire_AddDescriptor(t *testing.T) {
 			characterID: 1,
 			descriptor:  "one",
 			expectedVampire: &Vampire{
-				Characters: []Character{
-					Character{
+				Characters: []*Character{
+					{
 						ID:          1,
 						Descriptors: []string{"one"},
 					},
