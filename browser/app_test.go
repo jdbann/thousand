@@ -153,7 +153,7 @@ func TestLoseResource(t *testing.T) {
 
 	bt := NewBrowserTest(t)
 	bt.app.Vampire = &models.Vampire{
-		Resources: []models.Resource{
+		Resources: []*models.Resource{
 			{
 				ID:          1,
 				Description: "Calweddyn Farm, rich but challenging soils",

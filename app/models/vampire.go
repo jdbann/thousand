@@ -11,7 +11,7 @@ type Vampire struct {
 	Details    *Details
 	Memories   []*Memory
 	Skills     []*Skill
-	Resources  []Resource
+	Resources  []*Resource
 	Characters []Character
 	Marks      []Mark
 }
@@ -71,7 +71,7 @@ func (v *Vampire) UpdateSkill(newSkill *Skill) error {
 // AddResource adds a resource to the Vampire.
 func (v *Vampire) AddResource(resource *Resource) {
 	resource.ID = len(v.Resources) + 1
-	v.Resources = append(v.Resources, *resource)
+	v.Resources = append(v.Resources, resource)
 }
 
 // FindResource retrieves a resource based on an ID from the Vampire's list of
@@ -79,7 +79,7 @@ func (v *Vampire) AddResource(resource *Resource) {
 func (v *Vampire) FindResource(resourceID int) (*Resource, error) {
 	for _, resource := range v.Resources {
 		if resource.ID == resourceID {
-			return &resource, nil
+			return resource, nil
 		}
 	}
 
@@ -89,24 +89,14 @@ func (v *Vampire) FindResource(resourceID int) (*Resource, error) {
 // UpdateResource replaces a Vampire's existing resource with the new one
 // based on the new resource's ID.
 func (v *Vampire) UpdateResource(newResource *Resource) error {
-	var resources []Resource
-	found := false
-
-	for _, originalResource := range v.Resources {
-		if originalResource.ID == newResource.ID {
-			found = true
-			resources = append(resources, *newResource)
-		} else {
-			resources = append(resources, originalResource)
-		}
+	oldResource, err := v.FindResource(newResource.ID)
+	if err != nil {
+		return err
 	}
 
-	if found {
-		v.Resources = resources
-		return nil
-	}
+	*oldResource = *newResource
 
-	return ErrNotFound
+	return nil
 }
 
 // AddCharacter adds a character to the Vampire.

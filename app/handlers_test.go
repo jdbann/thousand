@@ -367,7 +367,7 @@ func TestCreateResource(t *testing.T) {
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
 			expectedVampire: &models.Vampire{
-				Resources: []models.Resource{
+				Resources: []*models.Resource{
 					{
 						ID:          1,
 						Description: "Calweddyn Farm, rich but challenging soils",
@@ -430,7 +430,7 @@ func TestUpdateResource(t *testing.T) {
 		{
 			name: "successful",
 			vampire: &models.Vampire{
-				Resources: []models.Resource{
+				Resources: []*models.Resource{
 					{
 						ID:          1,
 						Description: "Basic agricultural practices",
@@ -446,7 +446,7 @@ func TestUpdateResource(t *testing.T) {
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
 			expectedVampire: &models.Vampire{
-				Resources: []models.Resource{
+				Resources: []*models.Resource{
 					{
 						ID:          1,
 						Description: "Basic agricultural practices",

@@ -303,8 +303,8 @@ func TestAddResource(t *testing.T) {
 				Description: "one",
 			},
 			expectedVampire: &Vampire{
-				Resources: []Resource{
-					Resource{
+				Resources: []*Resource{
+					{
 						ID:          1,
 						Description: "one",
 					},
@@ -314,8 +314,8 @@ func TestAddResource(t *testing.T) {
 		{
 			name: "success with existing resources",
 			vampire: &Vampire{
-				Resources: []Resource{
-					Resource{
+				Resources: []*Resource{
+					{
 						ID:          1,
 						Description: "one",
 					},
@@ -326,12 +326,12 @@ func TestAddResource(t *testing.T) {
 				Stationary:  true,
 			},
 			expectedVampire: &Vampire{
-				Resources: []Resource{
-					Resource{
+				Resources: []*Resource{
+					{
 						ID:          1,
 						Description: "one",
 					},
-					Resource{
+					{
 						ID:          2,
 						Description: "two",
 						Stationary:  true,
@@ -367,8 +367,8 @@ func TestFindResource(t *testing.T) {
 		{
 			name: "success",
 			vampire: &Vampire{
-				Resources: []Resource{
-					Resource{
+				Resources: []*Resource{
+					{
 						ID:          1,
 						Description: "one",
 					},
@@ -418,13 +418,13 @@ func TestUpdateResource(t *testing.T) {
 		{
 			name: "success",
 			vampire: &Vampire{
-				Resources: []Resource{
-					Resource{
+				Resources: []*Resource{
+					{
 						ID:          1,
 						Description: "one",
 						Lost:        false,
 					},
-					Resource{
+					{
 						ID:          2,
 						Description: "one",
 						Lost:        true,
@@ -437,13 +437,13 @@ func TestUpdateResource(t *testing.T) {
 				Lost:        true,
 			},
 			expectedVampire: &Vampire{
-				Resources: []Resource{
-					Resource{
+				Resources: []*Resource{
+					{
 						ID:          1,
 						Description: "one",
 						Lost:        true,
 					},
-					Resource{
+					{
 						ID:          2,
 						Description: "one",
 						Lost:        true,
