@@ -36,26 +36,26 @@
           <div id="memories" class="stack">
             <h2>Memories</h2>
 
-            {{ range $index, $memory := .Memories }}
-              <div id="memory-{{ $index }}">
+            {{ range .Memories }}
+              <div id="memory-{{ .ID }}">
                 <ul>
                   {{ range .Experiences }}
                     <li class="experience">{{ . }}</li>
                   {{ end }}
                 </ul>
 
-                {{ if not $memory.Full }}
+                {{ if not .Full }}
                   <form
                     method="POST"
-                    action="{{ $.Reverse "create-experience" $index }}"
+                    action="{{ $.Reverse "create-experience" .ID }}"
                     class="stack"
                   >
                     <div class="stack stack-small">
-                      <label for="memory-{{ $index }}-experience"
+                      <label for="memory-{{ .ID }}-experience"
                         >Experience</label
                       >
                       <input
-                        id="memory-{{ $index }}-experience"
+                        id="memory-{{ .ID }}-experience"
                         name="experience"
                         type="text"
                       />

@@ -9,22 +9,48 @@ var ErrNotFound = errors.New("Record not found")
 // Vampire holds everything related to a vampire.
 type Vampire struct {
 	Details    *Details
-	Memories   [5]Memory
+	Memories   []Memory
 	Skills     []Skill
 	Resources  []Resource
 	Characters []Character
 	Marks      []Mark
 }
 
-// AddExperience adds an experience to the indicated memory.
-func (v *Vampire) AddExperience(memoryID int, experienceString string) error {
-	experience := Experience(experienceString)
-
-	if memoryID < 0 || memoryID >= len(v.Memories) {
-		return ErrNotFound
+func (v *Vampire) findMemory(memoryID int) (*Memory, error) {
+	for _, memory := range v.Memories {
+		if memory.ID == memoryID {
+			return &memory, nil
+		}
 	}
 
-	return v.Memories[memoryID].AddExperience(experience)
+	return nil, ErrNotFound
+}
+
+// AddExperience adds an experience to the indicated memory.
+func (v *Vampire) AddExperience(memoryID int, experienceString string) error {
+	var memories []Memory
+
+	newMemory, err := v.findMemory(memoryID)
+	if err != nil {
+		return err
+	}
+
+	experience := Experience(experienceString)
+	if err := newMemory.AddExperience(experience); err != nil {
+		return err
+	}
+
+	for _, originalMemory := range v.Memories {
+		if originalMemory.ID == newMemory.ID {
+			memories = append(memories, *newMemory)
+		} else {
+			memories = append(memories, originalMemory)
+		}
+	}
+
+	v.Memories = memories
+
+	return nil
 }
 
 // AddSkill adds an unchecked skill to the Vampire.

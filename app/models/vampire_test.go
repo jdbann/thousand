@@ -18,13 +18,22 @@ func TestVampire_AddExperience(t *testing.T) {
 		expectedError    error
 	}{
 		{
-			name:             "success with recognised memoryID",
-			vampire:          &Vampire{},
-			memoryID:         0,
+			name: "success with recognised memoryID",
+			vampire: &Vampire{
+				Memories: []Memory{
+					Memory{
+						ID: 1,
+					},
+				},
+			},
+			memoryID:         1,
 			experienceString: "one",
 			expectedVampire: &Vampire{
-				Memories: [5]Memory{
-					Memory{Experiences: []Experience{Experience("one")}},
+				Memories: []Memory{
+					Memory{
+						ID:          1,
+						Experiences: []Experience{Experience("one")},
+					},
 				},
 			},
 			expectedError: nil,
@@ -32,39 +41,37 @@ func TestVampire_AddExperience(t *testing.T) {
 		{
 			name: "failure with memoryID for full memory",
 			vampire: &Vampire{
-				Memories: [5]Memory{
-					Memory{Experiences: []Experience{
-						Experience("one"),
-						Experience("two"),
-						Experience("three"),
-					}},
+				Memories: []Memory{
+					Memory{
+						ID: 1,
+						Experiences: []Experience{
+							Experience("one"),
+							Experience("two"),
+							Experience("three"),
+						},
+					},
 				},
 			},
-			memoryID:         0,
+			memoryID:         1,
 			experienceString: "four",
 			expectedVampire: &Vampire{
-				Memories: [5]Memory{
-					Memory{Experiences: []Experience{
-						Experience("one"),
-						Experience("two"),
-						Experience("three"),
-					}},
+				Memories: []Memory{
+					Memory{
+						ID: 1,
+						Experiences: []Experience{
+							Experience("one"),
+							Experience("two"),
+							Experience("three"),
+						},
+					},
 				},
 			},
 			expectedError: ErrMemoryFull,
 		},
 		{
-			name:             "failure with negative memoryID",
-			vampire:          &Vampire{},
-			memoryID:         -1,
-			experienceString: "one",
-			expectedVampire:  &Vampire{},
-			expectedError:    ErrNotFound,
-		},
-		{
 			name:             "failure with unrecognised memoryID",
 			vampire:          &Vampire{},
-			memoryID:         5,
+			memoryID:         1,
 			experienceString: "one",
 			expectedVampire:  &Vampire{},
 			expectedError:    ErrNotFound,

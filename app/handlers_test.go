@@ -130,16 +130,23 @@ func TestCreateExperience(t *testing.T) {
 		expectedError    error
 	}{
 		{
-			name:    "successful",
-			vampire: &models.Vampire{},
+			name: "successful",
+			vampire: &models.Vampire{
+				Memories: []models.Memory{
+					{
+						ID: 1,
+					},
+				},
+			},
 			body: url.Values{
 				"experience": []string{"one"},
 			}.Encode(),
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
 			expectedVampire: &models.Vampire{
-				Memories: [5]models.Memory{
+				Memories: []models.Memory{
 					{
+						ID: 1,
 						Experiences: []models.Experience{
 							"one",
 						},
@@ -159,14 +166,14 @@ func TestCreateExperience(t *testing.T) {
 			app := NewApp(TestConfig(t))
 			app.Vampire = tt.vampire
 
-			request := httptest.NewRequest(http.MethodPost, "/memories/0/experiences", strings.NewReader(tt.body))
+			request := httptest.NewRequest(http.MethodPost, "/memories/1/experiences", strings.NewReader(tt.body))
 			request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 
 			response := httptest.NewRecorder()
 			ctx := app.NewContext(request, response)
-			ctx.SetPath("/memories/0/experiences")
+			ctx.SetPath("/memories/1/experiences")
 			ctx.SetParamNames("id")
-			ctx.SetParamValues("0")
+			ctx.SetParamValues("1")
 
 			err := app.createExperience(ctx)
 

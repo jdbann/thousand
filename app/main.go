@@ -18,8 +18,16 @@ type App struct {
 // NewApp configures an instance of the application with helpful defaults.
 func NewApp(configurer Configurer) *App {
 	app := &App{
-		Echo:    echo.New(),
-		Vampire: &models.Vampire{},
+		Echo: echo.New(),
+		Vampire: &models.Vampire{
+			Memories: []models.Memory{
+				{ID: 1},
+				{ID: 2},
+				{ID: 3},
+				{ID: 4},
+				{ID: 5},
+			},
+		},
 	}
 
 	configurer.apply(app)

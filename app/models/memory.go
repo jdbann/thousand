@@ -7,6 +7,7 @@ var ErrMemoryFull = errors.New("Memory is full")
 
 // Memory holds a maximum of three experiences.
 type Memory struct {
+	ID          int
 	Experiences []Experience
 }
 
