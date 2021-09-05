@@ -9,7 +9,7 @@ import (
 )
 
 func (app *App) root(c echo.Context) error {
-	return c.Render(http.StatusOK, "index", app)
+	return c.Render(http.StatusOK, "vampires/show", app)
 }
 
 func (app *App) createDetails(c echo.Context) error {
