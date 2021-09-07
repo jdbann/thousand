@@ -21,6 +21,7 @@ func TestConfig(t *testing.T) Configurer {
 	return func(app *App) {
 		app.Debug = true
 		app.Logger = _loggerWithConfig(_testLogWriter{t})
+		app.HTTPErrorHandler = _httpErrorHandler(t, app.DefaultHTTPErrorHandler)
 	}
 }
 
@@ -158,5 +159,13 @@ func _loggerWithConfig(output io.Writer) echo.MiddlewareFunc {
 			_, err = output.Write(buf.Bytes())
 			return
 		}
+	}
+}
+
+func _httpErrorHandler(t *testing.T, handler echo.HTTPErrorHandler) echo.HTTPErrorHandler {
+	return func(err error, c echo.Context) {
+		t.Log(err)
+
+		handler(err, c)
 	}
 }
