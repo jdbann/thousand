@@ -6,6 +6,94 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
+func TestForgetMemory(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name            string
+		vampire         *Vampire
+		memoryID        int
+		expectedVampire *Vampire
+		expectedError   error
+	}{
+		{
+			name: "success with recognised memoryID",
+			vampire: &Vampire{
+				Memories: []*Memory{
+					{
+						ID:          1,
+						Experiences: []Experience{Experience("one")},
+					},
+				},
+			},
+			memoryID: 1,
+			expectedVampire: &Vampire{
+				Memories: []*Memory{
+					{
+						ID:          2,
+						Experiences: []Experience{},
+					},
+				},
+			},
+			expectedError: nil,
+		},
+		{
+			name: "success with recognised memoryID for non-incremental ID",
+			vampire: &Vampire{
+				Memories: []*Memory{
+					{
+						ID:          1,
+						Experiences: []Experience{Experience("one")},
+					},
+					{
+						ID:          2,
+						Experiences: []Experience{Experience("two")},
+					},
+				},
+			},
+			memoryID: 1,
+			expectedVampire: &Vampire{
+				Memories: []*Memory{
+					{
+						ID:          3,
+						Experiences: []Experience{},
+					},
+					{
+						ID:          2,
+						Experiences: []Experience{Experience("two")},
+					},
+				},
+			},
+			expectedError: nil,
+		},
+		{
+			name:            "failure with unrecognised memoryID",
+			vampire:         &Vampire{},
+			memoryID:        1,
+			expectedVampire: &Vampire{},
+			expectedError:   ErrNotFound,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			err := tt.vampire.ForgetMemory(tt.memoryID)
+
+			if diff := cmp.Diff(tt.expectedVampire, tt.vampire); diff != "" {
+				t.Error(diff)
+			}
+
+			if tt.expectedError != err {
+				t.Errorf("expected %s; actual %s", tt.expectedError, err)
+			}
+		})
+	}
+}
+
 func TestVampire_AddExperience(t *testing.T) {
 	t.Parallel()
 

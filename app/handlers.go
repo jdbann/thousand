@@ -23,6 +23,19 @@ func (app *App) createDetails(c echo.Context) error {
 	return c.Redirect(http.StatusFound, "/")
 }
 
+func (app *App) deleteMemory(c echo.Context) error {
+	memoryID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return err
+	}
+
+	if err := app.Vampire.ForgetMemory(memoryID); err != nil {
+		return err
+	}
+
+	return c.Redirect(http.StatusFound, "/")
+}
+
 func (app *App) createExperience(c echo.Context) error {
 	memoryID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

@@ -117,6 +117,86 @@ func TestCreateDetails(t *testing.T) {
 	}
 }
 
+func TestDeleteMemory(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name             string
+		vampire          *models.Vampire
+		body             string
+		expectedStatus   int
+		expectedLocation string
+		expectedVampire  *models.Vampire
+		expectedError    error
+	}{
+		{
+			name: "successful",
+			vampire: &models.Vampire{
+				Memories: []*models.Memory{
+					{
+						ID: 1,
+						Experiences: []models.Experience{
+							"one",
+						},
+					},
+				},
+			},
+			body: url.Values{
+				"_method": []string{"DELETE"},
+			}.Encode(),
+			expectedStatus:   http.StatusFound,
+			expectedLocation: "/",
+			expectedVampire: &models.Vampire{
+				Memories: []*models.Memory{
+					{
+						ID:          2,
+						Experiences: []models.Experience{},
+					},
+				},
+			},
+			expectedError: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			app := NewApp(TestConfig(t))
+			app.Vampire = tt.vampire
+
+			request := httptest.NewRequest(http.MethodPost, "/memories/1", strings.NewReader(tt.body))
+			request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
+
+			response := httptest.NewRecorder()
+			ctx := app.NewContext(request, response)
+			ctx.SetPath("/memories/1")
+			ctx.SetParamNames("id")
+			ctx.SetParamValues("1")
+
+			err := app.deleteMemory(ctx)
+
+			if tt.expectedStatus != response.Code {
+				t.Errorf("expected %d; got %d", tt.expectedStatus, response.Code)
+			}
+
+			if location := response.Header().Get(echo.HeaderLocation); tt.expectedLocation != location {
+				t.Errorf("expected %q; got %q", tt.expectedLocation, location)
+			}
+
+			if diff := cmp.Diff(tt.expectedVampire, app.Vampire); diff != "" {
+				t.Error(diff)
+			}
+
+			if tt.expectedError != err {
+				t.Errorf("expected %v; got %v", tt.expectedError, err)
+			}
+		})
+	}
+}
+
 func TestCreateExperience(t *testing.T) {
 	t.Parallel()
 

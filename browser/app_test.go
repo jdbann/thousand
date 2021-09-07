@@ -70,6 +70,37 @@ func TestAddExperience(t *testing.T) {
 	}
 }
 
+func TestForgetExperience(t *testing.T) {
+	t.Parallel()
+
+	notExpectedExperience := "I am Gruffudd, a Welsh farmer in the valleys of Pembroke; I am a recluse, fond of nature and withdrawn from the village."
+
+	bt := NewBrowserTest(t)
+	bt.app.Vampire = &models.Vampire{
+		Memories: []*models.Memory{
+			{
+				ID:          1,
+				Experiences: []models.Experience{models.Experience(notExpectedExperience)},
+			},
+		},
+	}
+
+	var memories string
+
+	memoryForgetSelector := `#memories input[name="_method"][value="DELETE"]`
+
+	bt.Run(
+		bt.Navigate("/"),
+		bt.WaitReady(memoryForgetSelector),
+		bt.Submit(memoryForgetSelector),
+		bt.InnerHTML("#memories", &memories),
+	)
+
+	if strings.Contains(memories, notExpectedExperience) {
+		t.Errorf("expected %q not to contain %q", memories, notExpectedExperience)
+	}
+}
+
 func TestAddSkill(t *testing.T) {
 	t.Parallel()
 

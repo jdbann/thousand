@@ -1,6 +1,9 @@
 package models
 
-import "errors"
+import (
+	"errors"
+	"sort"
+)
 
 // ErrNotFound is returned when trying to reference a model by an ID if a model
 // cannot be found with that ID.
@@ -24,6 +27,29 @@ func (v *Vampire) findMemory(memoryID int) (*Memory, error) {
 	}
 
 	return nil, ErrNotFound
+}
+
+// ForgetMemory replaces an existing memory with a blank memory.
+func (v *Vampire) ForgetMemory(memoryID int) error {
+	memory, err := v.findMemory(memoryID)
+	if err != nil {
+		return err
+	}
+
+	memories := make([]*Memory, len(v.Memories))
+	copy(memories, v.Memories)
+	sort.Slice(memories, func(i, j int) bool { return memories[i].ID > memories[j].ID })
+
+	newID := memories[0].ID + 1
+
+	newMemory := Memory{
+		ID:          newID,
+		Experiences: []Experience{},
+	}
+
+	*memory = newMemory
+
+	return nil
 }
 
 // AddExperience adds an experience to the indicated memory.

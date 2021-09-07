@@ -19,6 +19,7 @@ func (app *App) setupRoutes() {
 	app.POST("/details", app.createDetails).Name = "create-details"
 
 	// Memories
+	app.DELETE("/memories/:id", app.deleteMemory).Name = "delete-memory"
 	app.POST("/memories/:id/experiences", app.createExperience).Name = "create-experience"
 
 	// Skills

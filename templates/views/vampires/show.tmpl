@@ -50,6 +50,16 @@
               <input type="submit" value="Add Experience" />
             </form>
           {{ end }}
+
+
+          <form
+            method="POST"
+            action="{{ $.Reverse "delete-memory" .ID }}"
+            class="stack"
+          >
+            <input type="hidden" name="_method" value="DELETE" />
+            <input type="submit" value="Forget Experience" />
+          </form>
         </div>
       {{ end }}
     </div>
