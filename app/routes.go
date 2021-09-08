@@ -7,13 +7,14 @@ import (
 
 func (app *App) setupRoutes() {
 	app.Use(app.Logger)
-	app.Use(static.Middleware())
 
 	app.Pre(middleware.MethodOverrideWithConfig(middleware.MethodOverrideConfig{
 		Getter: middleware.MethodFromForm("_method"),
 	}))
 
 	app.GET("/", app.root).Name = "root"
+
+	app.Group("/assets", static.Middleware())
 
 	// Details
 	app.POST("/details", app.createDetails).Name = "create-details"
