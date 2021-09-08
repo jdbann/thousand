@@ -1,18 +1,55 @@
 package static
 
 import (
-	"bytes"
 	"crypto/sha1"
 	"embed"
 	"fmt"
+	"io/fs"
+	"log"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
-//go:embed  css
-var _assets embed.FS
+var (
+	//go:embed  css
+	_assets embed.FS
+
+	etagMap map[string]string = make(map[string]string)
+)
+
+func init() {
+	// Traverse the _assets file system to precompile strong ETag values for each
+	// asset.
+	err := fs.WalkDir(_assets, ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Don't take further action if the entry is a folder
+		if d.IsDir() {
+			return nil
+		}
+
+		// Get the contents of the file
+		assetBytes, err := _assets.ReadFile(path)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Build an ETag for the file and add it to the map
+		hash := sha1.Sum(assetBytes)
+		etag := fmt.Sprintf("\"%x\"", hash)
+		etagMap[path] = etag
+
+		return nil
+	})
+
+	if err != nil {
+		log.Fatal(err)
+	}
+}
 
 // Middleware returns an echo.MiddlewareFunc which will handle serving static
 // assets.
@@ -41,25 +78,13 @@ type etagFS struct {
 }
 
 // Open satisfies the http.FileSystem interface for etagFS, opening the
-// requested file from the underlying http.FileSystem. It also calculates a hash
-// of the opened file and adds it as a weak ETag header.
+// requested file from the underlying http.FileSystem. It also adds an ETag
+// header based on the precompiled map of strong ETag values built in init().
 func (efs etagFS) Open(name string) (http.File, error) {
-	file, err := efs.realFS.Open(name)
-	if err != nil {
-		return nil, err
+	etag, ok := etagMap[name]
+	if ok {
+		efs.context.Response().Header().Set("ETag", etag)
 	}
 
-	// Hashes are calculated for each request. This could be improved by building
-	// a map of file names to hashes on init() of the package and looking up the
-	// hash instead.
-	var contents bytes.Buffer
-	if _, err := contents.ReadFrom(file); err != nil {
-		return nil, err
-	}
-	hash := sha1.Sum(contents.Bytes())
-
-	etag := fmt.Sprintf("W/\"%x\"", hash)
-	efs.context.Response().Header().Set("ETag", etag)
-
-	return file, nil
+	return efs.realFS.Open(name)
 }
