@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"testing"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -17,15 +16,35 @@ import (
 )
 
 // TestConfig sets up the app for a test environment.
-func TestConfig(t *testing.T) Configurer {
+func TestConfig(t testLogger) EnvConfigurer {
 	return func(app *App) {
+		// Echo configuration values
 		app.Debug = true
-		app.Logger = _loggerWithConfig(_testLogWriter{t})
+
+		// App configuration values
+		app.DatabaseURL = "postgres://localhost:5432/thousand_test?sslmode=disable"
+
+		// Injected middleware
+		app.LoggerMiddleware = _loggerWithConfig(_testLogWriter{t})
 		app.HTTPErrorHandler = _httpErrorHandler(t, app.DefaultHTTPErrorHandler)
 	}
 }
 
-type _testLogWriter struct{ *testing.T }
+// LiveTestConfig sets up the app for a test environment with an adapter for the
+// usual (testing.T).Log and (testing.T).Logf which sends them to the app's
+// default Logger.
+var LiveTestConfig Configurer = EnvConfigurer(liveTestConfig)
+
+func liveTestConfig(app *App) {
+	TestConfig(&_liveTestLogger{app.Logger})(app)
+}
+
+type testLogger interface {
+	Log(...interface{})
+	Logf(string, ...interface{})
+}
+
+type _testLogWriter struct{ testLogger }
 
 func (tl _testLogWriter) Write(p []byte) (int, error) {
 	tl.Logf(string(p))
@@ -162,10 +181,24 @@ func _loggerWithConfig(output io.Writer) echo.MiddlewareFunc {
 	}
 }
 
-func _httpErrorHandler(t *testing.T, handler echo.HTTPErrorHandler) echo.HTTPErrorHandler {
+func _httpErrorHandler(t testLogger, handler echo.HTTPErrorHandler) echo.HTTPErrorHandler {
 	return func(err error, c echo.Context) {
 		t.Log(err)
 
 		handler(err, c)
 	}
+}
+
+var _ testLogger = (*_liveTestLogger)(nil)
+
+type _liveTestLogger struct {
+	echo.Logger
+}
+
+func (logger *_liveTestLogger) Log(args ...interface{}) {
+	logger.Debug(args...)
+}
+
+func (logger *_liveTestLogger) Logf(format string, args ...interface{}) {
+	logger.Debugf(format, args...)
 }
