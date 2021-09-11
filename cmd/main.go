@@ -1,17 +1,14 @@
 package main
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 	"log"
-	"net/url"
 	"os"
 	"sort"
 	"text/tabwriter"
 
 	"emailaddress.horse/thousand/app"
-	"github.com/lib/pq"
 	"github.com/urfave/cli/v2"
 )
 
@@ -51,7 +48,7 @@ func main() {
 				}
 			}
 
-			thousand = app.NewApp(cliConfig, envConfig)
+			*thousand = *app.NewApp(cliConfig, envConfig)
 			return nil
 		},
 		Action: func(c *cli.Context) error {
@@ -109,63 +106,29 @@ func main() {
 				Usage: "setup and migrate the database",
 				Subcommands: []*cli.Command{
 					{
-						Name:  "create",
-						Usage: "create the database",
-						Action: func(c *cli.Context) error {
-							url, err := url.Parse(thousand.DatabaseURL)
-							if err != nil {
-								return err
-							}
-
-							dbName := url.Path
-							if len(dbName) > 0 && dbName[:1] == "/" {
-								dbName = dbName[1:]
-							}
-
-							url.Path = "postgres"
-
-							db, err := sql.Open("postgres", url.String())
-							if err != nil {
-								return err
-							}
-
-							_, err = db.Exec(fmt.Sprintf("CREATE database %s", pq.QuoteIdentifier(dbName)))
-							if err != nil {
-								return err
-							}
-
-							fmt.Printf("Created database: %q\n", dbName)
-							return nil
-						},
+						Name:   "create",
+						Usage:  "create the database",
+						Action: createDatabase(thousand),
 					},
 					{
-						Name:  "drop",
-						Usage: "drop the database",
-						Action: func(c *cli.Context) error {
-							url, err := url.Parse(thousand.DatabaseURL)
-							if err != nil {
-								return err
-							}
-
-							dbName := url.Path
-							if len(dbName) > 0 && dbName[:1] == "/" {
-								dbName = dbName[1:]
-							}
-
-							url.Path = "postgres"
-
-							db, err := sql.Open("postgres", url.String())
-							if err != nil {
-								return err
-							}
-
-							_, err = db.Exec(fmt.Sprintf("DROP database %s", pq.QuoteIdentifier(dbName)))
-							if err != nil {
-								return err
-							}
-
-							fmt.Printf("Dropped database: %q\n", dbName)
-							return nil
+						Name:   "drop",
+						Usage:  "drop the database",
+						Action: dropDatabase(thousand),
+					},
+					{
+						Name:  "migrate",
+						Usage: "manage migrations",
+						Subcommands: []*cli.Command{
+							{
+								Name:   "create",
+								Usage:  "create new SQL migration",
+								Action: createMigration(thousand),
+							},
+							{
+								Name:   "run",
+								Usage:  "run pending migrations",
+								Action: runMigrations(thousand),
+							},
 						},
 					},
 				},

@@ -1,6 +1,8 @@
 package app
 
 import (
+	"database/sql"
+
 	"emailaddress.horse/thousand/app/models"
 	"github.com/labstack/echo/v4"
 )
@@ -15,6 +17,9 @@ type App struct {
 
 	// Injected middleware
 	LoggerMiddleware echo.MiddlewareFunc
+
+	// Runtime values
+	_db *sql.DB
 
 	// Temporary data store
 	Vampire *models.Vampire
@@ -42,4 +47,19 @@ func NewApp(configurers ...Configurer) *App {
 	app.setupRoutes()
 
 	return app
+}
+
+// DB returns a live connection to the database. If a connection cannot be
+// created, an error is returned.
+func (app *App) DB() (*sql.DB, error) {
+	if app._db == nil {
+		_db, err := sql.Open("postgres", app.DatabaseURL)
+		if err != nil {
+			return nil, err
+		}
+
+		app._db = _db
+	}
+
+	return app._db, nil
 }

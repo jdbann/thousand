@@ -7,10 +7,13 @@ require (
 	github.com/chromedp/chromedp v0.7.4
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/google/go-cmp v0.5.6
+	github.com/google/uuid v1.3.0
 	github.com/labstack/echo/v4 v4.5.0
 	github.com/labstack/gommon v0.3.0
 	github.com/lib/pq v1.10.3
 	github.com/mattn/go-isatty v0.0.13 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
+	github.com/pressly/goose v2.7.0+incompatible
 	github.com/stretchr/testify v1.7.0 // indirect
 	github.com/urfave/cli/v2 v2.3.0
 	github.com/valyala/fasttemplate v1.2.1
