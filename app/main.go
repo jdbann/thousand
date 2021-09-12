@@ -4,7 +4,11 @@ import (
 	"database/sql"
 
 	"emailaddress.horse/thousand/app/models"
+	"emailaddress.horse/thousand/db"
 	"github.com/labstack/echo/v4"
+
+	// postgresql driver
+	_ "github.com/lib/pq"
 )
 
 // App is a configured instance of the application, ready to be served by a
@@ -19,7 +23,8 @@ type App struct {
 	LoggerMiddleware echo.MiddlewareFunc
 
 	// Runtime values
-	_db *sql.DB
+	_db      db.DBTX
+	_queries *db.Queries
 
 	// Temporary data store
 	Vampire *models.Vampire
@@ -51,7 +56,7 @@ func NewApp(configurers ...Configurer) *App {
 
 // DB returns a live connection to the database. If a connection cannot be
 // created, an error is returned.
-func (app *App) DB() (*sql.DB, error) {
+func (app *App) DB() (db.DBTX, error) {
 	if app._db == nil {
 		_db, err := sql.Open("postgres", app.DatabaseURL)
 		if err != nil {
@@ -62,4 +67,20 @@ func (app *App) DB() (*sql.DB, error) {
 	}
 
 	return app._db, nil
+}
+
+// Queries returns the query interface for sqlc's generated DB queries,
+// configured for the app's current database.
+func (app *App) Queries() (*db.Queries, error) {
+	_db, err := app.DB()
+	if err != nil {
+		return nil, err
+	}
+
+	if app._queries == nil {
+		_queries := db.New(_db)
+		app._queries = _queries
+	}
+
+	return app._queries, nil
 }

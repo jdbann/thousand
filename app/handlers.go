@@ -1,15 +1,59 @@
 package app
 
 import (
+	"context"
 	"net/http"
 	"strconv"
 
 	"emailaddress.horse/thousand/app/models"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
 func (app *App) root(c echo.Context) error {
-	return c.Render(http.StatusOK, "vampires/show", app)
+	return c.Render(http.StatusOK, "root", app)
+}
+
+func (app *App) listVampires(c echo.Context) error {
+	return c.Render(http.StatusOK, "vampires/index", app)
+}
+
+func (app *App) createVampire(c echo.Context) error {
+	var vampire = new(models.NewVampire)
+	if err := c.Bind(vampire); err != nil {
+		return err
+	}
+
+	queries, err := app.Queries()
+	if err != nil {
+		return err
+	}
+
+	v, err := queries.CreateVampire(context.Background(), vampire.Name)
+	if err != nil {
+		return err
+	}
+
+	return c.Redirect(http.StatusSeeOther, app.Reverse("show-vampire", v.ID))
+}
+
+func (app *App) showVampire(c echo.Context) error {
+	vampireID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		return err
+	}
+
+	queries, err := app.Queries()
+	if err != nil {
+		return err
+	}
+
+	vampire, err := queries.GetVampire(context.Background(), vampireID)
+	if err != nil {
+		return err
+	}
+
+	return c.Render(http.StatusOK, "vampires/show", vampire)
 }
 
 func (app *App) createDetails(c echo.Context) error {

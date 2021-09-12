@@ -1,0 +1,16 @@
+{{ template "base" . }}
+
+{{ define "main" }}
+  <h2>Vampires</h2>
+
+  <form method="POST" action="{{ $.Reverse "create-vampire" }}" class="stack">
+    <h3>Create a new Vampire</h3>
+
+    <div class="stack stack-small">
+      <label for="name">Name</label>
+      <input id="name" name="name" type="text" />
+    </div>
+
+    <input type="submit" value="Create Vampire" />
+  </form>
+{{ end }}

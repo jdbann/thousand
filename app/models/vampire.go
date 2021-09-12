@@ -1,8 +1,13 @@
 package models
 
 import (
+	"database/sql"
 	"errors"
 	"sort"
+	"time"
+
+	"emailaddress.horse/thousand/db"
+	"github.com/google/uuid"
 )
 
 // ErrNotFound is returned when trying to reference a model by an ID if a model
@@ -17,6 +22,20 @@ type Vampire struct {
 	Resources  []*Resource
 	Characters []*Character
 	Marks      []*Mark
+}
+
+// Ensure that models.NewVampire is interchangeable with db.Vampire at compile
+// time with this assignment.
+var _ db.Vampire = db.Vampire(NewVampire{})
+
+// NewVampire holds everything related to a vampire. It will replace Vampire
+// when the application is modified to store everything on a database instead of
+// in memory.
+type NewVampire struct {
+	ID        uuid.UUID
+	Name      string `form:"name"`
+	CreatedAt time.Time
+	UpdatedAt sql.NullTime
 }
 
 func (v *Vampire) findMemory(memoryID int) (*Memory, error) {
