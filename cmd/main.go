@@ -132,6 +132,11 @@ func main() {
 						Usage:  "run pending migrations",
 						Action: runMigrations,
 					},
+					{
+						Name:   "rollback",
+						Usage:  "rollback latest migration",
+						Action: rollbackMigrations,
+					},
 				},
 			},
 		},
