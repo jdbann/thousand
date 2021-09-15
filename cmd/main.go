@@ -117,6 +117,17 @@ func main() {
 					},
 				},
 			},
+			{
+				Name:  "migrate",
+				Usage: "manage migrations",
+				Subcommands: []*cli.Command{
+					{
+						Name:   "create",
+						Usage:  "create new SQL migration",
+						Action: createMigration,
+					},
+				},
+			},
 		},
 	}
 
