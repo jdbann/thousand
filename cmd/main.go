@@ -9,6 +9,7 @@ import (
 	"text/tabwriter"
 
 	"emailaddress.horse/thousand/app"
+	_ "github.com/lib/pq"
 	"github.com/urfave/cli/v2"
 )
 
@@ -125,6 +126,11 @@ func main() {
 						Name:   "create",
 						Usage:  "create new SQL migration",
 						Action: createMigration,
+					},
+					{
+						Name:   "run",
+						Usage:  "run pending migrations",
+						Action: runMigrations,
 					},
 				},
 			},

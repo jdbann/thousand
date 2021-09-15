@@ -1,6 +1,8 @@
 package main
 
 import (
+	"database/sql"
+
 	"github.com/pressly/goose"
 	"github.com/urfave/cli/v2"
 )
@@ -11,4 +13,13 @@ const (
 
 func createMigration(c *cli.Context) error {
 	return goose.Create(nil, migrationsPath, c.Args().Get(0), "sql")
+}
+
+func runMigrations(c *cli.Context) error {
+	db, err := sql.Open("postgres", thousand.DatabaseURL)
+	if err != nil {
+		return err
+	}
+
+	return goose.Up(db, migrationsPath)
 }
