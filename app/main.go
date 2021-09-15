@@ -10,13 +10,18 @@ import (
 type App struct {
 	*echo.Echo
 
-	Logger echo.MiddlewareFunc
+	// Config values
+	DatabaseURL string
 
+	// Injected middleware
+	LoggerMiddleware echo.MiddlewareFunc
+
+	// Temporary data store
 	Vampire *models.Vampire
 }
 
 // NewApp configures an instance of the application with helpful defaults.
-func NewApp(configurer Configurer) *App {
+func NewApp(configurers ...Configurer) *App {
 	app := &App{
 		Echo: echo.New(),
 		Vampire: &models.Vampire{
@@ -30,7 +35,9 @@ func NewApp(configurer Configurer) *App {
 		},
 	}
 
-	configurer.apply(app)
+	for _, configurer := range configurers {
+		configurer.applyTo(app)
+	}
 
 	app.setupRoutes()
 

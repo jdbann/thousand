@@ -12,11 +12,30 @@ import (
 )
 
 func main() {
-	app := app.NewApp(app.DevelopmentConfig)
+	// Initially setup the app in the development environment to allow presenting
+	// development config values as default flag values.
+	thousand := app.NewApp(app.DevelopmentConfig)
+
+	// Setup an app.CLIConfig struct to receive config values from CLI flags for
+	// application before any actions are performed.
+	var cliConfig app.CLIConfig
 
 	cli := &cli.App{
-		Name:  "Thousand",
+		Name:  "thousand",
 		Usage: "I forget why I made this...",
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:        "database-url",
+				Usage:       "override the default DB connection",
+				Value:       thousand.DatabaseURL,
+				Destination: &cliConfig.DatabaseURL,
+			},
+		},
+		Before: func(c *cli.Context) error {
+			*thousand = *app.NewApp(app.DevelopmentConfig, cliConfig)
+
+			return nil
+		},
 		Action: func(c *cli.Context) error {
 			port := os.Getenv("PORT")
 			if port == "" {
@@ -24,7 +43,7 @@ func main() {
 			}
 
 			addr := fmt.Sprintf(":%s", port)
-			if err := app.Start(addr); err != nil {
+			if err := thousand.Start(addr); err != nil {
 				return err
 			}
 
@@ -47,7 +66,7 @@ func main() {
 						"TRACE":   8,
 					}
 
-					routes := app.Routes()
+					routes := thousand.Routes()
 
 					sort.Slice(routes, func(i, j int) bool {
 						if routes[i].Path == routes[j].Path {

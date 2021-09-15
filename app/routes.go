@@ -6,7 +6,7 @@ import (
 )
 
 func (app *App) setupRoutes() {
-	app.Use(app.Logger)
+	app.Use(app.LoggerMiddleware)
 
 	app.Pre(middleware.MethodOverrideWithConfig(middleware.MethodOverrideConfig{
 		Getter: middleware.MethodFromForm("_method"),

@@ -17,10 +17,16 @@ import (
 )
 
 // TestConfig sets up the app for a test environment.
-func TestConfig(t *testing.T) Configurer {
+func TestConfig(t *testing.T) EnvConfigurer {
 	return func(app *App) {
+		// Echo configuraton values
 		app.Debug = true
-		app.Logger = _loggerWithConfig(_testLogWriter{t})
+
+		// App configuration values
+		app.DatabaseURL = "postgres://localhost:5432/thousand_test?sslmode=disable"
+
+		// Injected middleware
+		app.LoggerMiddleware = _loggerWithConfig(_testLogWriter{t})
 		app.HTTPErrorHandler = _httpErrorHandler(t, app.DefaultHTTPErrorHandler)
 	}
 }
