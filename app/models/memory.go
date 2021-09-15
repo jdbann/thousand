@@ -1,6 +1,13 @@
 package models
 
-import "errors"
+import (
+	"database/sql"
+	"errors"
+	"time"
+
+	"emailaddress.horse/thousand/db"
+	"github.com/google/uuid"
+)
 
 // ErrMemoryFull is returned when trying to add experiences to a full memory.
 var ErrMemoryFull = errors.New("Memory is full")
@@ -9,6 +16,20 @@ var ErrMemoryFull = errors.New("Memory is full")
 type Memory struct {
 	ID          int
 	Experiences []Experience
+}
+
+// Ensure that modals.NewMemory is interchangeable with db.Memory at compile
+// time with this assignment.
+var _ db.Memory = db.Memory(NewMemory{})
+
+// NewMemory holds everything related to a vampire's memory. It will replace
+// Memory when the application is modified to store everything on a database
+// instead of in memory.
+type NewMemory struct {
+	ID        uuid.UUID
+	VampireID uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt sql.NullTime
 }
 
 // Full returns true if there is no more room for experiences in this memory.

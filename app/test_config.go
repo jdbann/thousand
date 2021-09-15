@@ -2,12 +2,16 @@ package app
 
 import (
 	"bytes"
+	"context"
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"strconv"
 	"strings"
 	"sync"
+	"testing"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -27,6 +31,37 @@ func TestConfig(t testLogger) EnvConfigurer {
 		// Injected middleware
 		app.LoggerMiddleware = _loggerWithConfig(_testLogWriter{t})
 		app.HTTPErrorHandler = _httpErrorHandler(t, app.DefaultHTTPErrorHandler)
+	}
+}
+
+// TxnTestConfig sets up the app for a test environment, running all database
+// queries against a transaction. The transaction is automaticallt rolled back
+// when the test concludes.
+func TxnTestConfig(t *testing.T) EnvConfigurer {
+	return func(app *App) {
+		TestConfig(t)(app)
+
+		appDBTX, err := app.DB()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		sqlDB, ok := appDBTX.(*sql.DB)
+		if !ok {
+			t.Fatal(errors.New("app._db is not a *sql.DB"))
+		}
+
+		tx, err := sqlDB.BeginTx(context.Background(), &sql.TxOptions{})
+		if err != nil {
+			t.Fatal(err)
+		}
+		app._db = tx
+
+		t.Cleanup(func() {
+			if err := tx.Rollback(); err != nil {
+				t.Fatal(err)
+			}
+		})
 	}
 }
 

@@ -34,6 +34,16 @@ func (app *App) createVampire(c echo.Context) error {
 		return err
 	}
 
+	memories := make([]uuid.UUID, 5)
+	for i := range memories {
+		memories[i] = v.ID
+	}
+
+	_, err = queries.CreateMemories(context.Background(), memories)
+	if err != nil {
+		return err
+	}
+
 	return c.Redirect(http.StatusSeeOther, app.Reverse("show-vampire", v.ID))
 }
 
@@ -48,7 +58,9 @@ func (app *App) showVampire(c echo.Context) error {
 		return err
 	}
 
-	vampire, err := queries.GetVampire(context.Background(), vampireID)
+	m := &models.Models{Queries: queries}
+
+	vampire, err := m.FindWholeVampire(context.Background(), vampireID)
 	if err != nil {
 		return err
 	}

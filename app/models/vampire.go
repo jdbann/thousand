@@ -1,6 +1,7 @@
 package models
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"sort"
@@ -22,6 +23,53 @@ type Vampire struct {
 	Resources  []*Resource
 	Characters []*Character
 	Marks      []*Mark
+}
+
+type Models struct {
+	*db.Queries
+}
+
+type WholeVampire struct {
+	NewVampire
+	Memories []db.Memory
+}
+
+func (models *Models) NewWholeVampire(c context.Context, vampire *NewVampire) (*WholeVampire, error) {
+	v, err := models.CreateVampire(context.Background(), vampire.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	memories := make([]uuid.UUID, 5)
+	for i := range memories {
+		memories[i] = v.ID
+	}
+
+	m, err := models.CreateMemories(context.Background(), memories)
+	if err != nil {
+		return nil, err
+	}
+
+	return &WholeVampire{
+		NewVampire(v), m,
+	}, nil
+}
+
+func (models *Models) FindWholeVampire(c context.Context, id uuid.UUID) (*WholeVampire, error) {
+	v, err := models.GetVampire(c, id)
+	if err != nil {
+		return nil, err
+	}
+
+	m, err := models.GetMemoriesForVampire(c, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &WholeVampire{
+		NewVampire(v),
+		m,
+	}, nil
 }
 
 // Ensure that models.NewVampire is interchangeable with db.Vampire at compile

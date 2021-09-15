@@ -5,5 +5,17 @@
     <div id="details">
       {{ .Name }}
     </div>
+
+    <div id="memories" class="stack">
+      <h2>Memories</h2>
+
+      {{ range .Memories }}
+        <div id="memory-{{ .ID }}">
+          <ul>
+            <li>Memories don't have experiences yet.</li>
+          </ul>
+        </div>
+      {{ end }}
+    </div>
   {{ end }}
 {{ end }}
