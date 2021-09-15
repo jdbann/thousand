@@ -12,9 +12,9 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func main() {
-	var thousand *app.App
+var thousand app.App
 
+func main() {
 	// Setup an app.CLIConfig struct to receive config values from CLI flags for
 	// application before any actions are performed.
 	var cliConfig app.CLIConfig
@@ -47,9 +47,7 @@ func main() {
 				return err
 			}
 
-			thousand = app.NewApp(envConfig, cliConfig)
-
-			fmt.Println("DATABASE_URL", thousand.DatabaseURL)
+			thousand = *app.NewApp(envConfig, cliConfig)
 
 			return nil
 		},
@@ -101,6 +99,22 @@ func main() {
 					writer.Flush()
 
 					return nil
+				},
+			},
+			{
+				Name:  "db",
+				Usage: "setup and migrate the database",
+				Subcommands: []*cli.Command{
+					{
+						Name:   "create",
+						Usage:  "create the database",
+						Action: createDatabase,
+					},
+					{
+						Name:   "drop",
+						Usage:  "drop the database",
+						Action: dropDatabase,
+					},
 				},
 			},
 		},
