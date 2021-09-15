@@ -29,6 +29,7 @@ func main() {
 				Usage:       "override the default DB connection",
 				Value:       thousand.DatabaseURL,
 				Destination: &cliConfig.DatabaseURL,
+				EnvVars:     []string{"DATABASE_URL"},
 			},
 		},
 		Before: func(c *cli.Context) error {
