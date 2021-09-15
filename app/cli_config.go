@@ -10,5 +10,7 @@ type CLIConfig struct {
 }
 
 func (c CLIConfig) applyTo(app *App) {
-	app.DatabaseURL = c.DatabaseURL
+	if c.DatabaseURL != "" {
+		app.DatabaseURL = c.DatabaseURL
+	}
 }

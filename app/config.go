@@ -1,7 +1,20 @@
 package app
 
 import (
+	"errors"
+
 	"emailaddress.horse/thousand/templates"
+)
+
+var (
+	// ErrUnrecognisedEnvironment is returned when trying to retrieve the config
+	// for an environment which has not been defined.
+	ErrUnrecognisedEnvironment = errors.New("unrecognised environment")
+
+	_environmentMap = map[string]Configurer{
+		"development": DevelopmentConfig,
+		"test":        LiveTestConfig,
+	}
 )
 
 // Configurer holds or generates configuration values which can be applied to an
@@ -28,4 +41,15 @@ var _ Configurer = EnvConfigurer(baseConfig)
 // baseConfig sets up common configuration values for all environments.
 func baseConfig(app *App) {
 	app.Renderer = templates.NewRenderer()
+}
+
+// ConfigFor returns the correct Configurer for the requested environment, or an
+// error indicating that the requested environment cannot be found.
+func ConfigFor(environment string) (Configurer, error) {
+	configurer, ok := _environmentMap[environment]
+	if ok {
+		return configurer, nil
+	}
+
+	return nil, ErrUnrecognisedEnvironment
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -12,9 +13,7 @@ import (
 )
 
 func main() {
-	// Initially setup the app in the development environment to allow presenting
-	// development config values as default flag values.
-	thousand := app.NewApp(app.DevelopmentConfig)
+	var thousand *app.App
 
 	// Setup an app.CLIConfig struct to receive config values from CLI flags for
 	// application before any actions are performed.
@@ -27,13 +26,30 @@ func main() {
 			&cli.StringFlag{
 				Name:        "database-url",
 				Usage:       "override the default DB connection",
-				Value:       thousand.DatabaseURL,
 				Destination: &cliConfig.DatabaseURL,
 				EnvVars:     []string{"DATABASE_URL"},
 			},
+			&cli.StringFlag{
+				Name:  "environment",
+				Usage: "specify the environment to act as",
+				Value: "development",
+			},
 		},
 		Before: func(c *cli.Context) error {
-			*thousand = *app.NewApp(app.DevelopmentConfig, cliConfig)
+			requestedEnv := c.String("environment")
+
+			envConfig, err := app.ConfigFor(requestedEnv)
+			if err != nil {
+				if errors.Is(app.ErrUnrecognisedEnvironment, err) {
+					return cli.Exit(fmt.Sprintf("Unrecognised environment: %q", requestedEnv), 0)
+				}
+
+				return err
+			}
+
+			thousand = app.NewApp(envConfig, cliConfig)
+
+			fmt.Println("DATABASE_URL", thousand.DatabaseURL)
 
 			return nil
 		},
