@@ -137,6 +137,11 @@ func main() {
 						Usage:  "rollback latest migration",
 						Action: rollbackMigrations,
 					},
+					{
+						Name:   "status",
+						Usage:  "report current status of migrations",
+						Action: migrationsStatus,
+					},
 				},
 			},
 		},

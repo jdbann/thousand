@@ -32,3 +32,12 @@ func rollbackMigrations(c *cli.Context) error {
 
 	return goose.Down(db, migrationsPath)
 }
+
+func migrationsStatus(c *cli.Context) error {
+	db, err := sql.Open("postgres", thousand.DatabaseURL)
+	if err != nil {
+		return err
+	}
+
+	return goose.Status(db, migrationsPath)
+}
