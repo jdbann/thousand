@@ -25,6 +25,28 @@ func TestAppTitle(t *testing.T) {
 	}
 }
 
+func TestCreateVampire(t *testing.T) {
+	t.Parallel()
+
+	bt := NewBrowserTest(t)
+
+	var name string
+
+	nameFieldSelector := `#newVampire input[name="name"]`
+
+	bt.Run(
+		bt.Navigate("/vampires"),
+		bt.WaitVisible(nameFieldSelector),
+		bt.SendKeys(nameFieldSelector, "Gruffudd"),
+		bt.Submit(nameFieldSelector),
+		bt.Text(`#details`, &name),
+	)
+
+	if strings.TrimSpace(name) != "Gruffudd" {
+		t.Errorf("expected %q; got %q", "Gruffudd", name)
+	}
+}
+
 func TestSetName(t *testing.T) {
 	t.Parallel()
 

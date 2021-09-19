@@ -3,6 +3,7 @@ package app
 import (
 	"emailaddress.horse/thousand/app/models"
 	"github.com/labstack/echo/v4"
+	_ "github.com/lib/pq"
 )
 
 // App is a configured instance of the application, ready to be served by a
@@ -12,13 +13,21 @@ type App struct {
 
 	// Config values
 	DatabaseURL string
+	DBConnector DBConnector
 
 	// Injected middleware
 	LoggerMiddleware echo.MiddlewareFunc
 
+	// Runtime values
+	Models *models.Models
+
 	// Temporary data store
 	Vampire *models.Vampire
 }
+
+// DBConnector is a function that returns a connection to the provided URL or
+// any appropriate errors.
+type DBConnector func(databaseURL string) (models.DBTX, error)
 
 // NewApp configures an instance of the application with helpful defaults.
 func NewApp(configurers ...Configurer) *App {
@@ -40,6 +49,13 @@ func NewApp(configurers ...Configurer) *App {
 	}
 
 	app.setupRoutes()
+
+	dbtx, err := app.DBConnector(app.DatabaseURL)
+	if err != nil {
+		app.Logger.Fatal(err)
+	}
+
+	app.Models = models.NewModels(dbtx)
 
 	return app
 }

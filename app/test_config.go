@@ -2,21 +2,38 @@ package app
 
 import (
 	"bytes"
+	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
 	"strings"
 	"sync"
+	"testing"
 	"time"
 
+	"emailaddress.horse/thousand/app/models"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/color"
 	"github.com/valyala/fasttemplate"
 )
 
-// TestConfig sets up the app for a test environment.
-func TestConfig(t testLogger) EnvConfigurer {
+// TestConfig sets up the app for running tests in a test environment by
+// running all DB interactions in a transaction to prevent tests impacting on
+// each other.
+func TestConfig(t *testing.T) EnvConfigurer {
+	return func(app *App) {
+		// Apply base config
+		BaseTestConfig(t)(app)
+
+		// App configuration values
+		app.DBConnector = txnDBConnector(t)
+	}
+}
+
+// BaseTestConfig sets up the app for a test environment.
+func BaseTestConfig(t testLogger) EnvConfigurer {
 	return func(app *App) {
 		// Echo configuraton values
 		app.Debug = true
@@ -27,6 +44,28 @@ func TestConfig(t testLogger) EnvConfigurer {
 		// Injected middleware
 		app.LoggerMiddleware = _loggerWithConfig(_testLogWriter{t})
 		app.HTTPErrorHandler = _httpErrorHandler(t, app.DefaultHTTPErrorHandler)
+	}
+}
+
+func txnDBConnector(t *testing.T) DBConnector {
+	return func(databaseURL string) (models.DBTX, error) {
+		conn, err := sql.Open("postgres", databaseURL)
+		if err != nil {
+			return nil, err
+		}
+
+		txn, err := conn.BeginTx(context.Background(), &sql.TxOptions{})
+		if err != nil {
+			return nil, err
+		}
+
+		t.Cleanup(func() {
+			if err := txn.Rollback(); err != nil {
+				t.Fatal(err)
+			}
+		})
+
+		return txn, nil
 	}
 }
 
@@ -186,7 +225,8 @@ func _httpErrorHandler(t testLogger, handler echo.HTTPErrorHandler) echo.HTTPErr
 var LiveTestConfig Configurer = EnvConfigurer(liveTestConfig)
 
 func liveTestConfig(app *App) {
-	TestConfig(&_liveTestLogger{app.Logger})(app)
+	// Apply base config
+	BaseTestConfig(&_liveTestLogger{app.Logger})(app)
 }
 
 var _ testLogger = (*_liveTestLogger)(nil)

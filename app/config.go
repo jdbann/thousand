@@ -1,8 +1,10 @@
 package app
 
 import (
+	"database/sql"
 	"errors"
 
+	"emailaddress.horse/thousand/app/models"
 	"emailaddress.horse/thousand/templates"
 )
 
@@ -40,7 +42,15 @@ var _ Configurer = EnvConfigurer(baseConfig)
 
 // baseConfig sets up common configuration values for all environments.
 func baseConfig(app *App) {
+	// Echo configuration values
 	app.Renderer = templates.NewRenderer()
+
+	// App configuration values
+	app.DBConnector = defaultDBConnector
+}
+
+func defaultDBConnector(databaseURL string) (models.DBTX, error) {
+	return sql.Open("postgres", databaseURL)
 }
 
 // ConfigFor returns the correct Configurer for the requested environment, or an

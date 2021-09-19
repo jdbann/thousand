@@ -1,8 +1,12 @@
 package models
 
 import (
+	"database/sql"
 	"errors"
 	"sort"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 // ErrNotFound is returned when trying to reference a model by an ID if a model
@@ -17,6 +21,14 @@ type Vampire struct {
 	Resources  []*Resource
 	Characters []*Character
 	Marks      []*Mark
+}
+
+// NewVampire will replace Vampire when the DB persistence work is complete.
+type NewVampire struct {
+	ID        uuid.UUID
+	Name      string
+	CreatedAt time.Time
+	UpdatedAt sql.NullTime
 }
 
 func (v *Vampire) findMemory(memoryID int) (*Memory, error) {

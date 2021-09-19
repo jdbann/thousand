@@ -1,6 +1,8 @@
 package app
 
 import (
+	"context"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -40,6 +42,139 @@ func TestRoot(t *testing.T) {
 			ctx := app.NewContext(request, response)
 
 			err := app.root(ctx)
+
+			if tt.expectedStatus != response.Code {
+				t.Errorf("expected %d; got %d", tt.expectedStatus, response.Code)
+			}
+
+			if tt.expectedError != err {
+				t.Errorf("expected %v; got %v", tt.expectedError, err)
+			}
+		})
+	}
+}
+
+func TestListVampires(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name           string
+		expectedStatus int
+		expectedError  error
+	}{
+		{
+			name:           "successful",
+			expectedStatus: http.StatusOK,
+			expectedError:  nil,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			app := NewApp(TestConfig(t))
+
+			request := httptest.NewRequest(http.MethodGet, "/vampires", nil)
+			response := httptest.NewRecorder()
+			ctx := app.NewContext(request, response)
+
+			err := app.listVampires(ctx)
+
+			if tt.expectedStatus != response.Code {
+				t.Errorf("expected %d; got %d", tt.expectedStatus, response.Code)
+			}
+
+			if tt.expectedError != err {
+				t.Errorf("expected %v; got %v", tt.expectedError, err)
+			}
+		})
+	}
+}
+
+func TestCreateVampire(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name           string
+		body           string
+		expectedStatus int
+		expectedError  error
+	}{
+		{
+			name: "successful",
+			body: url.Values{
+				"name": []string{"Gruffudd"},
+			}.Encode(),
+			expectedStatus: http.StatusSeeOther,
+			expectedError:  nil,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			app := NewApp(TestConfig(t))
+
+			request := httptest.NewRequest(http.MethodPost, "/vampires", strings.NewReader(tt.body))
+			response := httptest.NewRecorder()
+			ctx := app.NewContext(request, response)
+
+			err := app.createVampire(ctx)
+
+			if tt.expectedStatus != response.Code {
+				t.Errorf("expected %d; got %d", tt.expectedStatus, response.Code)
+			}
+
+			if tt.expectedError != err {
+				t.Errorf("expected %v; got %v", tt.expectedError, err)
+			}
+		})
+	}
+}
+
+func TestShowVampire(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name           string
+		expectedStatus int
+		expectedError  error
+	}{
+		{
+			name:           "successful",
+			expectedStatus: http.StatusOK,
+			expectedError:  nil,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			app := NewApp(TestConfig(t))
+
+			vampire, err := app.Models.CreateVampire(context.Background(), "Gruffudd")
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			url := fmt.Sprintf("/vampires/%s", vampire.ID.String())
+			request := httptest.NewRequest(http.MethodGet, url, nil)
+			response := httptest.NewRecorder()
+			ctx := app.NewContext(request, response)
+			ctx.SetPath(url)
+			ctx.SetParamNames("id")
+			ctx.SetParamValues(vampire.ID.String())
+
+			err = app.showVampire(ctx)
 
 			if tt.expectedStatus != response.Code {
 				t.Errorf("expected %d; got %d", tt.expectedStatus, response.Code)

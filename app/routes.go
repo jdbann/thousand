@@ -16,6 +16,11 @@ func (app *App) setupRoutes() {
 
 	app.Group("/assets", static.Middleware())
 
+	// Vampires
+	app.GET("/vampires", app.listVampires).Name = "list-vampires"
+	app.POST("/vampires", app.createVampire).Name = "create-vampire"
+	app.GET("/vampires/:id", app.showVampire).Name = "show-vampire"
+
 	// Details
 	app.POST("/details", app.createDetails).Name = "create-details"
 

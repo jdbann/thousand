@@ -5,11 +5,41 @@ import (
 	"strconv"
 
 	"emailaddress.horse/thousand/app/models"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
 func (app *App) root(c echo.Context) error {
-	return c.Render(http.StatusOK, "vampires/show", app)
+	return c.Render(http.StatusOK, "root", app)
+}
+
+func (app *App) listVampires(c echo.Context) error {
+	return c.Render(http.StatusOK, "vampires/index", app)
+}
+
+func (app *App) createVampire(c echo.Context) error {
+	name := c.FormValue("name")
+
+	vampire, err := app.Models.CreateVampire(c.Request().Context(), name)
+	if err != nil {
+		return err
+	}
+
+	return c.Redirect(http.StatusSeeOther, app.Reverse("show-vampire", vampire.ID.String()))
+}
+
+func (app *App) showVampire(c echo.Context) error {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		return err
+	}
+
+	vampire, err := app.Models.GetVampire(c.Request().Context(), id)
+	if err != nil {
+		return err
+	}
+
+	return c.Render(http.StatusOK, "vampires/show", vampire)
 }
 
 func (app *App) createDetails(c echo.Context) error {
