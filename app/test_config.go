@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
 	"strconv"
 	"strings"
 	"sync"
@@ -28,6 +29,9 @@ func TestConfig(t *testing.T) EnvConfigurer {
 		BaseTestConfig(t)(app)
 
 		// App configuration values
+		if os.Getenv("DATABASE_URL") != "" {
+			app.DatabaseURL = os.Getenv("DATABASE_URL")
+		}
 		app.DBConnector = txnDBConnector(t)
 	}
 }
