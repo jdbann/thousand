@@ -42,7 +42,7 @@ jobs:
         with:
           go-version: "1.16.3"
 
-      - run: go run ./cmd migrate run
+      - run: go run . migrate run
         env:
           DATABASE_URL: postgres://vampire:vampire@localhost:5432/thousand_test?sslmode=disable
 

@@ -1,9 +1,8 @@
-package main
+package cmd
 
 import (
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"sort"
 	"text/tabwriter"
@@ -15,12 +14,12 @@ import (
 
 var thousand app.App
 
-func main() {
+func BuildCLIApp() *cli.App {
 	// Setup an app.CLIConfig struct to receive config values from CLI flags for
 	// application before any actions are performed.
 	var cliConfig app.CLIConfig
 
-	cli := &cli.App{
+	return &cli.App{
 		Name:  "thousand",
 		Usage: "I forget why I made this...",
 		Flags: []cli.Flag{
@@ -145,9 +144,5 @@ func main() {
 				},
 			},
 		},
-	}
-
-	if err := cli.Run(os.Args); err != nil {
-		log.Fatal(err)
 	}
 }

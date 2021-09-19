@@ -12,8 +12,7 @@ require (
 	github.com/labstack/gommon v0.3.0
 	github.com/lib/pq v1.10.3
 	github.com/mattn/go-isatty v0.0.13 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
-	github.com/pressly/goose v2.7.0+incompatible
+	github.com/pressly/goose/v3 v3.1.0
 	github.com/stretchr/testify v1.7.0 // indirect
 	github.com/urfave/cli/v2 v2.3.0
 	github.com/valyala/fasttemplate v1.2.1

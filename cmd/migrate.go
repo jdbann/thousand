@@ -1,11 +1,16 @@
-package main
+package cmd
 
 import (
 	"database/sql"
 
-	"github.com/pressly/goose"
+	"emailaddress.horse/thousand/db"
+	"github.com/pressly/goose/v3"
 	"github.com/urfave/cli/v2"
 )
+
+func init() {
+	goose.SetBaseFS(db.Migrations)
+}
 
 const (
 	migrationsPath = "./db/migrations"
@@ -16,28 +21,28 @@ func createMigration(c *cli.Context) error {
 }
 
 func runMigrations(c *cli.Context) error {
-	db, err := sql.Open("postgres", thousand.DatabaseURL)
+	conn, err := sql.Open("postgres", thousand.DatabaseURL)
 	if err != nil {
 		return err
 	}
 
-	return goose.Up(db, migrationsPath)
+	return goose.Up(conn, db.FSMigrationsPath)
 }
 
 func rollbackMigrations(c *cli.Context) error {
-	db, err := sql.Open("postgres", thousand.DatabaseURL)
+	conn, err := sql.Open("postgres", thousand.DatabaseURL)
 	if err != nil {
 		return err
 	}
 
-	return goose.Down(db, migrationsPath)
+	return goose.Down(conn, db.FSMigrationsPath)
 }
 
 func migrationsStatus(c *cli.Context) error {
-	db, err := sql.Open("postgres", thousand.DatabaseURL)
+	conn, err := sql.Open("postgres", thousand.DatabaseURL)
 	if err != nil {
 		return err
 	}
 
-	return goose.Status(db, migrationsPath)
+	return goose.Status(conn, db.FSMigrationsPath)
 }
