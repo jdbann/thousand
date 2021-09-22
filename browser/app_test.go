@@ -1,6 +1,7 @@
 package browser
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"testing"
@@ -22,6 +23,28 @@ func TestAppTitle(t *testing.T) {
 
 	if title != "Thousand" {
 		t.Errorf("expected %q; got %q", "Thousand", title)
+	}
+}
+
+func TestShowVampires(t *testing.T) {
+	t.Parallel()
+
+	bt := NewBrowserTest(t)
+
+	if _, err := bt.Models().CreateVampire(context.Background(), "Gruffudd"); err != nil {
+		t.Fatal(err)
+	}
+
+	var vampires string
+
+	bt.Run(
+		bt.Navigate("/vampires"),
+		bt.WaitVisible(`#vampires`),
+		bt.Text(`#vampires`, &vampires),
+	)
+
+	if !strings.Contains(vampires, "Gruffudd") {
+		t.Errorf("expected %q to contain %q", "Gruffudd", vampires)
 	}
 }
 

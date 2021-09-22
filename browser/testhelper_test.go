@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"emailaddress.horse/thousand/app"
+	"emailaddress.horse/thousand/app/models"
 	"github.com/chromedp/chromedp"
 )
 
@@ -38,6 +39,10 @@ func NewBrowserTest(t *testing.T) *BrowserTest {
 		ts.URL,
 		app,
 	}
+}
+
+func (bt *BrowserTest) Models() *models.Models {
+	return bt.app.Models
 }
 
 func (bt *BrowserTest) Run(actions ...BrowserAction) {

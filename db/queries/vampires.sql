@@ -13,3 +13,9 @@ INSERT INTO vampires (name)
 RETURNING
     *;
 
+-- name: GetVampires :many
+SELECT
+    *
+FROM
+    vampires;
+

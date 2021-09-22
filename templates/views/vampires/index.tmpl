@@ -11,4 +11,14 @@
       <input type="submit" value="Create Vampire" />
     </form>
   </div>
+
+  <div id="vampires">
+    {{ with .Data.vampires }}
+      <ul>
+        {{ range . }}
+          <li><a href="{{ $.Reverse "show-vampire" .ID }}">{{ .Name }}</a></li>
+        {{ end }}
+      </ul>
+    {{ end }}
+  </div>
 {{ end }}

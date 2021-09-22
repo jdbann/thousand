@@ -1,7 +1,9 @@
 {{ template "base" . }}
 
 {{ define "main" }}
-  <div id="details">
-    {{ .Name }}
-  </div>
+  {{ with .Data.vampire }}
+    <div id="details">
+      {{ .Name }}
+    </div>
+  {{ end }}
 {{ end }}

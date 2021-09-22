@@ -9,12 +9,29 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+type templateData struct {
+	*App
+	Data dataMap
+}
+
+type dataMap map[string]interface{}
+
+func (app *App) data(data dataMap) templateData {
+	return templateData{app, data}
+}
+
 func (app *App) root(c echo.Context) error {
 	return c.Render(http.StatusOK, "root", app)
 }
 
 func (app *App) listVampires(c echo.Context) error {
-	return c.Render(http.StatusOK, "vampires/index", app)
+	vampires, err := app.Models.GetVampires(c.Request().Context())
+	if err != nil {
+		return err
+	}
+
+	data := app.data(dataMap{"vampires": vampires})
+	return c.Render(http.StatusOK, "vampires/index", data)
 }
 
 func (app *App) createVampire(c echo.Context) error {
@@ -39,7 +56,8 @@ func (app *App) showVampire(c echo.Context) error {
 		return err
 	}
 
-	return c.Render(http.StatusOK, "vampires/show", vampire)
+	data := app.data(dataMap{"vampire": vampire})
+	return c.Render(http.StatusOK, "vampires/show", data)
 }
 
 func (app *App) createDetails(c echo.Context) error {

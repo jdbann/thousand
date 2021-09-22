@@ -42,3 +42,18 @@ func (m *Models) GetVampire(ctx context.Context, id uuid.UUID) (NewVampire, erro
 
 	return NewVampire(v), nil
 }
+
+// GetVampires attempts to retrieve all the vampires from the DB.
+func (m *Models) GetVampires(ctx context.Context) ([]NewVampire, error) {
+	vs, err := m.Queries.GetVampires(ctx)
+	if err != nil {
+		return []NewVampire{}, err
+	}
+
+	nvs := make([]NewVampire, len(vs))
+	for i, v := range vs {
+		nvs[i] = NewVampire(v)
+	}
+
+	return nvs, nil
+}
