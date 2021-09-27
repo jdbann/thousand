@@ -55,10 +55,13 @@ func TestCreateVampire(t *testing.T) {
 
 	var name string
 
+	newLinkSelector := `#newVampire a`
 	nameFieldSelector := `#newVampire input[name="name"]`
 
 	bt.Run(
 		bt.Navigate("/vampires"),
+		bt.WaitVisible(newLinkSelector),
+		bt.Click(newLinkSelector),
 		bt.WaitVisible(nameFieldSelector),
 		bt.SendKeys(nameFieldSelector, "Gruffudd"),
 		bt.Submit(nameFieldSelector),

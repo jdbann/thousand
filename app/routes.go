@@ -18,6 +18,7 @@ func (app *App) setupRoutes() {
 
 	// Vampires
 	app.GET("/vampires", app.listVampires).Name = "list-vampires"
+	app.GET("/vampires/new", app.newVampire).Name = "new-vampire"
 	app.POST("/vampires", app.createVampire).Name = "create-vampire"
 	app.GET("/vampires/:id", app.showVampire).Name = "show-vampire"
 

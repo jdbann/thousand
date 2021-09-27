@@ -94,6 +94,46 @@ func TestListVampires(t *testing.T) {
 	}
 }
 
+func TestNewVampire(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name           string
+		expectedStatus int
+		expectedError  error
+	}{
+		{
+			name:           "successful",
+			expectedStatus: http.StatusOK,
+			expectedError:  nil,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			app := NewApp(TestConfig(t))
+
+			request := httptest.NewRequest(http.MethodGet, "/vampires/new", nil)
+			response := httptest.NewRecorder()
+			ctx := app.NewContext(request, response)
+
+			err := app.newVampire(ctx)
+
+			if tt.expectedStatus != response.Code {
+				t.Errorf("expected %d; got %d", tt.expectedStatus, response.Code)
+			}
+
+			if tt.expectedError != err {
+				t.Errorf("expected %v; got %v", tt.expectedError, err)
+			}
+		})
+	}
+}
+
 func TestCreateVampire(t *testing.T) {
 	t.Parallel()
 

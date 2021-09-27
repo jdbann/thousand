@@ -1,16 +1,9 @@
 {{ template "base" . }}
 
 {{ define "main" }}
-  <div id="newVampire">
-    <form method="POST" action="{{ $.Reverse "create-vampire" }}" class="stack">
-      <div class="stack stack-small">
-        <label for="name">Name</label>
-        <input id="name" name="name" type="text" />
-      </div>
-
-      <input type="submit" value="Create Vampire" />
-    </form>
-  </div>
+  <turbo-frame id="newVampire">
+    <a href="{{ $.Reverse "new-vampire" }}">New Vampire</a>
+  </turbo-frame>
 
   <div id="vampires">
     {{ with .Data.vampires }}

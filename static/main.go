@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	//go:embed  css
+	//go:embed  css js
 	_assets embed.FS
 
 	etagMap map[string]string = make(map[string]string)

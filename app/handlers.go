@@ -34,6 +34,11 @@ func (app *App) listVampires(c echo.Context) error {
 	return c.Render(http.StatusOK, "vampires/index", data)
 }
 
+func (app *App) newVampire(c echo.Context) error {
+	data := app.data(dataMap{})
+	return c.Render(http.StatusOK, "vampires/new", data)
+}
+
 func (app *App) createVampire(c echo.Context) error {
 	name := c.FormValue("name")
 
