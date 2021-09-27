@@ -1,12 +1,18 @@
 package app
 
 import (
+	"net/http"
+
 	"emailaddress.horse/thousand/static"
 	"github.com/labstack/echo/v4/middleware"
 )
 
 func (app *App) setupRoutes() {
 	app.Use(app.LoggerMiddleware)
+
+	app.Pre(middleware.RemoveTrailingSlashWithConfig(middleware.TrailingSlashConfig{
+		RedirectCode: http.StatusMovedPermanently,
+	}))
 
 	app.Pre(middleware.MethodOverrideWithConfig(middleware.MethodOverrideConfig{
 		Getter: middleware.MethodFromForm("_method"),
