@@ -13,6 +13,12 @@ import (
 // cannot be found with that ID.
 var ErrNotFound = errors.New("Record not found")
 
+const (
+	// vampireMemorySize specifies how many active memories a vampire should have,
+	// whether they are empty or not.
+	vampireMemorySize = 5
+)
+
 // Vampire holds everything related to a vampire.
 type Vampire struct {
 	Details    *Details
@@ -24,11 +30,22 @@ type Vampire struct {
 }
 
 // NewVampire will replace Vampire when the DB persistence work is complete.
+// TODO: Replace Vampire with NewVampire
 type NewVampire struct {
 	ID        uuid.UUID
 	Name      string
 	CreatedAt time.Time
 	UpdatedAt sql.NullTime
+}
+
+// WholeVampire represents a Vampire model. It is used to coordinate loading
+// different data types, such as loading a vampire's experiences as they have to
+// be loaded through memories.
+// TODO: Identify a good pattern for types that represent DB values and types
+// that are enriched with model functionality.
+type WholeVampire struct {
+	NewVampire
+	Memories []NewMemory
 }
 
 func (v *Vampire) findMemory(memoryID int) (*Memory, error) {

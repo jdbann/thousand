@@ -1,6 +1,12 @@
 package models
 
-import "errors"
+import (
+	"database/sql"
+	"errors"
+	"time"
+
+	"github.com/google/uuid"
+)
 
 // ErrMemoryFull is returned when trying to add experiences to a full memory.
 var ErrMemoryFull = errors.New("Memory is full")
@@ -9,6 +15,15 @@ var ErrMemoryFull = errors.New("Memory is full")
 type Memory struct {
 	ID          int
 	Experiences []Experience
+}
+
+// NewMemory will replace Memory when the DB persistence work is complete.
+// TODO: Replace Memory with NewMemory
+type NewMemory struct {
+	ID        uuid.UUID
+	VampireID uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt sql.NullTime
 }
 
 // Full returns true if there is no more room for experiences in this memory.

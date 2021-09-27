@@ -24,13 +24,28 @@ func NewModels(dbtx DBTX) *Models {
 
 // CreateVampire attempts to create a new vampire in the DB with the provided
 // name.
-func (m *Models) CreateVampire(ctx context.Context, name string) (NewVampire, error) {
+func (m *Models) CreateVampire(ctx context.Context, name string) (WholeVampire, error) {
 	v, err := m.Queries.CreateVampire(ctx, name)
 	if err != nil {
-		return NewVampire{}, err
+		return WholeVampire{}, err
 	}
 
-	return NewVampire(v), nil
+	var createMemoriesParams = make([]uuid.UUID, vampireMemorySize)
+	for i := range createMemoriesParams {
+		createMemoriesParams[i] = v.ID
+	}
+
+	dbMemories, err := m.Queries.CreateMemories(ctx, createMemoriesParams)
+	if err != nil {
+		return WholeVampire{}, err
+	}
+
+	memories := []NewMemory{}
+	for _, memory := range dbMemories {
+		memories = append(memories, NewMemory(memory))
+	}
+
+	return WholeVampire{NewVampire(v), memories}, nil
 }
 
 // GetVampire attempts to retrieve a vampire from the DB with the provided ID.
