@@ -8,14 +8,12 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/google/go-cmp v0.5.6
 	github.com/google/uuid v1.3.0
-	github.com/labstack/echo/v4 v4.6.0
-	github.com/labstack/gommon v0.3.0
+	github.com/labstack/echo/v4 v4.6.1
 	github.com/lib/pq v1.10.3
 	github.com/mattn/go-colorable v0.1.9 // indirect
 	github.com/pressly/goose/v3 v3.1.0
 	github.com/stretchr/testify v1.7.0 // indirect
 	github.com/urfave/cli/v2 v2.3.0
-	github.com/valyala/fasttemplate v1.2.1
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
 	golang.org/x/net v0.0.0-20210917221730-978cfadd31cf // indirect
 	golang.org/x/sys v0.0.0-20210921065528-437939a70204 // indirect
