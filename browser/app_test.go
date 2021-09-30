@@ -3,7 +3,6 @@ package browser
 import (
 	"context"
 	"fmt"
-	"strings"
 	"testing"
 
 	"emailaddress.horse/thousand/app/models"
@@ -14,16 +13,10 @@ func TestAppTitle(t *testing.T) {
 
 	bt := NewBrowserTest(t)
 
-	var title string
-
 	bt.Run(
 		bt.Navigate("/"),
-		bt.Text("h1", &title),
+		bt.Text("h1").Equals("Thousand"),
 	)
-
-	if title != "Thousand" {
-		t.Errorf("expected %q; got %q", "Thousand", title)
-	}
 }
 
 func TestShowVampires(t *testing.T) {
@@ -35,25 +28,17 @@ func TestShowVampires(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	var vampires string
-
 	bt.Run(
 		bt.Navigate("/vampires"),
 		bt.WaitVisible(`#vampires`),
-		bt.Text(`#vampires`, &vampires),
+		bt.Text(`#vampires`).Contains("Gruffudd"),
 	)
-
-	if !strings.Contains(vampires, "Gruffudd") {
-		t.Errorf("expected %q to contain %q", "Gruffudd", vampires)
-	}
 }
 
 func TestCreateVampire(t *testing.T) {
 	t.Parallel()
 
 	bt := NewBrowserTest(t)
-
-	var name string
 
 	newLinkSelector := `#newVampire a`
 	nameFieldSelector := `#newVampire input[name="name"]`
@@ -65,20 +50,14 @@ func TestCreateVampire(t *testing.T) {
 		bt.WaitVisible(nameFieldSelector),
 		bt.SendKeys(nameFieldSelector, "Gruffudd"),
 		bt.Submit(nameFieldSelector),
-		bt.Text(`#details`, &name),
+		bt.Text(`#details`).Equals("Gruffudd"),
 	)
-
-	if strings.TrimSpace(name) != "Gruffudd" {
-		t.Errorf("expected %q; got %q", "Gruffudd", name)
-	}
 }
 
 func TestSetName(t *testing.T) {
 	t.Parallel()
 
 	bt := NewBrowserTest(t)
-
-	var name string
 
 	nameFieldSelector := `input[name="name"]`
 
@@ -87,12 +66,8 @@ func TestSetName(t *testing.T) {
 		bt.WaitVisible(nameFieldSelector),
 		bt.SendKeys(nameFieldSelector, "Gruffudd"),
 		bt.Submit(nameFieldSelector),
-		bt.Text(`#details`, &name),
+		bt.Text(`#details`).Equals("Gruffudd"),
 	)
-
-	if strings.TrimSpace(name) != "Gruffudd" {
-		t.Errorf("expected %q; got %q", "Gruffudd", name)
-	}
 }
 
 func TestAddExperience(t *testing.T) {
@@ -100,7 +75,6 @@ func TestAddExperience(t *testing.T) {
 
 	bt := NewBrowserTest(t)
 
-	var memories string
 	expectedExperience := "I am Gruffudd, a Welsh farmer in the valleys of Pembroke; I am a recluse, fond of nature and withdrawn from the village."
 
 	experienceFieldSelector := `input[name="experience"]`
@@ -110,12 +84,8 @@ func TestAddExperience(t *testing.T) {
 		bt.WaitVisible(experienceFieldSelector),
 		bt.SendKeys(experienceFieldSelector, expectedExperience),
 		bt.Submit(experienceFieldSelector),
-		bt.Text("#memories", &memories),
+		bt.Text("#memories").Contains(expectedExperience),
 	)
-
-	if !strings.Contains(memories, expectedExperience) {
-		t.Errorf("expected %q to contain %q", memories, expectedExperience)
-	}
 }
 
 func TestForgetExperience(t *testing.T) {
@@ -133,20 +103,14 @@ func TestForgetExperience(t *testing.T) {
 		},
 	}
 
-	var memories string
-
 	memoryForgetSelector := `#memories input[name="_method"][value="DELETE"]`
 
 	bt.Run(
 		bt.Navigate("/"),
 		bt.WaitReady(memoryForgetSelector),
 		bt.Submit(memoryForgetSelector),
-		bt.InnerHTML("#memories", &memories),
+		bt.InnerHTML("#memories").Not().Contains(notExpectedExperience),
 	)
-
-	if strings.Contains(memories, notExpectedExperience) {
-		t.Errorf("expected %q not to contain %q", memories, notExpectedExperience)
-	}
 }
 
 func TestAddSkill(t *testing.T) {
@@ -154,7 +118,6 @@ func TestAddSkill(t *testing.T) {
 
 	bt := NewBrowserTest(t)
 
-	var skills string
 	expectedSkill := "Basic agricultural practices"
 
 	skillFieldSelector := `#skills input[name="description"]`
@@ -164,12 +127,8 @@ func TestAddSkill(t *testing.T) {
 		bt.WaitVisible(skillFieldSelector),
 		bt.SendKeys(skillFieldSelector, expectedSkill),
 		bt.Submit(skillFieldSelector),
-		bt.Text("#skills", &skills),
+		bt.Text("#skills").Contains(expectedSkill),
 	)
-
-	if !strings.Contains(skills, expectedSkill) {
-		t.Errorf("expected %q to contain %q", skills, expectedSkill)
-	}
 }
 
 func TestCheckSkill(t *testing.T) {
@@ -185,7 +144,6 @@ func TestCheckSkill(t *testing.T) {
 		},
 	}
 
-	var skills string
 	expectedSkill := "<s>Basic agricultural practices</s>"
 
 	skillCheckSelector := `input[name="checked"]`
@@ -194,12 +152,8 @@ func TestCheckSkill(t *testing.T) {
 		bt.Navigate("/"),
 		bt.WaitReady(skillCheckSelector),
 		bt.Submit(skillCheckSelector),
-		bt.InnerHTML("#skills", &skills),
+		bt.InnerHTML("#skills").Contains(expectedSkill),
 	)
-
-	if !strings.Contains(skills, expectedSkill) {
-		t.Errorf("expected %q to contain %q", skills, expectedSkill)
-	}
 }
 
 func TestAddResource(t *testing.T) {
@@ -207,7 +161,6 @@ func TestAddResource(t *testing.T) {
 
 	bt := NewBrowserTest(t)
 
-	var resources string
 	expectedResource := "Calweddyn Farm, rich but challenging soils"
 
 	descriptionFieldSelector := `#resources input[name="description"]`
@@ -219,12 +172,8 @@ func TestAddResource(t *testing.T) {
 		bt.SendKeys(descriptionFieldSelector, expectedResource),
 		bt.Click(stationaryFieldSelector),
 		bt.Submit(descriptionFieldSelector),
-		bt.Text("#resources", &resources),
+		bt.Text("#resources").Contains(expectedResource+" (Stationary)"),
 	)
-
-	if !strings.Contains(resources, expectedResource+" (Stationary)") {
-		t.Errorf("expected %q to contain %q", resources, expectedResource)
-	}
 }
 
 func TestLoseResource(t *testing.T) {
@@ -241,7 +190,6 @@ func TestLoseResource(t *testing.T) {
 		},
 	}
 
-	var resources string
 	expectedResource := "<s>Calweddyn Farm, rich but challenging soils (Stationary)</s>"
 
 	resourceLoseSelector := `input[name="lost"]`
@@ -250,12 +198,8 @@ func TestLoseResource(t *testing.T) {
 		bt.Navigate("/"),
 		bt.WaitReady(resourceLoseSelector),
 		bt.Submit(resourceLoseSelector),
-		bt.InnerHTML("#resources", &resources),
+		bt.InnerHTML("#resources").Contains(expectedResource),
 	)
-
-	if !strings.Contains(resources, expectedResource) {
-		t.Errorf("expected %q to contain %q", resources, expectedResource)
-	}
 }
 
 func TestAddCharacter(t *testing.T) {
@@ -263,7 +207,6 @@ func TestAddCharacter(t *testing.T) {
 
 	bt := NewBrowserTest(t)
 
-	var characters string
 	name := "Lord Othian"
 	descriptor := "English gentry visiting a cathedral in St. Davids"
 
@@ -280,12 +223,8 @@ func TestAddCharacter(t *testing.T) {
 		bt.SendKeys(descriptorFieldSelector, descriptor),
 		bt.Click(typeFieldSelector),
 		bt.Submit(nameFieldSelector),
-		bt.Text("#characters", &characters),
+		bt.Text("#characters").Contains(expectedCharacter),
 	)
-
-	if !strings.Contains(characters, expectedCharacter) {
-		t.Errorf("expected %q to contain %q", characters, expectedCharacter)
-	}
 }
 
 func TestAddCharacterDescriptor(t *testing.T) {
@@ -306,7 +245,6 @@ func TestAddCharacterDescriptor(t *testing.T) {
 		},
 	}
 
-	var characters string
 	descriptor := "brought violence upon me as I fled wolves in the forest"
 
 	expectedCharacter := "Lord Othian, English gentry visiting a cathedral in St. Davids, brought violence upon me as I fled wolves in the forest. (Immortal)"
@@ -319,12 +257,8 @@ func TestAddCharacterDescriptor(t *testing.T) {
 		bt.SendKeys(descriptorFieldSelector, descriptor),
 		bt.Click(descriptorFieldSelector),
 		bt.Submit(descriptorFieldSelector),
-		bt.Text("#characters", &characters),
+		bt.Text("#characters").Contains(expectedCharacter),
 	)
-
-	if !strings.Contains(characters, expectedCharacter) {
-		t.Errorf("expected %q to contain %q", characters, expectedCharacter)
-	}
 }
 
 func TestKillCharacter(t *testing.T) {
@@ -341,7 +275,6 @@ func TestKillCharacter(t *testing.T) {
 		},
 	}
 
-	var characters string
 	notExpectedCharacter := "Lord Othian"
 
 	characterDeceasedSelector := `input[name="deceased"]`
@@ -350,12 +283,8 @@ func TestKillCharacter(t *testing.T) {
 		bt.Navigate("/"),
 		bt.WaitReady(characterDeceasedSelector),
 		bt.Submit(characterDeceasedSelector),
-		bt.InnerHTML("#characters", &characters),
+		bt.InnerHTML("#characters").Not().Contains(notExpectedCharacter),
 	)
-
-	if strings.Contains(characters, notExpectedCharacter) {
-		t.Errorf("expected %q not to contain %q", characters, notExpectedCharacter)
-	}
 }
 
 func TestAddMark(t *testing.T) {
@@ -363,7 +292,6 @@ func TestAddMark(t *testing.T) {
 
 	bt := NewBrowserTest(t)
 
-	var marks string
 	expectedMark := "Muddy footprints, muddy handprints, muddy sheets - I leave a trail of dirt wherever I travel."
 
 	descriptionFieldSelector := `#marks input[name="description"]`
@@ -373,10 +301,6 @@ func TestAddMark(t *testing.T) {
 		bt.WaitVisible(descriptionFieldSelector),
 		bt.SendKeys(descriptionFieldSelector, expectedMark),
 		bt.Submit(descriptionFieldSelector),
-		bt.Text("#marks", &marks),
+		bt.Text("#marks").Contains(expectedMark),
 	)
-
-	if !strings.Contains(marks, expectedMark) {
-		t.Errorf("expected %q to contain %q", marks, expectedMark)
-	}
 }
