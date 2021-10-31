@@ -11,14 +11,14 @@ func TestForgetMemory(t *testing.T) {
 
 	tests := []struct {
 		name            string
-		vampire         *Vampire
+		vampire         *OldVampire
 		memoryID        int
-		expectedVampire *Vampire
+		expectedVampire *OldVampire
 		expectedError   error
 	}{
 		{
 			name: "success with recognised memoryID",
-			vampire: &Vampire{
+			vampire: &OldVampire{
 				Memories: []*OldMemory{
 					{
 						ID:          1,
@@ -27,7 +27,7 @@ func TestForgetMemory(t *testing.T) {
 				},
 			},
 			memoryID: 1,
-			expectedVampire: &Vampire{
+			expectedVampire: &OldVampire{
 				Memories: []*OldMemory{
 					{
 						ID:          2,
@@ -39,7 +39,7 @@ func TestForgetMemory(t *testing.T) {
 		},
 		{
 			name: "success with recognised memoryID for non-incremental ID",
-			vampire: &Vampire{
+			vampire: &OldVampire{
 				Memories: []*OldMemory{
 					{
 						ID:          1,
@@ -52,7 +52,7 @@ func TestForgetMemory(t *testing.T) {
 				},
 			},
 			memoryID: 1,
-			expectedVampire: &Vampire{
+			expectedVampire: &OldVampire{
 				Memories: []*OldMemory{
 					{
 						ID:          3,
@@ -68,9 +68,9 @@ func TestForgetMemory(t *testing.T) {
 		},
 		{
 			name:            "failure with unrecognised memoryID",
-			vampire:         &Vampire{},
+			vampire:         &OldVampire{},
 			memoryID:        1,
-			expectedVampire: &Vampire{},
+			expectedVampire: &OldVampire{},
 			expectedError:   ErrNotFound,
 		},
 	}
@@ -99,15 +99,15 @@ func TestVampire_AddExperience(t *testing.T) {
 
 	tests := []struct {
 		name             string
-		vampire          *Vampire
+		vampire          *OldVampire
 		memoryID         int
 		experienceString string
-		expectedVampire  *Vampire
+		expectedVampire  *OldVampire
 		expectedError    error
 	}{
 		{
 			name: "success with recognised memoryID",
-			vampire: &Vampire{
+			vampire: &OldVampire{
 				Memories: []*OldMemory{
 					{
 						ID: 1,
@@ -116,7 +116,7 @@ func TestVampire_AddExperience(t *testing.T) {
 			},
 			memoryID:         1,
 			experienceString: "one",
-			expectedVampire: &Vampire{
+			expectedVampire: &OldVampire{
 				Memories: []*OldMemory{
 					{
 						ID:          1,
@@ -128,7 +128,7 @@ func TestVampire_AddExperience(t *testing.T) {
 		},
 		{
 			name: "failure with memoryID for full memory",
-			vampire: &Vampire{
+			vampire: &OldVampire{
 				Memories: []*OldMemory{
 					{
 						ID: 1,
@@ -142,7 +142,7 @@ func TestVampire_AddExperience(t *testing.T) {
 			},
 			memoryID:         1,
 			experienceString: "four",
-			expectedVampire: &Vampire{
+			expectedVampire: &OldVampire{
 				Memories: []*OldMemory{
 					{
 						ID: 1,
@@ -158,10 +158,10 @@ func TestVampire_AddExperience(t *testing.T) {
 		},
 		{
 			name:             "failure with unrecognised memoryID",
-			vampire:          &Vampire{},
+			vampire:          &OldVampire{},
 			memoryID:         1,
 			experienceString: "one",
-			expectedVampire:  &Vampire{},
+			expectedVampire:  &OldVampire{},
 			expectedError:    ErrNotFound,
 		},
 	}
@@ -188,17 +188,17 @@ func TestVampire_AddExperience(t *testing.T) {
 func TestAddSkill(t *testing.T) {
 	tests := []struct {
 		name            string
-		vampire         *Vampire
+		vampire         *OldVampire
 		skill           *Skill
-		expectedVampire *Vampire
+		expectedVampire *OldVampire
 	}{
 		{
 			name:    "success with no skills",
-			vampire: &Vampire{},
+			vampire: &OldVampire{},
 			skill: &Skill{
 				Description: "one",
 			},
-			expectedVampire: &Vampire{
+			expectedVampire: &OldVampire{
 				Skills: []*Skill{
 					{
 						ID:          1,
@@ -209,7 +209,7 @@ func TestAddSkill(t *testing.T) {
 		},
 		{
 			name: "success with existing skills",
-			vampire: &Vampire{
+			vampire: &OldVampire{
 				Skills: []*Skill{
 					{
 						ID:          1,
@@ -220,7 +220,7 @@ func TestAddSkill(t *testing.T) {
 			skill: &Skill{
 				Description: "two",
 			},
-			expectedVampire: &Vampire{
+			expectedVampire: &OldVampire{
 				Skills: []*Skill{
 					{
 						ID:          1,
@@ -253,14 +253,14 @@ func TestAddSkill(t *testing.T) {
 func TestFindSkill(t *testing.T) {
 	tests := []struct {
 		name          string
-		vampire       *Vampire
+		vampire       *OldVampire
 		skillID       int
 		expectedSkill *Skill
 		expectedError error
 	}{
 		{
 			name: "success",
-			vampire: &Vampire{
+			vampire: &OldVampire{
 				Skills: []*Skill{
 					{
 						ID:          1,
@@ -276,7 +276,7 @@ func TestFindSkill(t *testing.T) {
 		},
 		{
 			name:          "failure with unknown ID",
-			vampire:       &Vampire{},
+			vampire:       &OldVampire{},
 			skillID:       1,
 			expectedError: ErrNotFound,
 		},
@@ -304,14 +304,14 @@ func TestFindSkill(t *testing.T) {
 func TestUpdateSkill(t *testing.T) {
 	tests := []struct {
 		name            string
-		vampire         *Vampire
+		vampire         *OldVampire
 		skill           *Skill
-		expectedVampire *Vampire
+		expectedVampire *OldVampire
 		expectedError   error
 	}{
 		{
 			name: "success",
-			vampire: &Vampire{
+			vampire: &OldVampire{
 				Skills: []*Skill{
 					{
 						ID:          1,
@@ -330,7 +330,7 @@ func TestUpdateSkill(t *testing.T) {
 				Description: "one",
 				Checked:     true,
 			},
-			expectedVampire: &Vampire{
+			expectedVampire: &OldVampire{
 				Skills: []*Skill{
 					{
 						ID:          1,
@@ -347,13 +347,13 @@ func TestUpdateSkill(t *testing.T) {
 		},
 		{
 			name:    "failure with unknown skill",
-			vampire: &Vampire{},
+			vampire: &OldVampire{},
 			skill: &Skill{
 				ID:          1,
 				Description: "one",
 				Checked:     true,
 			},
-			expectedVampire: &Vampire{},
+			expectedVampire: &OldVampire{},
 			expectedError:   ErrNotFound,
 		},
 	}
@@ -380,17 +380,17 @@ func TestUpdateSkill(t *testing.T) {
 func TestAddResource(t *testing.T) {
 	tests := []struct {
 		name            string
-		vampire         *Vampire
+		vampire         *OldVampire
 		resource        *Resource
-		expectedVampire *Vampire
+		expectedVampire *OldVampire
 	}{
 		{
 			name:    "success with no resources",
-			vampire: &Vampire{},
+			vampire: &OldVampire{},
 			resource: &Resource{
 				Description: "one",
 			},
-			expectedVampire: &Vampire{
+			expectedVampire: &OldVampire{
 				Resources: []*Resource{
 					{
 						ID:          1,
@@ -401,7 +401,7 @@ func TestAddResource(t *testing.T) {
 		},
 		{
 			name: "success with existing resources",
-			vampire: &Vampire{
+			vampire: &OldVampire{
 				Resources: []*Resource{
 					{
 						ID:          1,
@@ -413,7 +413,7 @@ func TestAddResource(t *testing.T) {
 				Description: "two",
 				Stationary:  true,
 			},
-			expectedVampire: &Vampire{
+			expectedVampire: &OldVampire{
 				Resources: []*Resource{
 					{
 						ID:          1,
@@ -447,14 +447,14 @@ func TestAddResource(t *testing.T) {
 func TestFindResource(t *testing.T) {
 	tests := []struct {
 		name             string
-		vampire          *Vampire
+		vampire          *OldVampire
 		resourceID       int
 		expectedResource *Resource
 		expectedError    error
 	}{
 		{
 			name: "success",
-			vampire: &Vampire{
+			vampire: &OldVampire{
 				Resources: []*Resource{
 					{
 						ID:          1,
@@ -470,7 +470,7 @@ func TestFindResource(t *testing.T) {
 		},
 		{
 			name:          "failure with unknown ID",
-			vampire:       &Vampire{},
+			vampire:       &OldVampire{},
 			resourceID:    1,
 			expectedError: ErrNotFound,
 		},
@@ -498,14 +498,14 @@ func TestFindResource(t *testing.T) {
 func TestUpdateResource(t *testing.T) {
 	tests := []struct {
 		name            string
-		vampire         *Vampire
+		vampire         *OldVampire
 		resource        *Resource
-		expectedVampire *Vampire
+		expectedVampire *OldVampire
 		expectedError   error
 	}{
 		{
 			name: "success",
-			vampire: &Vampire{
+			vampire: &OldVampire{
 				Resources: []*Resource{
 					{
 						ID:          1,
@@ -524,7 +524,7 @@ func TestUpdateResource(t *testing.T) {
 				Description: "one",
 				Lost:        true,
 			},
-			expectedVampire: &Vampire{
+			expectedVampire: &OldVampire{
 				Resources: []*Resource{
 					{
 						ID:          1,
@@ -541,13 +541,13 @@ func TestUpdateResource(t *testing.T) {
 		},
 		{
 			name:    "failure with unknown resource",
-			vampire: &Vampire{},
+			vampire: &OldVampire{},
 			resource: &Resource{
 				ID:          1,
 				Description: "one",
 				Lost:        true,
 			},
-			expectedVampire: &Vampire{},
+			expectedVampire: &OldVampire{},
 			expectedError:   ErrNotFound,
 		},
 	}
@@ -574,18 +574,18 @@ func TestUpdateResource(t *testing.T) {
 func TestAddCharacter(t *testing.T) {
 	tests := []struct {
 		name            string
-		vampire         *Vampire
+		vampire         *OldVampire
 		character       *Character
-		expectedVampire *Vampire
+		expectedVampire *OldVampire
 	}{
 		{
 			name:    "success with no characters",
-			vampire: &Vampire{},
+			vampire: &OldVampire{},
 			character: &Character{
 				Name: "one",
 				Type: "mortal",
 			},
-			expectedVampire: &Vampire{
+			expectedVampire: &OldVampire{
 				Characters: []*Character{
 					{
 						ID:   1,
@@ -597,7 +597,7 @@ func TestAddCharacter(t *testing.T) {
 		},
 		{
 			name: "success with existing characters",
-			vampire: &Vampire{
+			vampire: &OldVampire{
 				Characters: []*Character{
 					{
 						ID:   1,
@@ -610,7 +610,7 @@ func TestAddCharacter(t *testing.T) {
 				Name: "two",
 				Type: "immortal",
 			},
-			expectedVampire: &Vampire{
+			expectedVampire: &OldVampire{
 				Characters: []*Character{
 					{
 						ID:   1,
@@ -645,14 +645,14 @@ func TestAddCharacter(t *testing.T) {
 func TestFindCharacter(t *testing.T) {
 	tests := []struct {
 		name              string
-		vampire           *Vampire
+		vampire           *OldVampire
 		characterID       int
 		expectedCharacter *Character
 		expectedError     error
 	}{
 		{
 			name: "success",
-			vampire: &Vampire{
+			vampire: &OldVampire{
 				Characters: []*Character{
 					{
 						ID:   1,
@@ -670,7 +670,7 @@ func TestFindCharacter(t *testing.T) {
 		},
 		{
 			name:          "failure with unknown ID",
-			vampire:       &Vampire{},
+			vampire:       &OldVampire{},
 			characterID:   1,
 			expectedError: ErrNotFound,
 		},
@@ -698,14 +698,14 @@ func TestFindCharacter(t *testing.T) {
 func TestUpdateCharacter(t *testing.T) {
 	tests := []struct {
 		name            string
-		vampire         *Vampire
+		vampire         *OldVampire
 		character       *Character
-		expectedVampire *Vampire
+		expectedVampire *OldVampire
 		expectedError   error
 	}{
 		{
 			name: "success",
-			vampire: &Vampire{
+			vampire: &OldVampire{
 				Characters: []*Character{
 					{
 						ID:       1,
@@ -727,7 +727,7 @@ func TestUpdateCharacter(t *testing.T) {
 				Type:     "mortal",
 				Deceased: true,
 			},
-			expectedVampire: &Vampire{
+			expectedVampire: &OldVampire{
 				Characters: []*Character{
 					{
 						ID:       1,
@@ -746,14 +746,14 @@ func TestUpdateCharacter(t *testing.T) {
 		},
 		{
 			name:    "failure with unknown resource",
-			vampire: &Vampire{},
+			vampire: &OldVampire{},
 			character: &Character{
 				ID:       1,
 				Name:     "one",
 				Type:     "mortal",
 				Deceased: true,
 			},
-			expectedVampire: &Vampire{},
+			expectedVampire: &OldVampire{},
 			expectedError:   ErrNotFound,
 		},
 	}
@@ -780,15 +780,15 @@ func TestUpdateCharacter(t *testing.T) {
 func TestVampire_AddDescriptor(t *testing.T) {
 	tests := []struct {
 		name            string
-		vampire         *Vampire
+		vampire         *OldVampire
 		characterID     int
 		descriptor      string
-		expectedVampire *Vampire
+		expectedVampire *OldVampire
 		expectedError   error
 	}{
 		{
 			name: "success",
-			vampire: &Vampire{
+			vampire: &OldVampire{
 				Characters: []*Character{
 					{
 						ID:          1,
@@ -798,7 +798,7 @@ func TestVampire_AddDescriptor(t *testing.T) {
 			},
 			characterID: 1,
 			descriptor:  "one",
-			expectedVampire: &Vampire{
+			expectedVampire: &OldVampire{
 				Characters: []*Character{
 					{
 						ID:          1,
@@ -809,10 +809,10 @@ func TestVampire_AddDescriptor(t *testing.T) {
 		},
 		{
 			name:            "failure with unknown resource",
-			vampire:         &Vampire{},
+			vampire:         &OldVampire{},
 			characterID:     1,
 			descriptor:      "one",
-			expectedVampire: &Vampire{},
+			expectedVampire: &OldVampire{},
 			expectedError:   ErrNotFound,
 		},
 	}
@@ -839,17 +839,17 @@ func TestVampire_AddDescriptor(t *testing.T) {
 func TestAddMark(t *testing.T) {
 	tests := []struct {
 		name            string
-		vampire         *Vampire
+		vampire         *OldVampire
 		mark            *Mark
-		expectedVampire *Vampire
+		expectedVampire *OldVampire
 	}{
 		{
 			name:    "success with no characters",
-			vampire: &Vampire{},
+			vampire: &OldVampire{},
 			mark: &Mark{
 				Description: "one",
 			},
-			expectedVampire: &Vampire{
+			expectedVampire: &OldVampire{
 				Marks: []*Mark{
 					{
 						ID:          1,
@@ -860,7 +860,7 @@ func TestAddMark(t *testing.T) {
 		},
 		{
 			name: "success with existing characters",
-			vampire: &Vampire{
+			vampire: &OldVampire{
 				Marks: []*Mark{
 					{
 						ID:          1,
@@ -871,7 +871,7 @@ func TestAddMark(t *testing.T) {
 			mark: &Mark{
 				Description: "two",
 			},
-			expectedVampire: &Vampire{
+			expectedVampire: &OldVampire{
 				Marks: []*Mark{
 					{
 						ID:          1,

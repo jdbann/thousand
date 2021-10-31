@@ -47,7 +47,7 @@ func Test_InMemory_ForgetExperience(t *testing.T) {
 	notExpectedExperience := "I am Gruffudd, a Welsh farmer in the valleys of Pembroke; I am a recluse, fond of nature and withdrawn from the village."
 
 	bt := NewBrowserTest(t)
-	bt.app.Vampire = &models.Vampire{
+	bt.app.Vampire = &models.OldVampire{
 		Memories: []*models.OldMemory{
 			{
 				ID:          1,
@@ -88,7 +88,7 @@ func Test_InMemory_CheckSkill(t *testing.T) {
 	t.Parallel()
 
 	bt := NewBrowserTest(t)
-	bt.app.Vampire = &models.Vampire{
+	bt.app.Vampire = &models.OldVampire{
 		Skills: []*models.Skill{
 			{
 				ID:          1,
@@ -133,7 +133,7 @@ func Test_InMemory_LoseResource(t *testing.T) {
 	t.Parallel()
 
 	bt := NewBrowserTest(t)
-	bt.app.Vampire = &models.Vampire{
+	bt.app.Vampire = &models.OldVampire{
 		Resources: []*models.Resource{
 			{
 				ID:          1,
@@ -184,7 +184,7 @@ func Test_InMemory_AddCharacterDescriptor(t *testing.T) {
 	t.Parallel()
 
 	bt := NewBrowserTest(t)
-	bt.app.Vampire = &models.Vampire{
+	bt.app.Vampire = &models.OldVampire{
 		Characters: []*models.Character{
 			{
 				ID:   1,
@@ -218,7 +218,7 @@ func Test_InMemory_KillCharacter(t *testing.T) {
 	t.Parallel()
 
 	bt := NewBrowserTest(t)
-	bt.app.Vampire = &models.Vampire{
+	bt.app.Vampire = &models.OldVampire{
 		Characters: []*models.Character{
 			{
 				ID:       1,

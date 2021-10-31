@@ -12,23 +12,20 @@ func TestCreateVampire(t *testing.T) {
 	t.Parallel()
 
 	ignoreFields := cmp.Options{
-		ignoreWholeVampireFields,
-		ignoreNewVampireFields,
+		ignoreVampireFields,
 	}
 
 	tests := []struct {
-		name                 string
-		vampireName          string
-		expectedWholeVampire WholeVampire
+		name            string
+		vampireName     string
+		expectedVampire Vampire
 	}{
 		{
 			name:        "successful",
 			vampireName: "Gruffudd",
-			expectedWholeVampire: WholeVampire{
-				NewVampire{
-					Name: "Gruffudd",
-				},
-				[]Memory{},
+			expectedVampire: Vampire{
+				Name:     "Gruffudd",
+				Memories: []Memory{},
 			},
 		},
 	}
@@ -41,17 +38,17 @@ func TestCreateVampire(t *testing.T) {
 
 			m := newTestModels(t)
 
-			actualWholeVampire, err := m.CreateVampire(context.Background(), tt.vampireName)
+			actualVampire, err := m.CreateVampire(context.Background(), tt.vampireName)
 			if err != nil {
 				t.Fatal(err)
 			}
 
-			if diff := cmp.Diff(tt.expectedWholeVampire, actualWholeVampire, ignoreFields...); diff != "" {
+			if diff := cmp.Diff(tt.expectedVampire, actualVampire, ignoreFields...); diff != "" {
 				t.Error(diff)
 			}
 
-			if len(actualWholeVampire.Memories) != vampireMemorySize {
-				t.Errorf("expected %d memories; found %d", vampireMemorySize, len(actualWholeVampire.Memories))
+			if len(actualVampire.Memories) != vampireMemorySize {
+				t.Errorf("expected %d memories; found %d", vampireMemorySize, len(actualVampire.Memories))
 			}
 		})
 	}

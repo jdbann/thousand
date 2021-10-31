@@ -21,7 +21,7 @@ type App struct {
 	Models *models.Models
 
 	// Temporary data store
-	Vampire *models.Vampire
+	Vampire *models.OldVampire
 }
 
 // DBConnector is a function that returns a connection to the provided URL or
@@ -32,7 +32,7 @@ type DBConnector func(databaseURL string) (models.DBTX, error)
 func NewApp(configurers ...Configurer) *App {
 	app := &App{
 		Echo: echo.New(),
-		Vampire: &models.Vampire{
+		Vampire: &models.OldVampire{
 			Memories: []*models.OldMemory{
 				{ID: 1},
 				{ID: 2},

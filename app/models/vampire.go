@@ -1,11 +1,10 @@
 package models
 
 import (
-	"database/sql"
 	"errors"
 	"sort"
-	"time"
 
+	"emailaddress.horse/thousand/db"
 	"github.com/google/uuid"
 )
 
@@ -19,8 +18,8 @@ const (
 	vampireMemorySize = 5
 )
 
-// Vampire holds everything related to a vampire.
-type Vampire struct {
+// OldVampire holds everything related to a vampire.
+type OldVampire struct {
 	Details    *Details
 	Memories   []*OldMemory
 	Skills     []*Skill
@@ -29,26 +28,22 @@ type Vampire struct {
 	Marks      []*Mark
 }
 
-// NewVampire will replace Vampire when the DB persistence work is complete.
-// TODO: Replace Vampire with NewVampire
-type NewVampire struct {
-	ID        uuid.UUID
-	Name      string
-	CreatedAt time.Time
-	UpdatedAt sql.NullTime
-}
-
-// WholeVampire represents a Vampire model. It is used to coordinate loading
-// different data types, such as loading a vampire's experiences as they have to
-// be loaded through memories.
-// TODO: Identify a good pattern for types that represent DB values and types
-// that are enriched with model functionality.
-type WholeVampire struct {
-	NewVampire
+// Vampire holds the domain level representation of a vampire.
+type Vampire struct {
+	ID       uuid.UUID
+	Name     string
 	Memories []Memory
 }
 
-func (v *Vampire) findMemory(memoryID int) (*OldMemory, error) {
+func newVampire(dbVampire db.Vampire, memories []Memory) Vampire {
+	return Vampire{
+		ID:       dbVampire.ID,
+		Name:     dbVampire.Name,
+		Memories: memories,
+	}
+}
+
+func (v *OldVampire) findMemory(memoryID int) (*OldMemory, error) {
 	for _, memory := range v.Memories {
 		if memory.ID == memoryID {
 			return memory, nil
@@ -59,7 +54,7 @@ func (v *Vampire) findMemory(memoryID int) (*OldMemory, error) {
 }
 
 // ForgetMemory replaces an existing memory with a blank memory.
-func (v *Vampire) ForgetMemory(memoryID int) error {
+func (v *OldVampire) ForgetMemory(memoryID int) error {
 	memory, err := v.findMemory(memoryID)
 	if err != nil {
 		return err
@@ -82,7 +77,7 @@ func (v *Vampire) ForgetMemory(memoryID int) error {
 }
 
 // AddExperience adds an experience to the indicated memory.
-func (v *Vampire) AddExperience(memoryID int, experienceString string) error {
+func (v *OldVampire) AddExperience(memoryID int, experienceString string) error {
 	memory, err := v.findMemory(memoryID)
 	if err != nil {
 		return err
@@ -93,14 +88,14 @@ func (v *Vampire) AddExperience(memoryID int, experienceString string) error {
 }
 
 // AddSkill adds an unchecked skill to the Vampire.
-func (v *Vampire) AddSkill(skill *Skill) {
+func (v *OldVampire) AddSkill(skill *Skill) {
 	skill.ID = len(v.Skills) + 1
 	v.Skills = append(v.Skills, skill)
 }
 
 // FindSkill retrieves a skill based on an ID from the Vampire's list of
 // skills.
-func (v *Vampire) FindSkill(skillID int) (*Skill, error) {
+func (v *OldVampire) FindSkill(skillID int) (*Skill, error) {
 	for _, skill := range v.Skills {
 		if skill.ID == skillID {
 			return skill, nil
@@ -112,7 +107,7 @@ func (v *Vampire) FindSkill(skillID int) (*Skill, error) {
 
 // UpdateSkill replaces a Vampire's existing skill with the new one based on
 // the new skill's ID.
-func (v *Vampire) UpdateSkill(newSkill *Skill) error {
+func (v *OldVampire) UpdateSkill(newSkill *Skill) error {
 	oldSkill, err := v.FindSkill(newSkill.ID)
 	if err != nil {
 		return err
@@ -124,14 +119,14 @@ func (v *Vampire) UpdateSkill(newSkill *Skill) error {
 }
 
 // AddResource adds a resource to the Vampire.
-func (v *Vampire) AddResource(resource *Resource) {
+func (v *OldVampire) AddResource(resource *Resource) {
 	resource.ID = len(v.Resources) + 1
 	v.Resources = append(v.Resources, resource)
 }
 
 // FindResource retrieves a resource based on an ID from the Vampire's list of
 // resources.
-func (v *Vampire) FindResource(resourceID int) (*Resource, error) {
+func (v *OldVampire) FindResource(resourceID int) (*Resource, error) {
 	for _, resource := range v.Resources {
 		if resource.ID == resourceID {
 			return resource, nil
@@ -143,7 +138,7 @@ func (v *Vampire) FindResource(resourceID int) (*Resource, error) {
 
 // UpdateResource replaces a Vampire's existing resource with the new one
 // based on the new resource's ID.
-func (v *Vampire) UpdateResource(newResource *Resource) error {
+func (v *OldVampire) UpdateResource(newResource *Resource) error {
 	oldResource, err := v.FindResource(newResource.ID)
 	if err != nil {
 		return err
@@ -155,14 +150,14 @@ func (v *Vampire) UpdateResource(newResource *Resource) error {
 }
 
 // AddCharacter adds a character to the Vampire.
-func (v *Vampire) AddCharacter(character *Character) {
+func (v *OldVampire) AddCharacter(character *Character) {
 	character.ID = len(v.Characters) + 1
 	v.Characters = append(v.Characters, character)
 }
 
 // FindCharacter retrieves a character based on an ID from the Vampire's list of
 // characters.
-func (v *Vampire) FindCharacter(characterID int) (*Character, error) {
+func (v *OldVampire) FindCharacter(characterID int) (*Character, error) {
 	for _, character := range v.Characters {
 		if character.ID == characterID {
 			return character, nil
@@ -174,7 +169,7 @@ func (v *Vampire) FindCharacter(characterID int) (*Character, error) {
 
 // UpdateCharacter replaces a Vampire's existing character with the new one
 // based on the new character's ID.
-func (v *Vampire) UpdateCharacter(newCharacter *Character) error {
+func (v *OldVampire) UpdateCharacter(newCharacter *Character) error {
 	oldCharacter, err := v.FindCharacter(newCharacter.ID)
 	if err != nil {
 		return err
@@ -186,7 +181,7 @@ func (v *Vampire) UpdateCharacter(newCharacter *Character) error {
 }
 
 // AddDescriptor adds a descriptor to the indicated character.
-func (v *Vampire) AddDescriptor(characterID int, descriptor string) error {
+func (v *OldVampire) AddDescriptor(characterID int, descriptor string) error {
 	character, err := v.FindCharacter(characterID)
 	if err != nil {
 		return err
@@ -198,7 +193,7 @@ func (v *Vampire) AddDescriptor(characterID int, descriptor string) error {
 }
 
 // AddMark adds a mark to the Vampire.
-func (v *Vampire) AddMark(mark *Mark) {
+func (v *OldVampire) AddMark(mark *Mark) {
 	mark.ID = len(v.Marks) + 1
 	v.Marks = append(v.Marks, mark)
 }

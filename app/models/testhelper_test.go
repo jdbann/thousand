@@ -11,10 +11,7 @@ import (
 
 var (
 	// Memories when blank have no matchable attributes so need to be ignored
-	ignoreWholeVampireFields = cmpopts.IgnoreFields(WholeVampire{}, "Memories")
-
-	// ID and timestamps are defined by the DB and do not require matching
-	ignoreNewVampireFields = cmpopts.IgnoreFields(NewVampire{}, "ID", "CreatedAt", "UpdatedAt")
+	ignoreVampireFields = cmpopts.IgnoreFields(Vampire{}, "ID", "Memories")
 
 	// ID, MemoryID and timestamps are defined by the DB and do not require matching
 	ignoreExperienceFields = cmpopts.IgnoreFields(Experience{}, "ID", "MemoryID")

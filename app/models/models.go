@@ -24,10 +24,10 @@ func NewModels(dbtx DBTX) *Models {
 
 // CreateVampire attempts to create a new vampire in the DB with the provided
 // name.
-func (m *Models) CreateVampire(ctx context.Context, name string) (WholeVampire, error) {
+func (m *Models) CreateVampire(ctx context.Context, name string) (Vampire, error) {
 	v, err := m.Queries.CreateVampire(ctx, name)
 	if err != nil {
-		return WholeVampire{}, err
+		return Vampire{}, err
 	}
 
 	var createMemoriesParams = make([]uuid.UUID, vampireMemorySize)
@@ -37,7 +37,7 @@ func (m *Models) CreateVampire(ctx context.Context, name string) (WholeVampire, 
 
 	dbMemories, err := m.Queries.CreateMemories(ctx, createMemoriesParams)
 	if err != nil {
-		return WholeVampire{}, err
+		return Vampire{}, err
 	}
 
 	memories := make([]Memory, len(dbMemories))
@@ -45,24 +45,24 @@ func (m *Models) CreateVampire(ctx context.Context, name string) (WholeVampire, 
 		memories[i] = newMemory(dbMemory, make([]db.Experience, 0, 3))
 	}
 
-	return WholeVampire{NewVampire(v), memories}, nil
+	return newVampire(v, memories), nil
 }
 
 // GetVampire attempts to retrieve a vampire from the DB with the provided ID.
-func (m *Models) GetVampire(ctx context.Context, id uuid.UUID) (WholeVampire, error) {
+func (m *Models) GetVampire(ctx context.Context, id uuid.UUID) (Vampire, error) {
 	v, err := m.Queries.GetVampire(ctx, id)
 	if err != nil {
-		return WholeVampire{}, err
+		return Vampire{}, err
 	}
 
 	dbMemories, err := m.Queries.GetMemoriesForVampire(ctx, id)
 	if err != nil {
-		return WholeVampire{}, err
+		return Vampire{}, err
 	}
 
 	dbExperiences, err := m.Queries.GetExperiencesForVampire(ctx, id)
 	if err != nil {
-		return WholeVampire{}, err
+		return Vampire{}, err
 	}
 
 	memories := make([]Memory, len(dbMemories))
@@ -78,19 +78,19 @@ func (m *Models) GetVampire(ctx context.Context, id uuid.UUID) (WholeVampire, er
 		memories[i] = newMemory(dbMemory, experiences)
 	}
 
-	return WholeVampire{NewVampire(v), memories}, nil
+	return newVampire(v, memories), nil
 }
 
 // GetVampires attempts to retrieve all the vampires from the DB.
-func (m *Models) GetVampires(ctx context.Context) ([]NewVampire, error) {
+func (m *Models) GetVampires(ctx context.Context) ([]Vampire, error) {
 	vs, err := m.Queries.GetVampires(ctx)
 	if err != nil {
-		return []NewVampire{}, err
+		return []Vampire{}, err
 	}
 
-	nvs := make([]NewVampire, len(vs))
+	nvs := make([]Vampire, len(vs))
 	for i, v := range vs {
-		nvs[i] = NewVampire(v)
+		nvs[i] = newVampire(v, []Memory{})
 	}
 
 	return nvs, nil

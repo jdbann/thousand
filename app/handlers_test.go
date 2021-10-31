@@ -232,22 +232,22 @@ func TestCreateDetails(t *testing.T) {
 
 	tests := []struct {
 		name             string
-		vampire          *models.Vampire
+		vampire          *models.OldVampire
 		body             string
 		expectedStatus   int
 		expectedLocation string
-		expectedVampire  *models.Vampire
+		expectedVampire  *models.OldVampire
 		expectedError    error
 	}{
 		{
 			name:    "successful",
-			vampire: &models.Vampire{},
+			vampire: &models.OldVampire{},
 			body: url.Values{
 				"name": []string{"Gruffudd"},
 			}.Encode(),
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
-			expectedVampire: &models.Vampire{
+			expectedVampire: &models.OldVampire{
 				Details: &models.Details{
 					Name: "Gruffudd",
 				},
@@ -297,16 +297,16 @@ func TestDeleteMemory(t *testing.T) {
 
 	tests := []struct {
 		name             string
-		vampire          *models.Vampire
+		vampire          *models.OldVampire
 		body             string
 		expectedStatus   int
 		expectedLocation string
-		expectedVampire  *models.Vampire
+		expectedVampire  *models.OldVampire
 		expectedError    error
 	}{
 		{
 			name: "successful",
-			vampire: &models.Vampire{
+			vampire: &models.OldVampire{
 				Memories: []*models.OldMemory{
 					{
 						ID: 1,
@@ -321,7 +321,7 @@ func TestDeleteMemory(t *testing.T) {
 			}.Encode(),
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
-			expectedVampire: &models.Vampire{
+			expectedVampire: &models.OldVampire{
 				Memories: []*models.OldMemory{
 					{
 						ID:          2,
@@ -479,16 +479,16 @@ func TestOldCreateExperience(t *testing.T) {
 
 	tests := []struct {
 		name             string
-		vampire          *models.Vampire
+		vampire          *models.OldVampire
 		body             string
 		expectedStatus   int
 		expectedLocation string
-		expectedVampire  *models.Vampire
+		expectedVampire  *models.OldVampire
 		expectedError    error
 	}{
 		{
 			name: "successful",
-			vampire: &models.Vampire{
+			vampire: &models.OldVampire{
 				Memories: []*models.OldMemory{
 					{
 						ID: 1,
@@ -500,7 +500,7 @@ func TestOldCreateExperience(t *testing.T) {
 			}.Encode(),
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
-			expectedVampire: &models.Vampire{
+			expectedVampire: &models.OldVampire{
 				Memories: []*models.OldMemory{
 					{
 						ID: 1,
@@ -558,22 +558,22 @@ func TestCreateSkill(t *testing.T) {
 
 	tests := []struct {
 		name             string
-		vampire          *models.Vampire
+		vampire          *models.OldVampire
 		body             string
 		expectedStatus   int
 		expectedLocation string
-		expectedVampire  *models.Vampire
+		expectedVampire  *models.OldVampire
 		expectedError    error
 	}{
 		{
 			name:    "successful",
-			vampire: &models.Vampire{},
+			vampire: &models.OldVampire{},
 			body: url.Values{
 				"description": []string{"Basic agricultural practices"},
 			}.Encode(),
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
-			expectedVampire: &models.Vampire{
+			expectedVampire: &models.OldVampire{
 				Skills: []*models.Skill{
 					{
 						ID:          1,
@@ -626,16 +626,16 @@ func TestUpdateSkill(t *testing.T) {
 
 	tests := []struct {
 		name             string
-		vampire          *models.Vampire
+		vampire          *models.OldVampire
 		body             string
 		expectedStatus   int
 		expectedLocation string
-		expectedVampire  *models.Vampire
+		expectedVampire  *models.OldVampire
 		expectedError    error
 	}{
 		{
 			name: "successful",
-			vampire: &models.Vampire{
+			vampire: &models.OldVampire{
 				Skills: []*models.Skill{
 					{
 						ID:          1,
@@ -650,7 +650,7 @@ func TestUpdateSkill(t *testing.T) {
 			}.Encode(),
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
-			expectedVampire: &models.Vampire{
+			expectedVampire: &models.OldVampire{
 				Skills: []*models.Skill{
 					{
 						ID:          1,
@@ -707,23 +707,23 @@ func TestCreateResource(t *testing.T) {
 
 	tests := []struct {
 		name             string
-		vampire          *models.Vampire
+		vampire          *models.OldVampire
 		body             string
 		expectedStatus   int
 		expectedLocation string
-		expectedVampire  *models.Vampire
+		expectedVampire  *models.OldVampire
 		expectedError    error
 	}{
 		{
 			name:    "successful",
-			vampire: &models.Vampire{},
+			vampire: &models.OldVampire{},
 			body: url.Values{
 				"description": []string{"Calweddyn Farm, rich but challenging soils"},
 				"stationary":  []string{"1"},
 			}.Encode(),
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
-			expectedVampire: &models.Vampire{
+			expectedVampire: &models.OldVampire{
 				Resources: []*models.Resource{
 					{
 						ID:          1,
@@ -777,16 +777,16 @@ func TestUpdateResource(t *testing.T) {
 
 	tests := []struct {
 		name             string
-		vampire          *models.Vampire
+		vampire          *models.OldVampire
 		body             string
 		expectedStatus   int
 		expectedLocation string
-		expectedVampire  *models.Vampire
+		expectedVampire  *models.OldVampire
 		expectedError    error
 	}{
 		{
 			name: "successful",
-			vampire: &models.Vampire{
+			vampire: &models.OldVampire{
 				Resources: []*models.Resource{
 					{
 						ID:          1,
@@ -802,7 +802,7 @@ func TestUpdateResource(t *testing.T) {
 			}.Encode(),
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
-			expectedVampire: &models.Vampire{
+			expectedVampire: &models.OldVampire{
 				Resources: []*models.Resource{
 					{
 						ID:          1,
@@ -860,16 +860,16 @@ func TestCreateCharacter(t *testing.T) {
 
 	tests := []struct {
 		name             string
-		vampire          *models.Vampire
+		vampire          *models.OldVampire
 		body             string
 		expectedStatus   int
 		expectedLocation string
-		expectedVampire  *models.Vampire
+		expectedVampire  *models.OldVampire
 		expectedError    error
 	}{
 		{
 			name:    "successful",
-			vampire: &models.Vampire{},
+			vampire: &models.OldVampire{},
 			body: url.Values{
 				"name":         []string{"Lord Othian"},
 				"descriptor[]": []string{"English gentry visiting a cathedral in St. Davids"},
@@ -877,7 +877,7 @@ func TestCreateCharacter(t *testing.T) {
 			}.Encode(),
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
-			expectedVampire: &models.Vampire{
+			expectedVampire: &models.OldVampire{
 				Characters: []*models.Character{
 					{
 						ID:   1,
@@ -934,16 +934,16 @@ func TestUpdateCharacter(t *testing.T) {
 
 	tests := []struct {
 		name             string
-		vampire          *models.Vampire
+		vampire          *models.OldVampire
 		body             string
 		expectedStatus   int
 		expectedLocation string
-		expectedVampire  *models.Vampire
+		expectedVampire  *models.OldVampire
 		expectedError    error
 	}{
 		{
 			name: "successful",
-			vampire: &models.Vampire{
+			vampire: &models.OldVampire{
 				Characters: []*models.Character{
 					{
 						ID:       1,
@@ -957,7 +957,7 @@ func TestUpdateCharacter(t *testing.T) {
 			}.Encode(),
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
-			expectedVampire: &models.Vampire{
+			expectedVampire: &models.OldVampire{
 				Characters: []*models.Character{
 					{
 						ID:       1,
@@ -1013,16 +1013,16 @@ func TestCreateDescriptor(t *testing.T) {
 
 	tests := []struct {
 		name             string
-		vampire          *models.Vampire
+		vampire          *models.OldVampire
 		body             string
 		expectedStatus   int
 		expectedLocation string
-		expectedVampire  *models.Vampire
+		expectedVampire  *models.OldVampire
 		expectedError    error
 	}{
 		{
 			name: "successful",
-			vampire: &models.Vampire{
+			vampire: &models.OldVampire{
 				Characters: []*models.Character{
 					{
 						ID:          1,
@@ -1035,7 +1035,7 @@ func TestCreateDescriptor(t *testing.T) {
 			}.Encode(),
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
-			expectedVampire: &models.Vampire{
+			expectedVampire: &models.OldVampire{
 				Characters: []*models.Character{
 					{
 						ID:          1,
@@ -1091,22 +1091,22 @@ func TestCreateMark(t *testing.T) {
 
 	tests := []struct {
 		name             string
-		vampire          *models.Vampire
+		vampire          *models.OldVampire
 		body             string
 		expectedStatus   int
 		expectedLocation string
-		expectedVampire  *models.Vampire
+		expectedVampire  *models.OldVampire
 		expectedError    error
 	}{
 		{
 			name:    "successful",
-			vampire: &models.Vampire{},
+			vampire: &models.OldVampire{},
 			body: url.Values{
 				"description": []string{"Muddy footprints, muddy handprints, muddy sheets - I leave a trail of dirt wherever I travel."},
 			}.Encode(),
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
-			expectedVampire: &models.Vampire{
+			expectedVampire: &models.OldVampire{
 				Marks: []*models.Mark{
 					{
 						ID:          1,
