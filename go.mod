@@ -9,7 +9,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/jackc/pgconn v1.10.0
 	github.com/jackc/pgx/v4 v4.13.0
-	github.com/jdbann/browsertest v0.1.1
+	github.com/jdbann/browsertest v0.1.2
 	github.com/labstack/echo/v4 v4.6.1
 	github.com/mattn/go-colorable v0.1.10 // indirect
 	github.com/pressly/goose/v3 v3.3.1

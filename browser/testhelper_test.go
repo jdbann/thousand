@@ -46,23 +46,7 @@ func (bt *BrowserTest) Models() *models.Models {
 }
 
 func (bt *BrowserTest) WaitForTurbo() browsertest.Action {
-	return bt.ActionFunc(
-		chromedp.ActionFunc(func(ctx context.Context) error {
-			var result bool
-
-			if err := chromedp.Run(ctx, chromedp.Poll(`window.Turbo != undefined`, &result)); err != nil {
-				return err
-			}
-
-			if result == false {
-				// I don't think this should be possible
-				bt.Fatal("[WaitForTurbo] Attempt to wait returned false")
-			}
-
-			return nil
-		}),
-		"[WaitForTurbo]",
-	)
+	return bt.Test.Poll(`window.Turbo != undefined`)
 }
 
 func (bt *BrowserTest) CaptureScreenshot(name string) browsertest.Action {
