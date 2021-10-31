@@ -48,7 +48,7 @@ func Test_InMemory_ForgetExperience(t *testing.T) {
 
 	bt := NewBrowserTest(t)
 	bt.app.Vampire = &models.Vampire{
-		Memories: []*models.Memory{
+		Memories: []*models.OldMemory{
 			{
 				ID:          1,
 				Experiences: []models.Experience{models.Experience(notExpectedExperience)},

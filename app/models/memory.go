@@ -1,40 +1,44 @@
 package models
 
 import (
-	"database/sql"
-	"time"
-
+	"emailaddress.horse/thousand/db"
 	"github.com/google/uuid"
 )
 
-// Memory holds a maximum of three experiences.
-type Memory struct {
+// OldMemory holds a maximum of three experiences.
+type OldMemory struct {
 	ID          int
 	Experiences []Experience
 }
 
-// NewMemory will replace Memory when the DB persistence work is complete.
-// TODO: Replace Memory with NewMemory
-type NewMemory struct {
-	ID        uuid.UUID
-	VampireID uuid.UUID
-	CreatedAt time.Time
-	UpdatedAt sql.NullTime
-}
-
-type WholeMemory struct {
-	NewMemory
+// Memory holds the domain level representation of a vampire's memory.
+type Memory struct {
+	ID          uuid.UUID
+	VampireID   uuid.UUID
 	Experiences []NewExperience
 }
 
+func newMemory(dbMemory db.Memory, dbExperiences []db.Experience) Memory {
+	var experiences = make([]NewExperience, len(dbExperiences))
+	for i, experience := range dbExperiences {
+		experiences[i] = NewExperience(experience)
+	}
+
+	return Memory{
+		ID:          dbMemory.ID,
+		VampireID:   dbMemory.VampireID,
+		Experiences: experiences,
+	}
+}
+
 // Full returns true if there is no more room for experiences in this memory.
-func (m *Memory) Full() bool {
+func (m *OldMemory) Full() bool {
 	return len(m.Experiences) >= 3
 }
 
 // AddExperience adds a new experience into a Memory if there is at least one
 // space available.
-func (m *Memory) AddExperience(experience Experience) error {
+func (m *OldMemory) AddExperience(experience Experience) error {
 	if len(m.Experiences) >= 3 {
 		return ErrMemoryFull
 	}

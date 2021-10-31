@@ -22,7 +22,7 @@ const (
 // Vampire holds everything related to a vampire.
 type Vampire struct {
 	Details    *Details
-	Memories   []*Memory
+	Memories   []*OldMemory
 	Skills     []*Skill
 	Resources  []*Resource
 	Characters []*Character
@@ -45,10 +45,10 @@ type NewVampire struct {
 // that are enriched with model functionality.
 type WholeVampire struct {
 	NewVampire
-	Memories []WholeMemory
+	Memories []Memory
 }
 
-func (v *Vampire) findMemory(memoryID int) (*Memory, error) {
+func (v *Vampire) findMemory(memoryID int) (*OldMemory, error) {
 	for _, memory := range v.Memories {
 		if memory.ID == memoryID {
 			return memory, nil
@@ -65,13 +65,13 @@ func (v *Vampire) ForgetMemory(memoryID int) error {
 		return err
 	}
 
-	memories := make([]*Memory, len(v.Memories))
+	memories := make([]*OldMemory, len(v.Memories))
 	copy(memories, v.Memories)
 	sort.Slice(memories, func(i, j int) bool { return memories[i].ID > memories[j].ID })
 
 	newID := memories[0].ID + 1
 
-	newMemory := Memory{
+	newMemory := OldMemory{
 		ID:          newID,
 		Experiences: []Experience{},
 	}

@@ -28,7 +28,7 @@ func TestCreateVampire(t *testing.T) {
 				NewVampire{
 					Name: "Gruffudd",
 				},
-				[]WholeMemory{},
+				[]Memory{},
 			},
 		},
 	}

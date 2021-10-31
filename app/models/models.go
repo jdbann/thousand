@@ -40,12 +40,9 @@ func (m *Models) CreateVampire(ctx context.Context, name string) (WholeVampire, 
 		return WholeVampire{}, err
 	}
 
-	memories := make([]WholeMemory, len(dbMemories))
+	memories := make([]Memory, len(dbMemories))
 	for i, dbMemory := range dbMemories {
-		memories[i] = WholeMemory{
-			NewMemory(dbMemory),
-			make([]NewExperience, 0, 3),
-		}
+		memories[i] = newMemory(dbMemory, make([]db.Experience, 0, 3))
 	}
 
 	return WholeVampire{NewVampire(v), memories}, nil
@@ -68,18 +65,17 @@ func (m *Models) GetVampire(ctx context.Context, id uuid.UUID) (WholeVampire, er
 		return WholeVampire{}, err
 	}
 
-	memories := make([]WholeMemory, len(dbMemories))
+	memories := make([]Memory, len(dbMemories))
 	for i, dbMemory := range dbMemories {
-		memory := NewMemory(dbMemory)
-		experiences := make([]NewExperience, 0, 3)
+		experiences := make([]db.Experience, 0, 3)
 
 		for _, experience := range dbExperiences {
 			if experience.MemoryID == dbMemory.ID {
-				experiences = append(experiences, NewExperience(experience))
+				experiences = append(experiences, experience)
 			}
 		}
 
-		memories[i] = WholeMemory{memory, experiences}
+		memories[i] = newMemory(dbMemory, experiences)
 	}
 
 	return WholeVampire{NewVampire(v), memories}, nil
@@ -100,7 +96,7 @@ func (m *Models) GetVampires(ctx context.Context) ([]NewVampire, error) {
 	return nvs, nil
 }
 
-func (m *Models) GetMemory(ctx context.Context, vampireID, id uuid.UUID) (WholeMemory, error) {
+func (m *Models) GetMemory(ctx context.Context, vampireID, id uuid.UUID) (Memory, error) {
 	params := db.GetMemoryParams{
 		VampireID: vampireID,
 		MemoryID:  id,
@@ -108,10 +104,11 @@ func (m *Models) GetMemory(ctx context.Context, vampireID, id uuid.UUID) (WholeM
 
 	dbMemory, err := m.Queries.GetMemory(ctx, params)
 	if err != nil {
-		return WholeMemory{}, err
+		return Memory{}, err
 	}
 
-	return WholeMemory{NewMemory(dbMemory), []NewExperience{}}, nil
+	// TODO: Also return experiences?
+	return newMemory(dbMemory, []db.Experience{}), nil
 }
 
 // AddExperience attempts to add a new experience to the DB for the provided

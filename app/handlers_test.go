@@ -307,7 +307,7 @@ func TestDeleteMemory(t *testing.T) {
 		{
 			name: "successful",
 			vampire: &models.Vampire{
-				Memories: []*models.Memory{
+				Memories: []*models.OldMemory{
 					{
 						ID: 1,
 						Experiences: []models.Experience{
@@ -322,7 +322,7 @@ func TestDeleteMemory(t *testing.T) {
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
 			expectedVampire: &models.Vampire{
-				Memories: []*models.Memory{
+				Memories: []*models.OldMemory{
 					{
 						ID:          2,
 						Experiences: []models.Experience{},
@@ -489,7 +489,7 @@ func TestOldCreateExperience(t *testing.T) {
 		{
 			name: "successful",
 			vampire: &models.Vampire{
-				Memories: []*models.Memory{
+				Memories: []*models.OldMemory{
 					{
 						ID: 1,
 					},
@@ -501,7 +501,7 @@ func TestOldCreateExperience(t *testing.T) {
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
 			expectedVampire: &models.Vampire{
-				Memories: []*models.Memory{
+				Memories: []*models.OldMemory{
 					{
 						ID: 1,
 						Experiences: []models.Experience{

@@ -11,19 +11,19 @@ func TestFull(t *testing.T) {
 
 	tests := []struct {
 		name           string
-		memory         *Memory
+		memory         *OldMemory
 		expectedResult bool
 	}{
 		{
 			name: "false with no experiences",
-			memory: &Memory{
+			memory: &OldMemory{
 				Experiences: []Experience{},
 			},
 			expectedResult: false,
 		},
 		{
 			name: "false with less than three experiences",
-			memory: &Memory{
+			memory: &OldMemory{
 				Experiences: []Experience{
 					Experience("one"),
 					Experience("two"),
@@ -33,7 +33,7 @@ func TestFull(t *testing.T) {
 		},
 		{
 			name: "true with three experiences",
-			memory: &Memory{
+			memory: &OldMemory{
 				Experiences: []Experience{
 					Experience("one"),
 					Experience("two"),
@@ -44,7 +44,7 @@ func TestFull(t *testing.T) {
 		},
 		{
 			name: "true with more than three experiences",
-			memory: &Memory{
+			memory: &OldMemory{
 				Experiences: []Experience{
 					Experience("one"),
 					Experience("two"),
@@ -76,18 +76,18 @@ func TestMemory_AddExperience(t *testing.T) {
 
 	tests := []struct {
 		name           string
-		memory         *Memory
+		memory         *OldMemory
 		experience     Experience
-		expectedMemory *Memory
+		expectedMemory *OldMemory
 		expectedError  error
 	}{
 		{
 			name: "success with empty memory",
-			memory: &Memory{
+			memory: &OldMemory{
 				Experiences: []Experience{},
 			},
 			experience: Experience("one"),
-			expectedMemory: &Memory{
+			expectedMemory: &OldMemory{
 				Experiences: []Experience{
 					Experience("one"),
 				},
@@ -96,13 +96,13 @@ func TestMemory_AddExperience(t *testing.T) {
 		},
 		{
 			name: "success with partially filled memory",
-			memory: &Memory{
+			memory: &OldMemory{
 				Experiences: []Experience{
 					Experience("one"),
 				},
 			},
 			experience: Experience("two"),
-			expectedMemory: &Memory{
+			expectedMemory: &OldMemory{
 				Experiences: []Experience{
 					Experience("one"),
 					Experience("two"),
@@ -112,7 +112,7 @@ func TestMemory_AddExperience(t *testing.T) {
 		},
 		{
 			name: "failure with full memory",
-			memory: &Memory{
+			memory: &OldMemory{
 				Experiences: []Experience{
 					Experience("one"),
 					Experience("two"),
@@ -120,7 +120,7 @@ func TestMemory_AddExperience(t *testing.T) {
 				},
 			},
 			experience: Experience("four"),
-			expectedMemory: &Memory{
+			expectedMemory: &OldMemory{
 				Experiences: []Experience{
 					Experience("one"),
 					Experience("two"),

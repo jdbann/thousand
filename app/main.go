@@ -33,7 +33,7 @@ func NewApp(configurers ...Configurer) *App {
 	app := &App{
 		Echo: echo.New(),
 		Vampire: &models.Vampire{
-			Memories: []*models.Memory{
+			Memories: []*models.OldMemory{
 				{ID: 1},
 				{ID: 2},
 				{ID: 3},
