@@ -310,7 +310,7 @@ func TestDeleteMemory(t *testing.T) {
 				Memories: []*models.OldMemory{
 					{
 						ID: 1,
-						Experiences: []models.Experience{
+						Experiences: []models.OldExperience{
 							"one",
 						},
 					},
@@ -325,7 +325,7 @@ func TestDeleteMemory(t *testing.T) {
 				Memories: []*models.OldMemory{
 					{
 						ID:          2,
-						Experiences: []models.Experience{},
+						Experiences: []models.OldExperience{},
 					},
 				},
 			},
@@ -504,7 +504,7 @@ func TestOldCreateExperience(t *testing.T) {
 				Memories: []*models.OldMemory{
 					{
 						ID: 1,
-						Experiences: []models.Experience{
+						Experiences: []models.OldExperience{
 							"one",
 						},
 					},

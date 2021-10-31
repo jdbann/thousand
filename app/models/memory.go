@@ -8,20 +8,20 @@ import (
 // OldMemory holds a maximum of three experiences.
 type OldMemory struct {
 	ID          int
-	Experiences []Experience
+	Experiences []OldExperience
 }
 
 // Memory holds the domain level representation of a vampire's memory.
 type Memory struct {
 	ID          uuid.UUID
 	VampireID   uuid.UUID
-	Experiences []NewExperience
+	Experiences []Experience
 }
 
 func newMemory(dbMemory db.Memory, dbExperiences []db.Experience) Memory {
-	var experiences = make([]NewExperience, len(dbExperiences))
-	for i, experience := range dbExperiences {
-		experiences[i] = NewExperience(experience)
+	var experiences = make([]Experience, len(dbExperiences))
+	for i, dbExperience := range dbExperiences {
+		experiences[i] = newExperience(dbExperience)
 	}
 
 	return Memory{
@@ -38,11 +38,11 @@ func (m *OldMemory) Full() bool {
 
 // AddExperience adds a new experience into a Memory if there is at least one
 // space available.
-func (m *OldMemory) AddExperience(experience Experience) error {
+func (m *OldMemory) AddExperience(experience OldExperience) error {
 	if len(m.Experiences) >= 3 {
 		return ErrMemoryFull
 	}
 
-	m.Experiences = append(m.Experiences, Experience(experience))
+	m.Experiences = append(m.Experiences, OldExperience(experience))
 	return nil
 }

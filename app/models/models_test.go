@@ -63,7 +63,7 @@ func TestAddExperience(t *testing.T) {
 	tests := []struct {
 		name                string
 		descriptions        []string
-		expectedExperiences []NewExperience
+		expectedExperiences []Experience
 		expectedErrors      []error
 	}{
 		{
@@ -71,7 +71,7 @@ func TestAddExperience(t *testing.T) {
 			descriptions: []string{
 				"Experience 1",
 			},
-			expectedExperiences: []NewExperience{
+			expectedExperiences: []Experience{
 				{
 					Description: "Experience 1",
 				},
@@ -87,7 +87,7 @@ func TestAddExperience(t *testing.T) {
 				"Experience 2",
 				"Experience 3",
 			},
-			expectedExperiences: []NewExperience{
+			expectedExperiences: []Experience{
 				{
 					Description: "Experience 1",
 				},
@@ -112,7 +112,7 @@ func TestAddExperience(t *testing.T) {
 				"Experience 3",
 				"Experience 4",
 			},
-			expectedExperiences: []NewExperience{
+			expectedExperiences: []Experience{
 				{
 					Description: "Experience 1",
 				},
@@ -162,7 +162,7 @@ func TestAddExperience(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			if diff := cmp.Diff(tt.expectedExperiences, actualExperiences, ignoreNewExperienceFields); diff != "" {
+			if diff := cmp.Diff(tt.expectedExperiences, actualExperiences, ignoreExperienceFields); diff != "" {
 				t.Error(diff)
 			}
 		})

@@ -73,7 +73,7 @@ func (v *Vampire) ForgetMemory(memoryID int) error {
 
 	newMemory := OldMemory{
 		ID:          newID,
-		Experiences: []Experience{},
+		Experiences: []OldExperience{},
 	}
 
 	*memory = newMemory
@@ -88,7 +88,7 @@ func (v *Vampire) AddExperience(memoryID int, experienceString string) error {
 		return err
 	}
 
-	experience := Experience(experienceString)
+	experience := OldExperience(experienceString)
 	return memory.AddExperience(experience)
 }
 

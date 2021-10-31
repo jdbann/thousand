@@ -1,22 +1,24 @@
 package models
 
 import (
-	"database/sql"
-	"time"
-
+	"emailaddress.horse/thousand/db"
 	"github.com/google/uuid"
 )
 
-// Experience holds the details of a single experience.
-type Experience string
+// OldExperience holds the details of a single experience.
+type OldExperience string
 
-// NewExperience will replace Experience when the DB persistence work is
-// complete.
-// TODO: Replace Experience with NewExperience
-type NewExperience struct {
+// Experience holds the domain level representation of a vampire's experience.
+type Experience struct {
 	ID          uuid.UUID
 	MemoryID    uuid.UUID
 	Description string
-	CreatedAt   time.Time
-	UpdatedAt   sql.NullTime
+}
+
+func newExperience(experience db.Experience) Experience {
+	return Experience{
+		ID:          experience.ID,
+		MemoryID:    experience.MemoryID,
+		Description: experience.Description,
+	}
 }

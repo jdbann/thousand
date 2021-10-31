@@ -17,7 +17,7 @@ var (
 	ignoreNewVampireFields = cmpopts.IgnoreFields(NewVampire{}, "ID", "CreatedAt", "UpdatedAt")
 
 	// ID, MemoryID and timestamps are defined by the DB and do not require matching
-	ignoreNewExperienceFields = cmpopts.IgnoreFields(NewExperience{}, "ID", "MemoryID", "CreatedAt", "UpdatedAt")
+	ignoreExperienceFields = cmpopts.IgnoreFields(Experience{}, "ID", "MemoryID")
 )
 
 type testModels struct {

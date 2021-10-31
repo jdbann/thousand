@@ -22,7 +22,7 @@ func TestForgetMemory(t *testing.T) {
 				Memories: []*OldMemory{
 					{
 						ID:          1,
-						Experiences: []Experience{Experience("one")},
+						Experiences: []OldExperience{OldExperience("one")},
 					},
 				},
 			},
@@ -31,7 +31,7 @@ func TestForgetMemory(t *testing.T) {
 				Memories: []*OldMemory{
 					{
 						ID:          2,
-						Experiences: []Experience{},
+						Experiences: []OldExperience{},
 					},
 				},
 			},
@@ -43,11 +43,11 @@ func TestForgetMemory(t *testing.T) {
 				Memories: []*OldMemory{
 					{
 						ID:          1,
-						Experiences: []Experience{Experience("one")},
+						Experiences: []OldExperience{OldExperience("one")},
 					},
 					{
 						ID:          2,
-						Experiences: []Experience{Experience("two")},
+						Experiences: []OldExperience{OldExperience("two")},
 					},
 				},
 			},
@@ -56,11 +56,11 @@ func TestForgetMemory(t *testing.T) {
 				Memories: []*OldMemory{
 					{
 						ID:          3,
-						Experiences: []Experience{},
+						Experiences: []OldExperience{},
 					},
 					{
 						ID:          2,
-						Experiences: []Experience{Experience("two")},
+						Experiences: []OldExperience{OldExperience("two")},
 					},
 				},
 			},
@@ -120,7 +120,7 @@ func TestVampire_AddExperience(t *testing.T) {
 				Memories: []*OldMemory{
 					{
 						ID:          1,
-						Experiences: []Experience{Experience("one")},
+						Experiences: []OldExperience{OldExperience("one")},
 					},
 				},
 			},
@@ -132,10 +132,10 @@ func TestVampire_AddExperience(t *testing.T) {
 				Memories: []*OldMemory{
 					{
 						ID: 1,
-						Experiences: []Experience{
-							Experience("one"),
-							Experience("two"),
-							Experience("three"),
+						Experiences: []OldExperience{
+							OldExperience("one"),
+							OldExperience("two"),
+							OldExperience("three"),
 						},
 					},
 				},
@@ -146,10 +146,10 @@ func TestVampire_AddExperience(t *testing.T) {
 				Memories: []*OldMemory{
 					{
 						ID: 1,
-						Experiences: []Experience{
-							Experience("one"),
-							Experience("two"),
-							Experience("three"),
+						Experiences: []OldExperience{
+							OldExperience("one"),
+							OldExperience("two"),
+							OldExperience("three"),
 						},
 					},
 				},

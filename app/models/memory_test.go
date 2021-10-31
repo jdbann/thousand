@@ -17,16 +17,16 @@ func TestFull(t *testing.T) {
 		{
 			name: "false with no experiences",
 			memory: &OldMemory{
-				Experiences: []Experience{},
+				Experiences: []OldExperience{},
 			},
 			expectedResult: false,
 		},
 		{
 			name: "false with less than three experiences",
 			memory: &OldMemory{
-				Experiences: []Experience{
-					Experience("one"),
-					Experience("two"),
+				Experiences: []OldExperience{
+					OldExperience("one"),
+					OldExperience("two"),
 				},
 			},
 			expectedResult: false,
@@ -34,10 +34,10 @@ func TestFull(t *testing.T) {
 		{
 			name: "true with three experiences",
 			memory: &OldMemory{
-				Experiences: []Experience{
-					Experience("one"),
-					Experience("two"),
-					Experience("three"),
+				Experiences: []OldExperience{
+					OldExperience("one"),
+					OldExperience("two"),
+					OldExperience("three"),
 				},
 			},
 			expectedResult: true,
@@ -45,11 +45,11 @@ func TestFull(t *testing.T) {
 		{
 			name: "true with more than three experiences",
 			memory: &OldMemory{
-				Experiences: []Experience{
-					Experience("one"),
-					Experience("two"),
-					Experience("three"),
-					Experience("four"),
+				Experiences: []OldExperience{
+					OldExperience("one"),
+					OldExperience("two"),
+					OldExperience("three"),
+					OldExperience("four"),
 				},
 			},
 			expectedResult: true,
@@ -77,19 +77,19 @@ func TestMemory_AddExperience(t *testing.T) {
 	tests := []struct {
 		name           string
 		memory         *OldMemory
-		experience     Experience
+		experience     OldExperience
 		expectedMemory *OldMemory
 		expectedError  error
 	}{
 		{
 			name: "success with empty memory",
 			memory: &OldMemory{
-				Experiences: []Experience{},
+				Experiences: []OldExperience{},
 			},
-			experience: Experience("one"),
+			experience: OldExperience("one"),
 			expectedMemory: &OldMemory{
-				Experiences: []Experience{
-					Experience("one"),
+				Experiences: []OldExperience{
+					OldExperience("one"),
 				},
 			},
 			expectedError: nil,
@@ -97,15 +97,15 @@ func TestMemory_AddExperience(t *testing.T) {
 		{
 			name: "success with partially filled memory",
 			memory: &OldMemory{
-				Experiences: []Experience{
-					Experience("one"),
+				Experiences: []OldExperience{
+					OldExperience("one"),
 				},
 			},
-			experience: Experience("two"),
+			experience: OldExperience("two"),
 			expectedMemory: &OldMemory{
-				Experiences: []Experience{
-					Experience("one"),
-					Experience("two"),
+				Experiences: []OldExperience{
+					OldExperience("one"),
+					OldExperience("two"),
 				},
 			},
 			expectedError: nil,
@@ -113,18 +113,18 @@ func TestMemory_AddExperience(t *testing.T) {
 		{
 			name: "failure with full memory",
 			memory: &OldMemory{
-				Experiences: []Experience{
-					Experience("one"),
-					Experience("two"),
-					Experience("three"),
+				Experiences: []OldExperience{
+					OldExperience("one"),
+					OldExperience("two"),
+					OldExperience("three"),
 				},
 			},
-			experience: Experience("four"),
+			experience: OldExperience("four"),
 			expectedMemory: &OldMemory{
-				Experiences: []Experience{
-					Experience("one"),
-					Experience("two"),
-					Experience("three"),
+				Experiences: []OldExperience{
+					OldExperience("one"),
+					OldExperience("two"),
+					OldExperience("three"),
 				},
 			},
 			expectedError: ErrMemoryFull,

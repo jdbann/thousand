@@ -51,7 +51,7 @@ func Test_InMemory_ForgetExperience(t *testing.T) {
 		Memories: []*models.OldMemory{
 			{
 				ID:          1,
-				Experiences: []models.Experience{models.Experience(notExpectedExperience)},
+				Experiences: []models.OldExperience{models.OldExperience(notExpectedExperience)},
 			},
 		},
 	}

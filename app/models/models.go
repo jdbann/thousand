@@ -113,7 +113,7 @@ func (m *Models) GetMemory(ctx context.Context, vampireID, id uuid.UUID) (Memory
 
 // AddExperience attempts to add a new experience to the DB for the provided
 // memory.
-func (m *Models) AddExperience(ctx context.Context, vampireID, memoryID uuid.UUID, description string) (NewExperience, error) {
+func (m *Models) AddExperience(ctx context.Context, vampireID, memoryID uuid.UUID, description string) (Experience, error) {
 	params := db.CreateExperienceParams{
 		VampireID:   vampireID,
 		MemoryID:    memoryID,
@@ -126,23 +126,23 @@ func (m *Models) AddExperience(ctx context.Context, vampireID, memoryID uuid.UUI
 			err = ErrMemoryFull
 		}
 
-		return NewExperience{}, err
+		return Experience{}, err
 	}
 
-	return NewExperience(dbExperience), nil
+	return newExperience(dbExperience), nil
 }
 
 // GetExperiences attempts to retrieve all the experiences from the DB for the
 // provided vampire.
-func (m *Models) GetExperiences(ctx context.Context, vampireID uuid.UUID) ([]NewExperience, error) {
+func (m *Models) GetExperiences(ctx context.Context, vampireID uuid.UUID) ([]Experience, error) {
 	dbExperiences, err := m.Queries.GetExperiencesForVampire(ctx, vampireID)
 	if err != nil {
 		return nil, err
 	}
 
-	var experiences []NewExperience
-	for _, experience := range dbExperiences {
-		experiences = append(experiences, NewExperience(experience))
+	var experiences []Experience
+	for _, dbExperience := range dbExperiences {
+		experiences = append(experiences, newExperience(dbExperience))
 	}
 
 	return experiences, nil
