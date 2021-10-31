@@ -27,13 +27,15 @@ func (app *App) setupRoutes() {
 	app.GET("/vampires/new", app.newVampire).Name = "new-vampire"
 	app.POST("/vampires", app.createVampire).Name = "create-vampire"
 	app.GET("/vampires/:id", app.showVampire).Name = "show-vampire"
+	app.GET("/vampires/:vampireID/memories/:id/experiences/new", app.newExperience).Name = "new-experience"
+	app.POST("/vampires/:vampireID/memories/:id/experiences", app.createExperience).Name = "create-experience"
 
 	// Details
 	app.POST("/details", app.createDetails).Name = "create-details"
 
 	// Memories
 	app.DELETE("/memories/:id", app.deleteMemory).Name = "delete-memory"
-	app.POST("/memories/:id/experiences", app.createExperience).Name = "create-experience"
+	app.POST("/memories/:id/experiences", app.oldCreateExperience).Name = "old-create-experience"
 
 	// Skills
 	app.POST("/skills", app.createSkill).Name = "create-skill"

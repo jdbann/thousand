@@ -11,11 +11,9 @@ import (
 func TestCreateVampire(t *testing.T) {
 	t.Parallel()
 
-	ignoreFields := []cmp.Option{
-		// Memories when blank have no matchable attributes so need to be ignored
-		cmpopts.IgnoreFields(WholeVampire{}, "Memories"),
-		// ID and timestamps are defined by the DB and do not require matching
-		cmpopts.IgnoreFields(NewVampire{}, "ID", "CreatedAt", "UpdatedAt"),
+	ignoreFields := cmp.Options{
+		ignoreWholeVampireFields,
+		ignoreNewVampireFields,
 	}
 
 	tests := []struct {
@@ -30,7 +28,7 @@ func TestCreateVampire(t *testing.T) {
 				NewVampire{
 					Name: "Gruffudd",
 				},
-				[]NewMemory{},
+				[]WholeMemory{},
 			},
 		},
 	}
@@ -54,6 +52,118 @@ func TestCreateVampire(t *testing.T) {
 
 			if len(actualWholeVampire.Memories) != vampireMemorySize {
 				t.Errorf("expected %d memories; found %d", vampireMemorySize, len(actualWholeVampire.Memories))
+			}
+		})
+	}
+}
+
+func TestAddExperience(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name                string
+		descriptions        []string
+		expectedExperiences []NewExperience
+		expectedErrors      []error
+	}{
+		{
+			name: "successful",
+			descriptions: []string{
+				"Experience 1",
+			},
+			expectedExperiences: []NewExperience{
+				{
+					Description: "Experience 1",
+				},
+			},
+			expectedErrors: []error{
+				nil,
+			},
+		},
+		{
+			name: "successful three times",
+			descriptions: []string{
+				"Experience 1",
+				"Experience 2",
+				"Experience 3",
+			},
+			expectedExperiences: []NewExperience{
+				{
+					Description: "Experience 1",
+				},
+				{
+					Description: "Experience 2",
+				},
+				{
+					Description: "Experience 3",
+				},
+			},
+			expectedErrors: []error{
+				nil,
+				nil,
+				nil,
+			},
+		},
+		{
+			name: "failure on fourth experience",
+			descriptions: []string{
+				"Experience 1",
+				"Experience 2",
+				"Experience 3",
+				"Experience 4",
+			},
+			expectedExperiences: []NewExperience{
+				{
+					Description: "Experience 1",
+				},
+				{
+					Description: "Experience 2",
+				},
+				{
+					Description: "Experience 3",
+				},
+			},
+			expectedErrors: []error{
+				nil,
+				nil,
+				nil,
+				ErrMemoryFull,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			m := newTestModels(t)
+
+			vampire, err := m.CreateVampire(context.Background(), "test vampire")
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			var actualErrors []error
+			memory := vampire.Memories[0]
+			for _, description := range tt.descriptions {
+				err := m.WithSavepoint(func(m *Models) error {
+					_, err := m.AddExperience(context.Background(), memory.ID, description)
+					return err
+				})
+				actualErrors = append(actualErrors, err)
+			}
+
+			if diff := cmp.Diff(tt.expectedErrors, actualErrors, cmpopts.EquateErrors()); diff != "" {
+				t.Error(diff)
+			}
+
+			actualExperiences, err := m.GetExperiences(context.Background(), vampire.ID)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if diff := cmp.Diff(tt.expectedExperiences, actualExperiences, ignoreNewExperienceFields); diff != "" {
+				t.Error(diff)
 			}
 		})
 	}

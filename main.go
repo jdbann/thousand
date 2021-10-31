@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"emailaddress.horse/thousand/cmd"
+	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
 func main() {

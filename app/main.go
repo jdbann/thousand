@@ -3,7 +3,6 @@ package app
 import (
 	"emailaddress.horse/thousand/app/models"
 	"github.com/labstack/echo/v4"
-	_ "github.com/lib/pq"
 )
 
 // App is a configured instance of the application, ready to be served by a

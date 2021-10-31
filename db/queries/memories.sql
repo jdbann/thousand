@@ -5,3 +5,19 @@ SELECT
 RETURNING
     *;
 
+-- name: GetMemory :one
+SELECT
+    *
+FROM
+    memories
+WHERE
+    id = $1;
+
+-- name: GetMemoriesForVampire :many
+SELECT
+    *
+FROM
+    memories
+WHERE
+    memories.vampire_id = $1;
+

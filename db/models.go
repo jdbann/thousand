@@ -9,6 +9,14 @@ import (
 	"github.com/google/uuid"
 )
 
+type Experience struct {
+	ID          uuid.UUID
+	MemoryID    uuid.UUID
+	Description string
+	CreatedAt   time.Time
+	UpdatedAt   sql.NullTime
+}
+
 type Memory struct {
 	ID        uuid.UUID
 	VampireID uuid.UUID

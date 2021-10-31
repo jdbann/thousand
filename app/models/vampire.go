@@ -45,7 +45,7 @@ type NewVampire struct {
 // that are enriched with model functionality.
 type WholeVampire struct {
 	NewVampire
-	Memories []NewMemory
+	Memories []WholeMemory
 }
 
 func (v *Vampire) findMemory(memoryID int) (*Memory, error) {

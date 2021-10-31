@@ -1,0 +1,25 @@
+{{ template "base" . }}
+
+{{ define "main" }}
+  {{ with .Data.memory }}
+    <turbo-frame id="memory-{{ .ID }}-newExperience">
+      <form
+        method="POST"
+        action="{{ $.Reverse "create-experience" .VampireID.String .ID.String }}"
+        class="stack"
+        data-turbo-frame="_top"
+      >
+        <div class="stack stack-small">
+          <label for="memory-{{ .ID }}-description">Description</label>
+          <input
+            id="memory-{{ .ID }}-description"
+            name="description"
+            type="text"
+          />
+        </div>
+
+        <input type="submit" value="Create Experience" />
+      </form>
+    </turbo-frame>
+  {{ end }}
+{{ end }}

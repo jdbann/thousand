@@ -2,14 +2,10 @@ package models
 
 import (
 	"database/sql"
-	"errors"
 	"time"
 
 	"github.com/google/uuid"
 )
-
-// ErrMemoryFull is returned when trying to add experiences to a full memory.
-var ErrMemoryFull = errors.New("Memory is full")
 
 // Memory holds a maximum of three experiences.
 type Memory struct {
@@ -24,6 +20,11 @@ type NewMemory struct {
 	VampireID uuid.UUID
 	CreatedAt time.Time
 	UpdatedAt sql.NullTime
+}
+
+type WholeMemory struct {
+	NewMemory
+	Experiences []NewExperience
 }
 
 // Full returns true if there is no more room for experiences in this memory.

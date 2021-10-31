@@ -5,5 +5,27 @@
     <div id="details">
       {{ .Name }}
     </div>
+
+    <div id="memories" class="stack">
+      <h2>Memories</h2>
+
+      {{ range .Memories }}
+        <div id="memory-{{ .ID }}">
+          <ul>
+            {{ range .Experiences }}
+              <li>{{ .Description }}</li>
+            {{ else }}
+              <li>No experiences..</li>
+            {{ end }}
+          </ul>
+
+          <turbo-frame id="memory-{{ .ID }}-newExperience">
+            <a href="{{ $.Reverse "new-experience" .VampireID .ID }}">
+              New Experience
+            </a>
+          </turbo-frame>
+        </div>
+      {{ end }}
+    </div>
   {{ end }}
 {{ end }}

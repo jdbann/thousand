@@ -17,7 +17,7 @@ RETURNING
 `
 
 func (q *Queries) CreateVampire(ctx context.Context, name string) (Vampire, error) {
-	row := q.db.QueryRowContext(ctx, createVampire, name)
+	row := q.db.QueryRow(ctx, createVampire, name)
 	var i Vampire
 	err := row.Scan(
 		&i.ID,
@@ -39,7 +39,7 @@ LIMIT 1
 `
 
 func (q *Queries) GetVampire(ctx context.Context, id uuid.UUID) (Vampire, error) {
-	row := q.db.QueryRowContext(ctx, getVampire, id)
+	row := q.db.QueryRow(ctx, getVampire, id)
 	var i Vampire
 	err := row.Scan(
 		&i.ID,
@@ -58,7 +58,7 @@ FROM
 `
 
 func (q *Queries) GetVampires(ctx context.Context) ([]Vampire, error) {
-	rows, err := q.db.QueryContext(ctx, getVampires)
+	rows, err := q.db.Query(ctx, getVampires)
 	if err != nil {
 		return nil, err
 	}
@@ -75,9 +75,6 @@ func (q *Queries) GetVampires(ctx context.Context) ([]Vampire, error) {
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

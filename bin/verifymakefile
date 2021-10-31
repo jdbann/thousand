@@ -1,0 +1,3 @@
+#!/bin/sh
+
+make -rpn | sed -n -e '/^$/ { n ; /^[^ .#][^ ]*:/ { s/:.*$// ; p ; } ; }' | xargs -L1 make --dry-run 1>/dev/null

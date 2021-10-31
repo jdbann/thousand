@@ -1,11 +1,12 @@
 package app
 
 import (
-	"database/sql"
+	"context"
 	"errors"
 
 	"emailaddress.horse/thousand/app/models"
 	"emailaddress.horse/thousand/templates"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 var (
@@ -49,8 +50,17 @@ func baseConfig(app *App) {
 	app.DBConnector = defaultDBConnector
 }
 
+// TODO: Don't use LazyConnect - Requires changing setup so we call it when we
+// start the app, not when initialising.
 func defaultDBConnector(databaseURL string) (models.DBTX, error) {
-	return sql.Open("postgres", databaseURL)
+	config, err := pgxpool.ParseConfig(databaseURL)
+	if err != nil {
+		return nil, err
+	}
+
+	config.LazyConnect = true
+
+	return pgxpool.ConnectConfig(context.Background(), config)
 }
 
 // ConfigFor returns the correct Configurer for the requested environment, or an

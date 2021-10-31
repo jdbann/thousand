@@ -2,12 +2,12 @@ package app
 
 import (
 	"context"
-	"database/sql"
 	"os"
 	"strings"
 	"testing"
 
 	"emailaddress.horse/thousand/app/models"
+	"github.com/jackc/pgx/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -57,18 +57,18 @@ func BaseTestConfigurer(outf func(string, ...interface{})) EnvConfigurer {
 
 func _transactionConnector(t *testing.T) DBConnector {
 	return func(databaseURL string) (models.DBTX, error) {
-		conn, err := sql.Open("postgres", databaseURL)
+		conn, err := pgx.Connect(context.Background(), databaseURL)
 		if err != nil {
 			return nil, err
 		}
 
-		txn, err := conn.BeginTx(context.Background(), &sql.TxOptions{})
+		txn, err := conn.BeginTx(context.Background(), pgx.TxOptions{})
 		if err != nil {
 			return nil, err
 		}
 
 		t.Cleanup(func() {
-			if err := txn.Rollback(); err != nil {
+			if err := txn.Rollback(context.Background()); err != nil {
 				t.Fatal(err)
 			}
 		})

@@ -8,7 +8,6 @@ import (
 	"text/tabwriter"
 
 	"emailaddress.horse/thousand/app"
-	_ "github.com/lib/pq"
 	"github.com/urfave/cli/v2"
 )
 

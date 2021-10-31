@@ -89,7 +89,7 @@ func (app *App) deleteMemory(c echo.Context) error {
 	return c.Redirect(http.StatusFound, "/")
 }
 
-func (app *App) createExperience(c echo.Context) error {
+func (app *App) oldCreateExperience(c echo.Context) error {
 	memoryID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return err
@@ -100,6 +100,43 @@ func (app *App) createExperience(c echo.Context) error {
 	}
 
 	return c.Redirect(http.StatusFound, "/")
+}
+
+func (app *App) newExperience(c echo.Context) error {
+	memoryID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		return err
+	}
+
+	// TODO: Provide vampireID to ensure the memory is valid for this vampire
+	memory, err := app.Models.GetMemory(c.Request().Context(), memoryID)
+	if err != nil {
+		return err
+	}
+
+	data := app.data(dataMap{"memory": memory})
+	return c.Render(http.StatusOK, "experiences/new", data)
+}
+
+func (app *App) createExperience(c echo.Context) error {
+	vampireID, err := uuid.Parse(c.Param("vampireID"))
+	if err != nil {
+		return err
+	}
+
+	memoryID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		return err
+	}
+
+	description := c.FormValue("description")
+
+	// TODO: Provide vampireID to make sure that memory is for this vampire
+	if _, err := app.Models.AddExperience(c.Request().Context(), memoryID, description); err != nil {
+		return err
+	}
+
+	return c.Redirect(http.StatusSeeOther, app.Reverse("show-vampire", vampireID.String()))
 }
 
 func (app *App) createSkill(c echo.Context) error {
