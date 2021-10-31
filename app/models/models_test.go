@@ -147,7 +147,7 @@ func TestAddExperience(t *testing.T) {
 			memory := vampire.Memories[0]
 			for _, description := range tt.descriptions {
 				err := m.WithSavepoint(func(m *Models) error {
-					_, err := m.AddExperience(context.Background(), memory.ID, description)
+					_, err := m.AddExperience(context.Background(), vampire.ID, memory.ID, description)
 					return err
 				})
 				actualErrors = append(actualErrors, err)

@@ -11,18 +11,27 @@ import (
 
 const createExperience = `-- name: CreateExperience :one
 INSERT INTO experiences (memory_id, description)
-    VALUES ($1, $2)
+    VALUES ((
+            SELECT
+                memories.id
+            FROM
+                memories
+            WHERE
+                memories.id = $1
+                AND memories.vampire_id = $2),
+            $3)
 RETURNING
     id, memory_id, description, created_at, updated_at
 `
 
 type CreateExperienceParams struct {
 	MemoryID    uuid.UUID
+	VampireID   uuid.UUID
 	Description string
 }
 
 func (q *Queries) CreateExperience(ctx context.Context, arg CreateExperienceParams) (Experience, error) {
-	row := q.db.QueryRow(ctx, createExperience, arg.MemoryID, arg.Description)
+	row := q.db.QueryRow(ctx, createExperience, arg.MemoryID, arg.VampireID, arg.Description)
 	var i Experience
 	err := row.Scan(
 		&i.ID,

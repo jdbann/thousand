@@ -103,13 +103,17 @@ func (app *App) oldCreateExperience(c echo.Context) error {
 }
 
 func (app *App) newExperience(c echo.Context) error {
+	vampireID, err := uuid.Parse(c.Param("vampireID"))
+	if err != nil {
+		return err
+	}
+
 	memoryID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		return err
 	}
 
-	// TODO: Provide vampireID to ensure the memory is valid for this vampire
-	memory, err := app.Models.GetMemory(c.Request().Context(), memoryID)
+	memory, err := app.Models.GetMemory(c.Request().Context(), vampireID, memoryID)
 	if err != nil {
 		return err
 	}
@@ -131,8 +135,7 @@ func (app *App) createExperience(c echo.Context) error {
 
 	description := c.FormValue("description")
 
-	// TODO: Provide vampireID to make sure that memory is for this vampire
-	if _, err := app.Models.AddExperience(c.Request().Context(), memoryID, description); err != nil {
+	if _, err := app.Models.AddExperience(c.Request().Context(), vampireID, memoryID, description); err != nil {
 		return err
 	}
 

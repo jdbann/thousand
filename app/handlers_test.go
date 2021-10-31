@@ -405,10 +405,8 @@ func TestNewExperience(t *testing.T) {
 			response := httptest.NewRecorder()
 			ctx := app.NewContext(request, response)
 			ctx.SetPath(url)
-			ctx.SetParamNames("vampireID")
-			ctx.SetParamValues(vampire.ID.String())
-			ctx.SetParamNames("id")
-			ctx.SetParamValues(vampire.Memories[0].ID.String())
+			ctx.SetParamNames("vampireID", "id")
+			ctx.SetParamValues(vampire.ID.String(), vampire.Memories[0].ID.String())
 
 			err = app.newExperience(ctx)
 
@@ -460,10 +458,8 @@ func TestCreateExperience(t *testing.T) {
 			response := httptest.NewRecorder()
 			ctx := app.NewContext(request, response)
 			ctx.SetPath(url)
-			ctx.SetParamNames("vampireID")
-			ctx.SetParamValues(vampire.ID.String())
-			ctx.SetParamNames("id")
-			ctx.SetParamValues(vampire.Memories[0].ID.String())
+			ctx.SetParamNames("vampireID", "id")
+			ctx.SetParamValues(vampire.ID.String(), vampire.Memories[0].ID.String())
 
 			err = app.createVampire(ctx)
 

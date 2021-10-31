@@ -100,8 +100,13 @@ func (m *Models) GetVampires(ctx context.Context) ([]NewVampire, error) {
 	return nvs, nil
 }
 
-func (m *Models) GetMemory(ctx context.Context, id uuid.UUID) (WholeMemory, error) {
-	dbMemory, err := m.Queries.GetMemory(ctx, id)
+func (m *Models) GetMemory(ctx context.Context, vampireID, id uuid.UUID) (WholeMemory, error) {
+	params := db.GetMemoryParams{
+		VampireID: vampireID,
+		MemoryID:  id,
+	}
+
+	dbMemory, err := m.Queries.GetMemory(ctx, params)
 	if err != nil {
 		return WholeMemory{}, err
 	}
@@ -111,8 +116,12 @@ func (m *Models) GetMemory(ctx context.Context, id uuid.UUID) (WholeMemory, erro
 
 // AddExperience attempts to add a new experience to the DB for the provided
 // memory.
-func (m *Models) AddExperience(ctx context.Context, memoryID uuid.UUID, description string) (NewExperience, error) {
-	params := db.CreateExperienceParams{MemoryID: memoryID, Description: description}
+func (m *Models) AddExperience(ctx context.Context, vampireID, memoryID uuid.UUID, description string) (NewExperience, error) {
+	params := db.CreateExperienceParams{
+		VampireID:   vampireID,
+		MemoryID:    memoryID,
+		Description: description,
+	}
 
 	dbExperience, err := m.Queries.CreateExperience(ctx, params)
 	if err != nil {

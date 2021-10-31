@@ -1,6 +1,14 @@
 -- name: CreateExperience :one
 INSERT INTO experiences (memory_id, description)
-    VALUES ($1, $2)
+    VALUES ((
+            SELECT
+                memories.id
+            FROM
+                memories
+            WHERE
+                memories.id = @memory_id
+                AND memories.vampire_id = @vampire_id),
+            @description)
 RETURNING
     *;
 

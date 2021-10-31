@@ -78,15 +78,22 @@ func (q *Queries) GetMemoriesForVampire(ctx context.Context, vampireID uuid.UUID
 
 const getMemory = `-- name: GetMemory :one
 SELECT
-    id, vampire_id, created_at, updated_at
+    memories.id, memories.vampire_id, memories.created_at, memories.updated_at
 FROM
     memories
+    INNER JOIN vampires ON memories.vampire_id = vampires.id
 WHERE
-    id = $1
+    vampires.id = $1
+    AND memories.id = $2
 `
 
-func (q *Queries) GetMemory(ctx context.Context, id uuid.UUID) (Memory, error) {
-	row := q.db.QueryRow(ctx, getMemory, id)
+type GetMemoryParams struct {
+	VampireID uuid.UUID
+	MemoryID  uuid.UUID
+}
+
+func (q *Queries) GetMemory(ctx context.Context, arg GetMemoryParams) (Memory, error) {
+	row := q.db.QueryRow(ctx, getMemory, arg.VampireID, arg.MemoryID)
 	var i Memory
 	err := row.Scan(
 		&i.ID,

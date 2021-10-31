@@ -7,11 +7,13 @@ RETURNING
 
 -- name: GetMemory :one
 SELECT
-    *
+    memories.*
 FROM
     memories
+    INNER JOIN vampires ON memories.vampire_id = vampires.id
 WHERE
-    id = $1;
+    vampires.id = @vampire_id
+    AND memories.id = @memory_id;
 
 -- name: GetMemoriesForVampire :many
 SELECT
