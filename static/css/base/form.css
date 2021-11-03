@@ -1,0 +1,5 @@
+li > form,
+li > turbo-frame > form {
+  display: inline-block;
+  width: 100%;
+}

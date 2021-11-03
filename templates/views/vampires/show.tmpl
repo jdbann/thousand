@@ -14,18 +14,21 @@
           <ul>
             {{ range .Experiences }}
               <li>{{ .Description }}</li>
-            {{ else }}
-              <li>No experiences..</li>
+            {{ end }}
+            {{ if not .Full }}
+              <li>
+                <turbo-frame
+                  id="memory-{{ .ID }}-newExperience"
+                  data-controller="frame"
+                  data-action="click@window->frame#restore"
+                >
+                  <a href="{{ $.Reverse "new-experience" .VampireID .ID }}">
+                    New Experience
+                  </a>
+                </turbo-frame>
+              </li>
             {{ end }}
           </ul>
-
-          {{ if not .Full }}
-            <turbo-frame id="memory-{{ .ID }}-newExperience">
-              <a href="{{ $.Reverse "new-experience" .VampireID .ID }}">
-                New Experience
-              </a>
-            </turbo-frame>
-          {{ end }}
         </div>
       {{ end }}
     </div>

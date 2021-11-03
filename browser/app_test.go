@@ -78,6 +78,48 @@ func TestAddExperience(t *testing.T) {
 	)
 }
 
+func TestAddExperienceFormDismisses(t *testing.T) {
+	t.Parallel()
+
+	bt := NewBrowserTest(t)
+
+	vampire, err := bt.Models().CreateVampire(context.Background(), "Gruffudd")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	memory := vampire.Memories[0]
+
+	newExperienceLinkSelector := fmt.Sprintf(`#memory-%s a[href$="/experiences/new"]`, memory.ID.String())
+	experienceFieldSelector := fmt.Sprintf(`#memory-%s input[name="description"]`, memory.ID.String())
+
+	bt.Run(
+		bt.Navigate(fmt.Sprintf("/vampires/%s", vampire.ID.String())),
+		bt.WaitForTurbo(),
+
+		// Clicking outside the form should dismiss it
+		bt.WaitVisible(newExperienceLinkSelector),
+		bt.Click(newExperienceLinkSelector),
+		bt.WaitVisible(experienceFieldSelector),
+		bt.Click("h1"),
+		bt.WaitNotPresent(experienceFieldSelector),
+
+		// Clicking outside the form should not dismiss it if user has started
+		// writing
+		bt.WaitVisible(newExperienceLinkSelector),
+		bt.Click(newExperienceLinkSelector),
+		bt.WaitVisible(experienceFieldSelector),
+		bt.SendKeys(experienceFieldSelector, "Sta"),
+		bt.Click("h1"),
+		bt.WaitVisible(experienceFieldSelector),
+
+		// Clicking outside the form should dismiss it if user has cleared input
+		bt.SendKeys(experienceFieldSelector, "\b\b\b"), // \b => Backspace
+		bt.Click("h1"),
+		bt.WaitNotPresent(experienceFieldSelector),
+	)
+}
+
 func TestCannotAddFourExperiences(t *testing.T) {
 	t.Parallel()
 
