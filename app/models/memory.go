@@ -5,12 +5,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// OldMemory holds a maximum of three experiences.
-type OldMemory struct {
-	ID          int
-	Experiences []OldExperience
-}
-
 // Memory holds the domain level representation of a vampire's memory.
 type Memory struct {
 	ID          uuid.UUID
@@ -29,6 +23,18 @@ func newMemory(dbMemory db.Memory, dbExperiences []db.Experience) Memory {
 		VampireID:   dbMemory.VampireID,
 		Experiences: experiences,
 	}
+}
+
+// Full returns true if there is no more room for additional experiences in this
+// memory.
+func (m Memory) Full() bool {
+	return len(m.Experiences) >= 3
+}
+
+// OldMemory holds a maximum of three experiences.
+type OldMemory struct {
+	ID          int
+	Experiences []OldExperience
 }
 
 // Full returns true if there is no more room for experiences in this memory.

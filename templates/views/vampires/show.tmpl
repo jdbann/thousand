@@ -19,11 +19,13 @@
             {{ end }}
           </ul>
 
-          <turbo-frame id="memory-{{ .ID }}-newExperience">
-            <a href="{{ $.Reverse "new-experience" .VampireID .ID }}">
-              New Experience
-            </a>
-          </turbo-frame>
+          {{ if not .Full }}
+            <turbo-frame id="memory-{{ .ID }}-newExperience">
+              <a href="{{ $.Reverse "new-experience" .VampireID .ID }}">
+                New Experience
+              </a>
+            </turbo-frame>
+          {{ end }}
         </div>
       {{ end }}
     </div>

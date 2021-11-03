@@ -9,13 +9,13 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/jackc/pgconn v1.10.0
 	github.com/jackc/pgx/v4 v4.13.0
-	github.com/jdbann/browsertest v0.1.2
+	github.com/jdbann/browsertest v0.1.3
 	github.com/labstack/echo/v4 v4.6.1
 	github.com/mattn/go-colorable v0.1.10 // indirect
 	github.com/pressly/goose/v3 v3.3.1
 	github.com/urfave/cli/v2 v2.3.0
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
-	golang.org/x/sys v0.0.0-20211031064116-611d5d643895 // indirect
+	golang.org/x/sys v0.0.0-20211102192858-4dd72447c267 // indirect
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )
