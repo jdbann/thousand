@@ -19,6 +19,10 @@ build/clean:
 	-rm ${BINARY_NAME}
 	-rm -rf tmp/
 
+## check: make sure project is in a tidy state for committing
+.PHONY: check
+check: generate lint build local build/clean
+
 ## ci: setup and run the CI process
 .PHONY: ci
 ci: lint test/db/migrate test/run
