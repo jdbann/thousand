@@ -32,5 +32,24 @@
         </div>
       {{ end }}
     </div>
+
+    <div id="skills" class="stack">
+      <h2>Skills</h2>
+
+      <ul>
+        {{ range .Skills }}
+          <li>{{ .Description }}</li>
+        {{ end }}
+        <li>
+          <turbo-frame
+            id="newSkill"
+            data-controller="frame"
+            data-action="click@window->frame#restore"
+          >
+            <a href="{{ $.Reverse "new-skill" .ID }}">New Skill</a>
+          </turbo-frame>
+        </li>
+      </ul>
+    </div>
   {{ end }}
 {{ end }}

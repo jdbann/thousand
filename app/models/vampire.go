@@ -22,7 +22,7 @@ const (
 type OldVampire struct {
 	Details    *Details
 	Memories   []*OldMemory
-	Skills     []*Skill
+	Skills     []*OldSkill
 	Resources  []*Resource
 	Characters []*Character
 	Marks      []*Mark
@@ -33,13 +33,15 @@ type Vampire struct {
 	ID       uuid.UUID
 	Name     string
 	Memories []Memory
+	Skills   []Skill
 }
 
-func newVampire(dbVampire db.Vampire, memories []Memory) Vampire {
+func newVampire(dbVampire db.Vampire, memories []Memory, skills []Skill) Vampire {
 	return Vampire{
 		ID:       dbVampire.ID,
 		Name:     dbVampire.Name,
 		Memories: memories,
+		Skills:   skills,
 	}
 }
 
@@ -88,14 +90,14 @@ func (v *OldVampire) AddExperience(memoryID int, experienceString string) error 
 }
 
 // AddSkill adds an unchecked skill to the Vampire.
-func (v *OldVampire) AddSkill(skill *Skill) {
+func (v *OldVampire) AddSkill(skill *OldSkill) {
 	skill.ID = len(v.Skills) + 1
 	v.Skills = append(v.Skills, skill)
 }
 
 // FindSkill retrieves a skill based on an ID from the Vampire's list of
 // skills.
-func (v *OldVampire) FindSkill(skillID int) (*Skill, error) {
+func (v *OldVampire) FindSkill(skillID int) (*OldSkill, error) {
 	for _, skill := range v.Skills {
 		if skill.ID == skillID {
 			return skill, nil
@@ -107,7 +109,7 @@ func (v *OldVampire) FindSkill(skillID int) (*Skill, error) {
 
 // UpdateSkill replaces a Vampire's existing skill with the new one based on
 // the new skill's ID.
-func (v *OldVampire) UpdateSkill(newSkill *Skill) error {
+func (v *OldVampire) UpdateSkill(newSkill *OldSkill) error {
 	oldSkill, err := v.FindSkill(newSkill.ID)
 	if err != nil {
 		return err

@@ -45,7 +45,7 @@ func (m *Models) CreateVampire(ctx context.Context, name string) (Vampire, error
 		memories[i] = newMemory(dbMemory, make([]db.Experience, 0, 3))
 	}
 
-	return newVampire(v, memories), nil
+	return newVampire(v, memories, []Skill{}), nil
 }
 
 // GetVampire attempts to retrieve a vampire from the DB with the provided ID.
@@ -78,7 +78,17 @@ func (m *Models) GetVampire(ctx context.Context, id uuid.UUID) (Vampire, error) 
 		memories[i] = newMemory(dbMemory, experiences)
 	}
 
-	return newVampire(v, memories), nil
+	dbSkills, err := m.Queries.GetSkillsForVampire(ctx, id)
+	if err != nil {
+		return Vampire{}, err
+	}
+
+	skills := make([]Skill, len(dbSkills))
+	for i, dbSkill := range dbSkills {
+		skills[i] = newSkill(dbSkill)
+	}
+
+	return newVampire(v, memories, skills), nil
 }
 
 // GetVampires attempts to retrieve all the vampires from the DB.
@@ -90,7 +100,7 @@ func (m *Models) GetVampires(ctx context.Context) ([]Vampire, error) {
 
 	nvs := make([]Vampire, len(vs))
 	for i, v := range vs {
-		nvs[i] = newVampire(v, []Memory{})
+		nvs[i] = newVampire(v, []Memory{}, []Skill{})
 	}
 
 	return nvs, nil
@@ -146,4 +156,19 @@ func (m *Models) GetExperiences(ctx context.Context, vampireID uuid.UUID) ([]Exp
 	}
 
 	return experiences, nil
+}
+
+// AddSkill attempts to add a new skill to the DB for the provided vampire.
+func (m *Models) AddSkill(ctx context.Context, vampireID uuid.UUID, description string) (Skill, error) {
+	params := db.CreateSkillParams{
+		VampireID:   vampireID,
+		Description: description,
+	}
+
+	dbSkill, err := m.Queries.CreateSkill(ctx, params)
+	if err != nil {
+		return Skill{}, err
+	}
+
+	return newSkill(dbSkill), nil
 }

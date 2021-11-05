@@ -156,3 +156,29 @@ func TestCannotAddFourExperiences(t *testing.T) {
 		bt.Text(fmt.Sprintf("#memory-%s", memory.ID.String())).Not().Contains("New Experience"),
 	)
 }
+
+func TestAddSkill(t *testing.T) {
+	t.Parallel()
+
+	bt := NewBrowserTest(t)
+
+	vampire, err := bt.Models().CreateVampire(context.Background(), "Gruffudd")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	newSkillLinkSelector := `#skills a[href$="/skills/new"]`
+	skillFieldSelector := `#skills input[name="description"]`
+	expectedSkill := "Navigating forests"
+
+	bt.Run(
+		bt.Navigate(fmt.Sprintf("/vampires/%s", vampire.ID.String())),
+		bt.WaitForTurbo(),
+		bt.WaitVisible(newSkillLinkSelector),
+		bt.Click(newSkillLinkSelector),
+		bt.WaitVisible(skillFieldSelector),
+		bt.SendKeys(skillFieldSelector, expectedSkill),
+		bt.Submit(skillFieldSelector),
+		bt.Text(`#skills`).Contains(expectedSkill),
+	)
+}

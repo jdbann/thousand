@@ -189,17 +189,17 @@ func TestAddSkill(t *testing.T) {
 	tests := []struct {
 		name            string
 		vampire         *OldVampire
-		skill           *Skill
+		skill           *OldSkill
 		expectedVampire *OldVampire
 	}{
 		{
 			name:    "success with no skills",
 			vampire: &OldVampire{},
-			skill: &Skill{
+			skill: &OldSkill{
 				Description: "one",
 			},
 			expectedVampire: &OldVampire{
-				Skills: []*Skill{
+				Skills: []*OldSkill{
 					{
 						ID:          1,
 						Description: "one",
@@ -210,18 +210,18 @@ func TestAddSkill(t *testing.T) {
 		{
 			name: "success with existing skills",
 			vampire: &OldVampire{
-				Skills: []*Skill{
+				Skills: []*OldSkill{
 					{
 						ID:          1,
 						Description: "one",
 					},
 				},
 			},
-			skill: &Skill{
+			skill: &OldSkill{
 				Description: "two",
 			},
 			expectedVampire: &OldVampire{
-				Skills: []*Skill{
+				Skills: []*OldSkill{
 					{
 						ID:          1,
 						Description: "one",
@@ -255,13 +255,13 @@ func TestFindSkill(t *testing.T) {
 		name          string
 		vampire       *OldVampire
 		skillID       int
-		expectedSkill *Skill
+		expectedSkill *OldSkill
 		expectedError error
 	}{
 		{
 			name: "success",
 			vampire: &OldVampire{
-				Skills: []*Skill{
+				Skills: []*OldSkill{
 					{
 						ID:          1,
 						Description: "one",
@@ -269,7 +269,7 @@ func TestFindSkill(t *testing.T) {
 				},
 			},
 			skillID: 1,
-			expectedSkill: &Skill{
+			expectedSkill: &OldSkill{
 				ID:          1,
 				Description: "one",
 			},
@@ -305,14 +305,14 @@ func TestUpdateSkill(t *testing.T) {
 	tests := []struct {
 		name            string
 		vampire         *OldVampire
-		skill           *Skill
+		skill           *OldSkill
 		expectedVampire *OldVampire
 		expectedError   error
 	}{
 		{
 			name: "success",
 			vampire: &OldVampire{
-				Skills: []*Skill{
+				Skills: []*OldSkill{
 					{
 						ID:          1,
 						Description: "one",
@@ -325,13 +325,13 @@ func TestUpdateSkill(t *testing.T) {
 					},
 				},
 			},
-			skill: &Skill{
+			skill: &OldSkill{
 				ID:          1,
 				Description: "one",
 				Checked:     true,
 			},
 			expectedVampire: &OldVampire{
-				Skills: []*Skill{
+				Skills: []*OldSkill{
 					{
 						ID:          1,
 						Description: "one",
@@ -348,7 +348,7 @@ func TestUpdateSkill(t *testing.T) {
 		{
 			name:    "failure with unknown skill",
 			vampire: &OldVampire{},
-			skill: &Skill{
+			skill: &OldSkill{
 				ID:          1,
 				Description: "one",
 				Checked:     true,

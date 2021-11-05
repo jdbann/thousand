@@ -142,8 +142,38 @@ func (app *App) createExperience(c echo.Context) error {
 	return c.Redirect(http.StatusSeeOther, app.Reverse("show-vampire", vampireID.String()))
 }
 
+func (app *App) newSkill(c echo.Context) error {
+	vampireID, err := uuid.Parse(c.Param("vampireID"))
+	if err != nil {
+		return err
+	}
+
+	vampire, err := app.Models.GetVampire(c.Request().Context(), vampireID)
+	if err != nil {
+		return err
+	}
+
+	data := app.data(dataMap{"vampire": vampire})
+	return c.Render(http.StatusOK, "skills/new", data)
+}
+
 func (app *App) createSkill(c echo.Context) error {
-	skill := new(models.Skill)
+	vampireID, err := uuid.Parse(c.Param("vampireID"))
+	if err != nil {
+		return err
+	}
+
+	description := c.FormValue("description")
+
+	if _, err := app.Models.AddSkill(c.Request().Context(), vampireID, description); err != nil {
+		return err
+	}
+
+	return c.Redirect(http.StatusSeeOther, app.Reverse("show-vampire", vampireID.String()))
+}
+
+func (app *App) oldCreateSkill(c echo.Context) error {
+	skill := new(models.OldSkill)
 	if err := c.Bind(skill); err != nil {
 		return err
 	}

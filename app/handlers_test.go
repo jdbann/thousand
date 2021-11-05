@@ -574,7 +574,7 @@ func TestCreateSkill(t *testing.T) {
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
 			expectedVampire: &models.OldVampire{
-				Skills: []*models.Skill{
+				Skills: []*models.OldSkill{
 					{
 						ID:          1,
 						Description: "Basic agricultural practices",
@@ -600,7 +600,7 @@ func TestCreateSkill(t *testing.T) {
 			response := httptest.NewRecorder()
 			ctx := app.NewContext(request, response)
 
-			err := app.createSkill(ctx)
+			err := app.oldCreateSkill(ctx)
 
 			if tt.expectedStatus != response.Code {
 				t.Errorf("expected %d; got %d", tt.expectedStatus, response.Code)
@@ -636,7 +636,7 @@ func TestUpdateSkill(t *testing.T) {
 		{
 			name: "successful",
 			vampire: &models.OldVampire{
-				Skills: []*models.Skill{
+				Skills: []*models.OldSkill{
 					{
 						ID:          1,
 						Description: "Basic agricultural practices",
@@ -651,7 +651,7 @@ func TestUpdateSkill(t *testing.T) {
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
 			expectedVampire: &models.OldVampire{
-				Skills: []*models.Skill{
+				Skills: []*models.OldSkill{
 					{
 						ID:          1,
 						Description: "Basic agricultural practices",

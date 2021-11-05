@@ -89,7 +89,7 @@ func Test_InMemory_CheckSkill(t *testing.T) {
 
 	bt := NewBrowserTest(t)
 	bt.app.Vampire = &models.OldVampire{
-		Skills: []*models.Skill{
+		Skills: []*models.OldSkill{
 			{
 				ID:          1,
 				Description: "Basic agricultural practices",
