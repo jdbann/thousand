@@ -1,6 +1,14 @@
-BINARY_NAME=tmp/build/thousand
+BUILD_DIRECTORY = tmp/build
+BINARY_NAME = thousand
+BINARY_PATH = $(BUILD_DIRECTORY)/$(BINARY_NAME)
+
+# Dependencies installed by Go
+GO_DEPS = github.com/kyleconroy/sqlc/cmd/sqlc@v1.10.0 \
+					github.com/cosmtrek/air@v1.27.3
 
 ## help: print this help message
+# single # is not output in help message
+# double # is not output
 .PHONY: help
 help:
 	@echo 'Usage:'
@@ -9,19 +17,23 @@ help:
 ## build: build the application
 .PHONY: build
 build:
-	go build -o ${BINARY_NAME} -v .
+	go build -o ${BINARY_PATH} -v .
 
 ## build/clean: remove generated files
 .PHONY: build/clean
 build/clean:
 	go mod tidy
 	go clean
-	-rm ${BINARY_NAME}
-	-rm -rf tmp/
+	-rm -rf $(BUILD_DIRECTORY)
+
+# build/path: outputs the configured build path for air.toml
+.PHONY: build/path
+build/path:
+	@echo $(BINARY_PATH)
 
 ## check: make sure project is in a tidy state for committing
 .PHONY: check
-check: generate lint build local build/clean
+check: generate lint build local test build/clean
 
 ## ci: setup and run the CI process
 .PHONY: ci
@@ -34,18 +46,18 @@ dev: dev/db/migrate dev/run
 ## dev/db/migrate: migrate the development database
 .PHONY: dev/db/migrate
 dev/db/migrate: build
-	${BINARY_NAME} migrate run
+	${BINARY_PATH} migrate run
 
 ## dev/db/setup: setup the development database
 .PHONY: dev/db/setup
 dev/db/setup: build
-	-${BINARY_NAME} db drop
-	${BINARY_NAME} db create
+	-${BINARY_PATH} db drop
+	${BINARY_PATH} db create
 
 ## dev/run: run the app
 .PHONY: dev/run
 dev/run: build
-	${BINARY_NAME} run
+	air
 
 ## dev/setup: setup the development environment
 .PHONY: dev/setup
@@ -64,7 +76,15 @@ lint:
 
 ## local: setup a local developer environment (both dev and test)
 .PHONY: local
-local: build dev/setup test/setup
+local: local/deps build dev/setup test/setup
+
+## local/deps: install tools required to work on the project
+.PHONY: local/deps
+local/deps: $(GO_DEPS)
+
+.PHONY: $(GO_DEPS)
+$(GO_DEPS):
+	go install $@
 
 ## test: setup the test environment and run all tests (default test task)
 .PHONY: test
@@ -73,13 +93,13 @@ test: test/setup test/run
 ## test/db/migrate: migrate the test database
 .PHONY: test/db/migrate
 test/db/migrate: build
-	${BINARY_NAME} --environment=test migrate run
+	${BINARY_PATH} --environment=test migrate run
 
 ## test/db/setup: setup the test database
 .PHONY: test/db/setup
 test/db/setup: build
-	-${BINARY_NAME} --environment=test db drop
-	${BINARY_NAME} --environment=test db create
+	-${BINARY_PATH} --environment=test db drop
+	${BINARY_PATH} --environment=test db create
 
 ## test/run: run all tests
 .PHONY: test/run
