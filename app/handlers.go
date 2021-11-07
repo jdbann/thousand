@@ -206,6 +206,40 @@ func (app *App) createResource(c echo.Context) error {
 	return c.Redirect(http.StatusSeeOther, app.Reverse("show-vampire", vampireID.String()))
 }
 
+func (app *App) newCharacter(c echo.Context) error {
+	vampireID, err := uuid.Parse(c.Param("vampireID"))
+	if err != nil {
+		return err
+	}
+
+	vampire, err := app.Models.GetVampire(c.Request().Context(), vampireID)
+	if err != nil {
+		return err
+	}
+
+	data := app.data(dataMap{"vampire": vampire})
+	return c.Render(http.StatusOK, "characters/new", data)
+}
+
+func (app *App) createCharacter(c echo.Context) error {
+	vampireID, err := uuid.Parse(c.Param("vampireID"))
+	if err != nil {
+		return err
+	}
+
+	var params models.AddCharacterParams
+
+	if err := c.Bind(&params); err != nil {
+		return err
+	}
+
+	if _, err := app.Models.AddCharacter(c.Request().Context(), vampireID, params); err != nil {
+		return err
+	}
+
+	return c.Redirect(http.StatusSeeOther, app.Reverse("show-vampire", vampireID.String()))
+}
+
 func (app *App) oldCreateSkill(c echo.Context) error {
 	skill := new(models.OldSkill)
 	if err := c.Bind(skill); err != nil {
@@ -272,8 +306,8 @@ func (app *App) updateResource(c echo.Context) error {
 	return c.Redirect(http.StatusFound, "/")
 }
 
-func (app *App) createCharacter(c echo.Context) error {
-	character := new(models.Character)
+func (app *App) oldCreateCharacter(c echo.Context) error {
+	character := new(models.OldCharacter)
 	if err := c.Bind(character); err != nil {
 		return err
 	}

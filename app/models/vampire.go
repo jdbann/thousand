@@ -24,26 +24,28 @@ type OldVampire struct {
 	Memories   []*OldMemory
 	Skills     []*OldSkill
 	Resources  []*OldResource
-	Characters []*Character
+	Characters []*OldCharacter
 	Marks      []*Mark
 }
 
 // Vampire holds the domain level representation of a vampire.
 type Vampire struct {
-	ID        uuid.UUID
-	Name      string
-	Memories  []Memory
-	Skills    []Skill
-	Resources []Resource
+	ID         uuid.UUID
+	Name       string
+	Memories   []Memory
+	Skills     []Skill
+	Resources  []Resource
+	Characters []Character
 }
 
-func newVampire(dbVampire db.Vampire, memories []Memory, skills []Skill, resources []Resource) Vampire {
+func newVampire(dbVampire db.Vampire, memories []Memory, skills []Skill, resources []Resource, characters []Character) Vampire {
 	return Vampire{
-		ID:        dbVampire.ID,
-		Name:      dbVampire.Name,
-		Memories:  memories,
-		Skills:    skills,
-		Resources: resources,
+		ID:         dbVampire.ID,
+		Name:       dbVampire.Name,
+		Memories:   memories,
+		Skills:     skills,
+		Resources:  resources,
+		Characters: characters,
 	}
 }
 
@@ -154,14 +156,14 @@ func (v *OldVampire) UpdateResource(newResource *OldResource) error {
 }
 
 // AddCharacter adds a character to the Vampire.
-func (v *OldVampire) AddCharacter(character *Character) {
+func (v *OldVampire) AddCharacter(character *OldCharacter) {
 	character.ID = len(v.Characters) + 1
 	v.Characters = append(v.Characters, character)
 }
 
 // FindCharacter retrieves a character based on an ID from the Vampire's list of
 // characters.
-func (v *OldVampire) FindCharacter(characterID int) (*Character, error) {
+func (v *OldVampire) FindCharacter(characterID int) (*OldCharacter, error) {
 	for _, character := range v.Characters {
 		if character.ID == characterID {
 			return character, nil
@@ -173,7 +175,7 @@ func (v *OldVampire) FindCharacter(characterID int) (*Character, error) {
 
 // UpdateCharacter replaces a Vampire's existing character with the new one
 // based on the new character's ID.
-func (v *OldVampire) UpdateCharacter(newCharacter *Character) error {
+func (v *OldVampire) UpdateCharacter(newCharacter *OldCharacter) error {
 	oldCharacter, err := v.FindCharacter(newCharacter.ID)
 	if err != nil {
 		return err

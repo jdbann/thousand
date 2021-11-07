@@ -211,3 +211,32 @@ func TestAddResource(t *testing.T) {
 		bt.Text(`#resources`).Contains("Stationary"),
 	)
 }
+
+func TestAddCharacter(t *testing.T) {
+	t.Parallel()
+
+	bt := NewBrowserTest(t)
+
+	vampire, err := bt.Models().CreateVampire(context.Background(), "Gruffudd")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	newCharacterLinkSelector := `#characters a[href$="/characters/new"]`
+	characterNameSelector := `#characters input[name="name"]`
+	characterTypeSelector := `#characters select[name="type"]`
+	expectedCharacter := "Lord Othian, English gentry visiting a cathedral in St. Davids."
+
+	bt.Run(
+		bt.Navigate(fmt.Sprintf("/vampires/%s", vampire.ID.String())),
+		bt.WaitForTurbo(),
+		bt.WaitVisible(newCharacterLinkSelector),
+		bt.Click(newCharacterLinkSelector),
+		bt.WaitVisible(characterNameSelector),
+		bt.SendKeys(characterNameSelector, expectedCharacter),
+		bt.SendKeys(characterTypeSelector, "Immortal"),
+		bt.Submit(characterNameSelector),
+		bt.Text(`#characters`).Contains(expectedCharacter),
+		bt.Text(`#characters`).Contains("Immortal"),
+	)
+}

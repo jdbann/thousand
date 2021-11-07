@@ -185,7 +185,7 @@ func Test_InMemory_AddCharacterDescriptor(t *testing.T) {
 
 	bt := NewBrowserTest(t)
 	bt.app.Vampire = &models.OldVampire{
-		Characters: []*models.Character{
+		Characters: []*models.OldCharacter{
 			{
 				ID:   1,
 				Name: "Lord Othian",
@@ -219,7 +219,7 @@ func Test_InMemory_KillCharacter(t *testing.T) {
 
 	bt := NewBrowserTest(t)
 	bt.app.Vampire = &models.OldVampire{
-		Characters: []*models.Character{
+		Characters: []*models.OldCharacter{
 			{
 				ID:       1,
 				Name:     "Lord Othian",

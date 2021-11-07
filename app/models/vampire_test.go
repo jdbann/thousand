@@ -575,18 +575,18 @@ func TestAddCharacter(t *testing.T) {
 	tests := []struct {
 		name            string
 		vampire         *OldVampire
-		character       *Character
+		character       *OldCharacter
 		expectedVampire *OldVampire
 	}{
 		{
 			name:    "success with no characters",
 			vampire: &OldVampire{},
-			character: &Character{
+			character: &OldCharacter{
 				Name: "one",
 				Type: "mortal",
 			},
 			expectedVampire: &OldVampire{
-				Characters: []*Character{
+				Characters: []*OldCharacter{
 					{
 						ID:   1,
 						Name: "one",
@@ -598,7 +598,7 @@ func TestAddCharacter(t *testing.T) {
 		{
 			name: "success with existing characters",
 			vampire: &OldVampire{
-				Characters: []*Character{
+				Characters: []*OldCharacter{
 					{
 						ID:   1,
 						Name: "one",
@@ -606,12 +606,12 @@ func TestAddCharacter(t *testing.T) {
 					},
 				},
 			},
-			character: &Character{
+			character: &OldCharacter{
 				Name: "two",
 				Type: "immortal",
 			},
 			expectedVampire: &OldVampire{
-				Characters: []*Character{
+				Characters: []*OldCharacter{
 					{
 						ID:   1,
 						Name: "one",
@@ -647,13 +647,13 @@ func TestFindCharacter(t *testing.T) {
 		name              string
 		vampire           *OldVampire
 		characterID       int
-		expectedCharacter *Character
+		expectedCharacter *OldCharacter
 		expectedError     error
 	}{
 		{
 			name: "success",
 			vampire: &OldVampire{
-				Characters: []*Character{
+				Characters: []*OldCharacter{
 					{
 						ID:   1,
 						Name: "one",
@@ -662,7 +662,7 @@ func TestFindCharacter(t *testing.T) {
 				},
 			},
 			characterID: 1,
-			expectedCharacter: &Character{
+			expectedCharacter: &OldCharacter{
 				ID:   1,
 				Name: "one",
 				Type: "mortal",
@@ -699,14 +699,14 @@ func TestUpdateCharacter(t *testing.T) {
 	tests := []struct {
 		name            string
 		vampire         *OldVampire
-		character       *Character
+		character       *OldCharacter
 		expectedVampire *OldVampire
 		expectedError   error
 	}{
 		{
 			name: "success",
 			vampire: &OldVampire{
-				Characters: []*Character{
+				Characters: []*OldCharacter{
 					{
 						ID:       1,
 						Name:     "one",
@@ -721,14 +721,14 @@ func TestUpdateCharacter(t *testing.T) {
 					},
 				},
 			},
-			character: &Character{
+			character: &OldCharacter{
 				ID:       2,
 				Name:     "two",
 				Type:     "mortal",
 				Deceased: true,
 			},
 			expectedVampire: &OldVampire{
-				Characters: []*Character{
+				Characters: []*OldCharacter{
 					{
 						ID:       1,
 						Name:     "one",
@@ -747,7 +747,7 @@ func TestUpdateCharacter(t *testing.T) {
 		{
 			name:    "failure with unknown resource",
 			vampire: &OldVampire{},
-			character: &Character{
+			character: &OldCharacter{
 				ID:       1,
 				Name:     "one",
 				Type:     "mortal",
@@ -789,7 +789,7 @@ func TestVampire_AddDescriptor(t *testing.T) {
 		{
 			name: "success",
 			vampire: &OldVampire{
-				Characters: []*Character{
+				Characters: []*OldCharacter{
 					{
 						ID:          1,
 						Descriptors: []string{},
@@ -799,7 +799,7 @@ func TestVampire_AddDescriptor(t *testing.T) {
 			characterID: 1,
 			descriptor:  "one",
 			expectedVampire: &OldVampire{
-				Characters: []*Character{
+				Characters: []*OldCharacter{
 					{
 						ID:          1,
 						Descriptors: []string{"one"},

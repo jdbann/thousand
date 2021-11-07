@@ -11,19 +11,19 @@ func TestDescription(t *testing.T) {
 
 	tests := []struct {
 		name                string
-		character           *Character
+		character           *OldCharacter
 		expectedDescription string
 	}{
 		{
 			name: "with name",
-			character: &Character{
+			character: &OldCharacter{
 				Name: "John",
 			},
 			expectedDescription: "John.",
 		},
 		{
 			name: "with name and descriptor",
-			character: &Character{
+			character: &OldCharacter{
 				Name: "John",
 				Descriptors: []string{
 					"a programmer",
@@ -33,7 +33,7 @@ func TestDescription(t *testing.T) {
 		},
 		{
 			name: "with name and multiple descriptors",
-			character: &Character{
+			character: &OldCharacter{
 				Name: "John",
 				Descriptors: []string{
 					"a programmer",
@@ -44,7 +44,7 @@ func TestDescription(t *testing.T) {
 		},
 		{
 			name: "with name, multiple descriptors and a type",
-			character: &Character{
+			character: &OldCharacter{
 				Name: "John",
 				Descriptors: []string{
 					"a programmer",
@@ -56,7 +56,7 @@ func TestDescription(t *testing.T) {
 		},
 		{
 			name: "with name and a type",
-			character: &Character{
+			character: &OldCharacter{
 				Name: "John",
 				Type: "mortal",
 			},
@@ -84,25 +84,25 @@ func TestAddDescriptor(t *testing.T) {
 
 	tests := []struct {
 		name              string
-		character         *Character
+		character         *OldCharacter
 		descriptor        string
-		expectedCharacter *Character
+		expectedCharacter *OldCharacter
 	}{
 		{
 			name:       "success",
-			character:  &Character{},
+			character:  &OldCharacter{},
 			descriptor: "one",
-			expectedCharacter: &Character{
+			expectedCharacter: &OldCharacter{
 				Descriptors: []string{"one"},
 			},
 		},
 		{
 			name: "success with existing descriptors",
-			character: &Character{
+			character: &OldCharacter{
 				Descriptors: []string{"one"},
 			},
 			descriptor: "two",
-			expectedCharacter: &Character{
+			expectedCharacter: &OldCharacter{
 				Descriptors: []string{"one", "two"},
 			},
 		},

@@ -1,0 +1,36 @@
+{{ template "base" . }}
+
+{{ define "main" }}
+  {{ with .Data.vampire }}
+    <turbo-frame id="newCharacter">
+      <form
+        method="POST"
+        action="{{ $.Reverse "create-character" .ID }}"
+        data-turbo-frame="_top"
+      >
+        <div class="cluster">
+          <input
+            id="name"
+            name="name"
+            type="text"
+            placeholder="Name"
+            class="cluster-grow"
+            data-action="input->frame#disableRestore"
+            data-frame-unless-blank-param="true"
+          />
+
+          <select
+            id="type"
+            name="type"
+            data-action="change->frame#disableRestore"
+          >
+            <option value="mortal" selected>Mortal</option>
+            <option value="immortal">Immortal</option>
+          </select>
+
+          <input type="submit" value="Create Character" />
+        </div>
+      </form>
+    </turbo-frame>
+  {{ end }}
+{{ end }}

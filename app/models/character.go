@@ -3,10 +3,27 @@ package models
 import (
 	"fmt"
 	"strings"
+
+	"emailaddress.horse/thousand/db"
+	"github.com/google/uuid"
 )
 
-// Character holds the details of a character known by a Vampire.
 type Character struct {
+	ID   uuid.UUID
+	Name string
+	Type string
+}
+
+func newCharacter(dbCharacter db.Character) Character {
+	return Character{
+		ID:   dbCharacter.ID,
+		Name: dbCharacter.Name,
+		Type: strings.Title(string(dbCharacter.Type)),
+	}
+}
+
+// OldCharacter holds the details of a character known by a Vampire.
+type OldCharacter struct {
 	ID          int
 	Name        string   `form:"name"`
 	Descriptors []string `form:"descriptor[]"`
@@ -16,7 +33,7 @@ type Character struct {
 
 // Description returns a string joining the name, descriptors and type of a
 // Character.
-func (c *Character) Description() string {
+func (c *OldCharacter) Description() string {
 	components := append([]string{c.Name}, c.Descriptors...)
 
 	description := fmt.Sprintf("%s.", strings.Join(components, ", "))
@@ -30,6 +47,6 @@ func (c *Character) Description() string {
 
 // AddDescriptor appends a new descriptor to the Character's current list of
 // descriptors.
-func (c *Character) AddDescriptor(descriptor string) {
+func (c *OldCharacter) AddDescriptor(descriptor string) {
 	c.Descriptors = append(c.Descriptors, descriptor)
 }

@@ -878,7 +878,7 @@ func TestCreateCharacter(t *testing.T) {
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
 			expectedVampire: &models.OldVampire{
-				Characters: []*models.Character{
+				Characters: []*models.OldCharacter{
 					{
 						ID:   1,
 						Name: "Lord Othian",
@@ -908,7 +908,7 @@ func TestCreateCharacter(t *testing.T) {
 			response := httptest.NewRecorder()
 			ctx := app.NewContext(request, response)
 
-			err := app.createCharacter(ctx)
+			err := app.oldCreateCharacter(ctx)
 
 			if tt.expectedStatus != response.Code {
 				t.Errorf("expected %d; got %d", tt.expectedStatus, response.Code)
@@ -944,7 +944,7 @@ func TestUpdateCharacter(t *testing.T) {
 		{
 			name: "successful",
 			vampire: &models.OldVampire{
-				Characters: []*models.Character{
+				Characters: []*models.OldCharacter{
 					{
 						ID:       1,
 						Deceased: false,
@@ -958,7 +958,7 @@ func TestUpdateCharacter(t *testing.T) {
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
 			expectedVampire: &models.OldVampire{
-				Characters: []*models.Character{
+				Characters: []*models.OldCharacter{
 					{
 						ID:       1,
 						Deceased: true,
@@ -1023,7 +1023,7 @@ func TestCreateDescriptor(t *testing.T) {
 		{
 			name: "successful",
 			vampire: &models.OldVampire{
-				Characters: []*models.Character{
+				Characters: []*models.OldCharacter{
 					{
 						ID:          1,
 						Descriptors: []string{},
@@ -1036,7 +1036,7 @@ func TestCreateDescriptor(t *testing.T) {
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
 			expectedVampire: &models.OldVampire{
-				Characters: []*models.Character{
+				Characters: []*models.OldCharacter{
 					{
 						ID:          1,
 						Descriptors: []string{"one"},

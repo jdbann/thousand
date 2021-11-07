@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"fmt"
 
 	"emailaddress.horse/thousand/db"
 	"github.com/google/uuid"
@@ -45,7 +46,7 @@ func (m *Models) CreateVampire(ctx context.Context, name string) (Vampire, error
 		memories[i] = newMemory(dbMemory, make([]db.Experience, 0, 3))
 	}
 
-	return newVampire(v, memories, []Skill{}, []Resource{}), nil
+	return newVampire(v, memories, []Skill{}, []Resource{}, []Character{}), nil
 }
 
 // GetVampire attempts to retrieve a vampire from the DB with the provided ID.
@@ -98,7 +99,17 @@ func (m *Models) GetVampire(ctx context.Context, id uuid.UUID) (Vampire, error) 
 		resources[i] = newResource(dbResource)
 	}
 
-	return newVampire(v, memories, skills, resources), nil
+	dbCharacters, err := m.Queries.GetCharactersForVampire(ctx, id)
+	if err != nil {
+		return Vampire{}, err
+	}
+
+	characters := make([]Character, len(dbCharacters))
+	for i, dbCharacter := range dbCharacters {
+		characters[i] = newCharacter(dbCharacter)
+	}
+
+	return newVampire(v, memories, skills, resources, characters), nil
 }
 
 // GetVampires attempts to retrieve all the vampires from the DB.
@@ -110,7 +121,7 @@ func (m *Models) GetVampires(ctx context.Context) ([]Vampire, error) {
 
 	nvs := make([]Vampire, len(vs))
 	for i, v := range vs {
-		nvs[i] = newVampire(v, []Memory{}, []Skill{}, []Resource{})
+		nvs[i] = newVampire(v, []Memory{}, []Skill{}, []Resource{}, []Character{})
 	}
 
 	return nvs, nil
@@ -202,4 +213,34 @@ func (m *Models) AddResource(ctx context.Context, vampireID uuid.UUID, params Ad
 	}
 
 	return newResource(dbResource), nil
+}
+
+type AddCharacterParams struct {
+	Name string `form:"name"`
+	Type string `form:"type"`
+}
+
+func (m *Models) AddCharacter(ctx context.Context, vampireID uuid.UUID, params AddCharacterParams) (Character, error) {
+	var characterType db.CharacterType
+	switch params.Type {
+	case "mortal":
+		characterType = db.CharacterTypeMortal
+	case "immortal":
+		characterType = db.CharacterTypeImmortal
+	default:
+		return Character{}, fmt.Errorf("unrecognised character type: %q", params.Type)
+	}
+
+	dbParams := db.CreateCharacterParams{
+		VampireID: vampireID,
+		Name:      params.Name,
+		Type:      characterType,
+	}
+
+	dbCharacter, err := m.Queries.CreateCharacter(ctx, dbParams)
+	if err != nil {
+		return Character{}, err
+	}
+
+	return newCharacter(dbCharacter), nil
 }
