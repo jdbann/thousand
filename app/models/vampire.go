@@ -23,25 +23,27 @@ type OldVampire struct {
 	Details    *Details
 	Memories   []*OldMemory
 	Skills     []*OldSkill
-	Resources  []*Resource
+	Resources  []*OldResource
 	Characters []*Character
 	Marks      []*Mark
 }
 
 // Vampire holds the domain level representation of a vampire.
 type Vampire struct {
-	ID       uuid.UUID
-	Name     string
-	Memories []Memory
-	Skills   []Skill
+	ID        uuid.UUID
+	Name      string
+	Memories  []Memory
+	Skills    []Skill
+	Resources []Resource
 }
 
-func newVampire(dbVampire db.Vampire, memories []Memory, skills []Skill) Vampire {
+func newVampire(dbVampire db.Vampire, memories []Memory, skills []Skill, resources []Resource) Vampire {
 	return Vampire{
-		ID:       dbVampire.ID,
-		Name:     dbVampire.Name,
-		Memories: memories,
-		Skills:   skills,
+		ID:        dbVampire.ID,
+		Name:      dbVampire.Name,
+		Memories:  memories,
+		Skills:    skills,
+		Resources: resources,
 	}
 }
 
@@ -121,14 +123,14 @@ func (v *OldVampire) UpdateSkill(newSkill *OldSkill) error {
 }
 
 // AddResource adds a resource to the Vampire.
-func (v *OldVampire) AddResource(resource *Resource) {
+func (v *OldVampire) AddResource(resource *OldResource) {
 	resource.ID = len(v.Resources) + 1
 	v.Resources = append(v.Resources, resource)
 }
 
 // FindResource retrieves a resource based on an ID from the Vampire's list of
 // resources.
-func (v *OldVampire) FindResource(resourceID int) (*Resource, error) {
+func (v *OldVampire) FindResource(resourceID int) (*OldResource, error) {
 	for _, resource := range v.Resources {
 		if resource.ID == resourceID {
 			return resource, nil
@@ -140,7 +142,7 @@ func (v *OldVampire) FindResource(resourceID int) (*Resource, error) {
 
 // UpdateResource replaces a Vampire's existing resource with the new one
 // based on the new resource's ID.
-func (v *OldVampire) UpdateResource(newResource *Resource) error {
+func (v *OldVampire) UpdateResource(newResource *OldResource) error {
 	oldResource, err := v.FindResource(newResource.ID)
 	if err != nil {
 		return err

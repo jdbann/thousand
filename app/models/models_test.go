@@ -24,9 +24,10 @@ func TestCreateVampire(t *testing.T) {
 			name:        "successful",
 			vampireName: "Gruffudd",
 			expectedVampire: Vampire{
-				Name:     "Gruffudd",
-				Memories: []Memory{},
-				Skills:   []Skill{},
+				Name:      "Gruffudd",
+				Memories:  []Memory{},
+				Skills:    []Skill{},
+				Resources: []Resource{},
 			},
 		},
 	}

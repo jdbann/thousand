@@ -45,7 +45,7 @@ func (m *Models) CreateVampire(ctx context.Context, name string) (Vampire, error
 		memories[i] = newMemory(dbMemory, make([]db.Experience, 0, 3))
 	}
 
-	return newVampire(v, memories, []Skill{}), nil
+	return newVampire(v, memories, []Skill{}, []Resource{}), nil
 }
 
 // GetVampire attempts to retrieve a vampire from the DB with the provided ID.
@@ -88,7 +88,17 @@ func (m *Models) GetVampire(ctx context.Context, id uuid.UUID) (Vampire, error) 
 		skills[i] = newSkill(dbSkill)
 	}
 
-	return newVampire(v, memories, skills), nil
+	dbResources, err := m.Queries.GetResourcesForVampire(ctx, id)
+	if err != nil {
+		return Vampire{}, err
+	}
+
+	resources := make([]Resource, len(dbResources))
+	for i, dbResource := range dbResources {
+		resources[i] = newResource(dbResource)
+	}
+
+	return newVampire(v, memories, skills, resources), nil
 }
 
 // GetVampires attempts to retrieve all the vampires from the DB.
@@ -100,7 +110,7 @@ func (m *Models) GetVampires(ctx context.Context) ([]Vampire, error) {
 
 	nvs := make([]Vampire, len(vs))
 	for i, v := range vs {
-		nvs[i] = newVampire(v, []Memory{}, []Skill{})
+		nvs[i] = newVampire(v, []Memory{}, []Skill{}, []Resource{})
 	}
 
 	return nvs, nil
@@ -171,4 +181,25 @@ func (m *Models) AddSkill(ctx context.Context, vampireID uuid.UUID, description 
 	}
 
 	return newSkill(dbSkill), nil
+}
+
+type AddResourceParams struct {
+	Description string `form:"description"`
+	Stationary  bool   `form:"stationary"`
+}
+
+// AddResource attempts to add a new resource to the DB for the provided vampire.
+func (m *Models) AddResource(ctx context.Context, vampireID uuid.UUID, params AddResourceParams) (Resource, error) {
+	dbParams := db.CreateResourceParams{
+		VampireID:   vampireID,
+		Description: params.Description,
+		Stationary:  params.Stationary,
+	}
+
+	dbResource, err := m.Queries.CreateResource(ctx, dbParams)
+	if err != nil {
+		return Resource{}, err
+	}
+
+	return newResource(dbResource), nil
 }

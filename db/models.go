@@ -24,6 +24,15 @@ type Memory struct {
 	UpdatedAt sql.NullTime
 }
 
+type Resource struct {
+	ID          uuid.UUID
+	VampireID   uuid.UUID
+	Description string
+	Stationary  bool
+	CreatedAt   time.Time
+	UpdatedAt   sql.NullTime
+}
+
 type Skill struct {
 	ID          uuid.UUID
 	VampireID   uuid.UUID

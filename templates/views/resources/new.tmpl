@@ -1,0 +1,35 @@
+{{ template "base" . }}
+
+{{ define "main" }}
+  {{ with .Data.vampire }}
+    <turbo-frame id="newResource">
+      <form
+        method="POST"
+        action="{{ $.Reverse "create-resource" .ID }}"
+        data-turbo-frame="_top"
+      >
+        <div class="cluster">
+          <input
+            id="description"
+            name="description"
+            type="text"
+            placeholder="Description"
+            class="cluster-grow"
+            data-action="input->frame#disableRestore"
+            data-frame-unless-blank-param="true"
+          />
+
+          <input
+            id="stationary"
+            name="stationary"
+            type="checkbox"
+            value="true"
+            data-action="change->frame#disableRestore"
+          />
+
+          <input type="submit" value="Create Resource" />
+        </div>
+      </form>
+    </turbo-frame>
+  {{ end }}
+{{ end }}

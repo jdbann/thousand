@@ -51,5 +51,24 @@
         </li>
       </ul>
     </div>
+
+    <div id="resources" class="stack">
+      <h2>Resources</h2>
+
+      <ul>
+        {{ range .Resources }}
+          <li>{{ .Description }} {{ if .Stationary }}(Stationary){{ end }}</li>
+        {{ end }}
+        <li>
+          <turbo-frame
+            id="newResource"
+            data-controller="frame"
+            data-action="click@window->frame#restore"
+          >
+            <a href="{{ $.Reverse "new-resource" .ID }}">New Resource</a>
+          </turbo-frame>
+        </li>
+      </ul>
+    </div>
   {{ end }}
 {{ end }}

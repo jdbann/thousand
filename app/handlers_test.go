@@ -724,7 +724,7 @@ func TestCreateResource(t *testing.T) {
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
 			expectedVampire: &models.OldVampire{
-				Resources: []*models.Resource{
+				Resources: []*models.OldResource{
 					{
 						ID:          1,
 						Description: "Calweddyn Farm, rich but challenging soils",
@@ -751,7 +751,7 @@ func TestCreateResource(t *testing.T) {
 			response := httptest.NewRecorder()
 			ctx := app.NewContext(request, response)
 
-			err := app.createResource(ctx)
+			err := app.oldCreateResource(ctx)
 
 			if tt.expectedStatus != response.Code {
 				t.Errorf("expected %d; got %d", tt.expectedStatus, response.Code)
@@ -787,7 +787,7 @@ func TestUpdateResource(t *testing.T) {
 		{
 			name: "successful",
 			vampire: &models.OldVampire{
-				Resources: []*models.Resource{
+				Resources: []*models.OldResource{
 					{
 						ID:          1,
 						Description: "Basic agricultural practices",
@@ -803,7 +803,7 @@ func TestUpdateResource(t *testing.T) {
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
 			expectedVampire: &models.OldVampire{
-				Resources: []*models.Resource{
+				Resources: []*models.OldResource{
 					{
 						ID:          1,
 						Description: "Basic agricultural practices",

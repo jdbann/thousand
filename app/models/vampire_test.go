@@ -381,17 +381,17 @@ func TestAddResource(t *testing.T) {
 	tests := []struct {
 		name            string
 		vampire         *OldVampire
-		resource        *Resource
+		resource        *OldResource
 		expectedVampire *OldVampire
 	}{
 		{
 			name:    "success with no resources",
 			vampire: &OldVampire{},
-			resource: &Resource{
+			resource: &OldResource{
 				Description: "one",
 			},
 			expectedVampire: &OldVampire{
-				Resources: []*Resource{
+				Resources: []*OldResource{
 					{
 						ID:          1,
 						Description: "one",
@@ -402,19 +402,19 @@ func TestAddResource(t *testing.T) {
 		{
 			name: "success with existing resources",
 			vampire: &OldVampire{
-				Resources: []*Resource{
+				Resources: []*OldResource{
 					{
 						ID:          1,
 						Description: "one",
 					},
 				},
 			},
-			resource: &Resource{
+			resource: &OldResource{
 				Description: "two",
 				Stationary:  true,
 			},
 			expectedVampire: &OldVampire{
-				Resources: []*Resource{
+				Resources: []*OldResource{
 					{
 						ID:          1,
 						Description: "one",
@@ -449,13 +449,13 @@ func TestFindResource(t *testing.T) {
 		name             string
 		vampire          *OldVampire
 		resourceID       int
-		expectedResource *Resource
+		expectedResource *OldResource
 		expectedError    error
 	}{
 		{
 			name: "success",
 			vampire: &OldVampire{
-				Resources: []*Resource{
+				Resources: []*OldResource{
 					{
 						ID:          1,
 						Description: "one",
@@ -463,7 +463,7 @@ func TestFindResource(t *testing.T) {
 				},
 			},
 			resourceID: 1,
-			expectedResource: &Resource{
+			expectedResource: &OldResource{
 				ID:          1,
 				Description: "one",
 			},
@@ -499,14 +499,14 @@ func TestUpdateResource(t *testing.T) {
 	tests := []struct {
 		name            string
 		vampire         *OldVampire
-		resource        *Resource
+		resource        *OldResource
 		expectedVampire *OldVampire
 		expectedError   error
 	}{
 		{
 			name: "success",
 			vampire: &OldVampire{
-				Resources: []*Resource{
+				Resources: []*OldResource{
 					{
 						ID:          1,
 						Description: "one",
@@ -519,13 +519,13 @@ func TestUpdateResource(t *testing.T) {
 					},
 				},
 			},
-			resource: &Resource{
+			resource: &OldResource{
 				ID:          1,
 				Description: "one",
 				Lost:        true,
 			},
 			expectedVampire: &OldVampire{
-				Resources: []*Resource{
+				Resources: []*OldResource{
 					{
 						ID:          1,
 						Description: "one",
@@ -542,7 +542,7 @@ func TestUpdateResource(t *testing.T) {
 		{
 			name:    "failure with unknown resource",
 			vampire: &OldVampire{},
-			resource: &Resource{
+			resource: &OldResource{
 				ID:          1,
 				Description: "one",
 				Lost:        true,

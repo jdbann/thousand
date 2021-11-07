@@ -182,3 +182,32 @@ func TestAddSkill(t *testing.T) {
 		bt.Text(`#skills`).Contains(expectedSkill),
 	)
 }
+
+func TestAddResource(t *testing.T) {
+	t.Parallel()
+
+	bt := NewBrowserTest(t)
+
+	vampire, err := bt.Models().CreateVampire(context.Background(), "Gruffudd")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	newResourceLinkSelector := `#resources a[href$="/resources/new"]`
+	resourceDescriptionSelector := `#resources input[name="description"]`
+	resourceStationarySelector := `#resources input[name="stationary"]`
+	expectedResource := "Calweddyn Farm, rich but challenging soils"
+
+	bt.Run(
+		bt.Navigate(fmt.Sprintf("/vampires/%s", vampire.ID.String())),
+		bt.WaitForTurbo(),
+		bt.WaitVisible(newResourceLinkSelector),
+		bt.Click(newResourceLinkSelector),
+		bt.WaitVisible(resourceDescriptionSelector),
+		bt.SendKeys(resourceDescriptionSelector, expectedResource),
+		bt.Click(resourceStationarySelector),
+		bt.Submit(resourceDescriptionSelector),
+		bt.Text(`#resources`).Contains(expectedResource),
+		bt.Text(`#resources`).Contains("Stationary"),
+	)
+}

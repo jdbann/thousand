@@ -134,7 +134,7 @@ func Test_InMemory_LoseResource(t *testing.T) {
 
 	bt := NewBrowserTest(t)
 	bt.app.Vampire = &models.OldVampire{
-		Resources: []*models.Resource{
+		Resources: []*models.OldResource{
 			{
 				ID:          1,
 				Description: "Calweddyn Farm, rich but challenging soils",
