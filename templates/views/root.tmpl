@@ -254,7 +254,11 @@
       {{ end }}
 
 
-      <form method="POST" action="{{ $.Reverse "create-mark" }}" class="stack">
+      <form
+        method="POST"
+        action="{{ $.Reverse "old-create-mark" }}"
+        class="stack"
+      >
         <div class="stack stack-small">
           <label for="description">Description</label>
           <input id="description" name="description" type="text" />

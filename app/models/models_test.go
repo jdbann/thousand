@@ -29,6 +29,7 @@ func TestCreateVampire(t *testing.T) {
 				Skills:     []Skill{},
 				Resources:  []Resource{},
 				Characters: []Character{},
+				Marks:      []Mark{},
 			},
 		},
 	}

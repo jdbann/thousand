@@ -840,17 +840,17 @@ func TestAddMark(t *testing.T) {
 	tests := []struct {
 		name            string
 		vampire         *OldVampire
-		mark            *Mark
+		mark            *OldMark
 		expectedVampire *OldVampire
 	}{
 		{
 			name:    "success with no characters",
 			vampire: &OldVampire{},
-			mark: &Mark{
+			mark: &OldMark{
 				Description: "one",
 			},
 			expectedVampire: &OldVampire{
-				Marks: []*Mark{
+				Marks: []*OldMark{
 					{
 						ID:          1,
 						Description: "one",
@@ -861,18 +861,18 @@ func TestAddMark(t *testing.T) {
 		{
 			name: "success with existing characters",
 			vampire: &OldVampire{
-				Marks: []*Mark{
+				Marks: []*OldMark{
 					{
 						ID:          1,
 						Description: "one",
 					},
 				},
 			},
-			mark: &Mark{
+			mark: &OldMark{
 				Description: "two",
 			},
 			expectedVampire: &OldVampire{
-				Marks: []*Mark{
+				Marks: []*OldMark{
 					{
 						ID:          1,
 						Description: "one",

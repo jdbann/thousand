@@ -46,6 +46,14 @@ type Experience struct {
 	UpdatedAt   sql.NullTime
 }
 
+type Mark struct {
+	ID          uuid.UUID
+	VampireID   uuid.UUID
+	Description string
+	CreatedAt   time.Time
+	UpdatedAt   sql.NullTime
+}
+
 type Memory struct {
 	ID        uuid.UUID
 	VampireID uuid.UUID

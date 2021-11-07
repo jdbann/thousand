@@ -352,8 +352,8 @@ func (app *App) createDescriptor(c echo.Context) error {
 	return c.Redirect(http.StatusFound, "/")
 }
 
-func (app *App) createMark(c echo.Context) error {
-	mark := new(models.Mark)
+func (app *App) oldCreateMark(c echo.Context) error {
+	mark := new(models.OldMark)
 	if err := c.Bind(mark); err != nil {
 		return err
 	}
@@ -361,4 +361,34 @@ func (app *App) createMark(c echo.Context) error {
 	app.Vampire.AddMark(mark)
 
 	return c.Redirect(http.StatusFound, "/")
+}
+
+func (app *App) newMark(c echo.Context) error {
+	vampireID, err := uuid.Parse(c.Param("vampireID"))
+	if err != nil {
+		return err
+	}
+
+	vampire, err := app.Models.GetVampire(c.Request().Context(), vampireID)
+	if err != nil {
+		return err
+	}
+
+	data := app.data(dataMap{"vampire": vampire})
+	return c.Render(http.StatusOK, "marks/new", data)
+}
+
+func (app *App) createMark(c echo.Context) error {
+	vampireID, err := uuid.Parse(c.Param("vampireID"))
+	if err != nil {
+		return err
+	}
+
+	description := c.FormValue("description")
+
+	if _, err := app.Models.AddMark(c.Request().Context(), vampireID, description); err != nil {
+		return err
+	}
+
+	return c.Redirect(http.StatusSeeOther, app.Reverse("show-vampire", vampireID.String()))
 }

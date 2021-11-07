@@ -46,7 +46,7 @@ func (m *Models) CreateVampire(ctx context.Context, name string) (Vampire, error
 		memories[i] = newMemory(dbMemory, make([]db.Experience, 0, 3))
 	}
 
-	return newVampire(v, memories, []Skill{}, []Resource{}, []Character{}), nil
+	return newVampire(v, memories, []Skill{}, []Resource{}, []Character{}, []Mark{}), nil
 }
 
 // GetVampire attempts to retrieve a vampire from the DB with the provided ID.
@@ -109,7 +109,17 @@ func (m *Models) GetVampire(ctx context.Context, id uuid.UUID) (Vampire, error) 
 		characters[i] = newCharacter(dbCharacter)
 	}
 
-	return newVampire(v, memories, skills, resources, characters), nil
+	dbMarks, err := m.Queries.GetMarksForVampire(ctx, id)
+	if err != nil {
+		return Vampire{}, err
+	}
+
+	marks := make([]Mark, len(dbMarks))
+	for i, dbMark := range dbMarks {
+		marks[i] = newMark(dbMark)
+	}
+
+	return newVampire(v, memories, skills, resources, characters, marks), nil
 }
 
 // GetVampires attempts to retrieve all the vampires from the DB.
@@ -121,7 +131,7 @@ func (m *Models) GetVampires(ctx context.Context) ([]Vampire, error) {
 
 	nvs := make([]Vampire, len(vs))
 	for i, v := range vs {
-		nvs[i] = newVampire(v, []Memory{}, []Skill{}, []Resource{}, []Character{})
+		nvs[i] = newVampire(v, []Memory{}, []Skill{}, []Resource{}, []Character{}, []Mark{})
 	}
 
 	return nvs, nil
@@ -243,4 +253,18 @@ func (m *Models) AddCharacter(ctx context.Context, vampireID uuid.UUID, params A
 	}
 
 	return newCharacter(dbCharacter), nil
+}
+
+func (m *Models) AddMark(ctx context.Context, vampireID uuid.UUID, description string) (Mark, error) {
+	params := db.CreateMarkParams{
+		VampireID:   vampireID,
+		Description: description,
+	}
+
+	dbMark, err := m.Queries.CreateMark(ctx, params)
+	if err != nil {
+		return Mark{}, err
+	}
+
+	return newMark(dbMark), nil
 }

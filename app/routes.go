@@ -35,6 +35,8 @@ func (app *App) setupRoutes() {
 	app.POST("/vampires/:vampireID/resources", app.createResource).Name = "create-resource"
 	app.GET("/vampires/:vampireID/characters/new", app.newCharacter).Name = "new-character"
 	app.POST("/vampires/:vampireID/characters", app.createCharacter).Name = "create-character"
+	app.GET("/vampires/:vampireID/marks/new", app.newMark).Name = "new-mark"
+	app.POST("/vampires/:vampireID/marks", app.createMark).Name = "create-mark"
 
 	// Details
 	app.POST("/details", app.createDetails).Name = "create-details"
@@ -57,5 +59,5 @@ func (app *App) setupRoutes() {
 	app.POST("/characters/:id/descriptor", app.createDescriptor).Name = "create-descriptor"
 
 	// Marks
-	app.POST("/marks", app.createMark).Name = "create-mark"
+	app.POST("/marks", app.oldCreateMark).Name = "old-create-mark"
 }

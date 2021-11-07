@@ -1,0 +1,27 @@
+{{ template "base" . }}
+
+{{ define "main" }}
+  {{ with .Data.vampire }}
+    <turbo-frame id="newMark">
+      <form
+        method="POST"
+        action="{{ $.Reverse "create-mark" .ID }}"
+        data-turbo-frame="_top"
+      >
+        <div class="cluster">
+          <input
+            id="description"
+            name="description"
+            type="text"
+            placeholder="Description"
+            class="cluster-grow"
+            data-action="input->frame#disableRestore"
+            data-frame-unless-blank-param="true"
+          />
+
+          <input type="submit" value="Create Mark" />
+        </div>
+      </form>
+    </turbo-frame>
+  {{ end }}
+{{ end }}

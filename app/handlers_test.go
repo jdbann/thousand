@@ -1107,7 +1107,7 @@ func TestCreateMark(t *testing.T) {
 			expectedStatus:   http.StatusFound,
 			expectedLocation: "/",
 			expectedVampire: &models.OldVampire{
-				Marks: []*models.Mark{
+				Marks: []*models.OldMark{
 					{
 						ID:          1,
 						Description: "Muddy footprints, muddy handprints, muddy sheets - I leave a trail of dirt wherever I travel.",
@@ -1133,7 +1133,7 @@ func TestCreateMark(t *testing.T) {
 			response := httptest.NewRecorder()
 			ctx := app.NewContext(request, response)
 
-			err := app.createMark(ctx)
+			err := app.oldCreateMark(ctx)
 
 			if tt.expectedStatus != response.Code {
 				t.Errorf("expected %d; got %d", tt.expectedStatus, response.Code)

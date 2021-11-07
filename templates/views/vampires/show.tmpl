@@ -88,6 +88,25 @@
           </li>
         </ul>
       </div>
+
+      <div id="marks" class="stack">
+        <h2>Marks</h2>
+
+        <ul>
+          {{ range .Marks }}
+            <li>{{ .Description }}</li>
+          {{ end }}
+          <li>
+            <turbo-frame
+              id="newMark"
+              data-controller="frame"
+              data-action="click@window->frame#restore"
+            >
+              <a href="{{ $.Reverse "new-mark" .ID }}">New Mark</a>
+            </turbo-frame>
+          </li>
+        </ul>
+      </div>
     </div>
   {{ end }}
 {{ end }}

@@ -25,7 +25,7 @@ type OldVampire struct {
 	Skills     []*OldSkill
 	Resources  []*OldResource
 	Characters []*OldCharacter
-	Marks      []*Mark
+	Marks      []*OldMark
 }
 
 // Vampire holds the domain level representation of a vampire.
@@ -36,9 +36,10 @@ type Vampire struct {
 	Skills     []Skill
 	Resources  []Resource
 	Characters []Character
+	Marks      []Mark
 }
 
-func newVampire(dbVampire db.Vampire, memories []Memory, skills []Skill, resources []Resource, characters []Character) Vampire {
+func newVampire(dbVampire db.Vampire, memories []Memory, skills []Skill, resources []Resource, characters []Character, marks []Mark) Vampire {
 	return Vampire{
 		ID:         dbVampire.ID,
 		Name:       dbVampire.Name,
@@ -46,6 +47,7 @@ func newVampire(dbVampire db.Vampire, memories []Memory, skills []Skill, resourc
 		Skills:     skills,
 		Resources:  resources,
 		Characters: characters,
+		Marks:      marks,
 	}
 }
 
@@ -199,7 +201,7 @@ func (v *OldVampire) AddDescriptor(characterID int, descriptor string) error {
 }
 
 // AddMark adds a mark to the Vampire.
-func (v *OldVampire) AddMark(mark *Mark) {
+func (v *OldVampire) AddMark(mark *OldMark) {
 	mark.ID = len(v.Marks) + 1
 	v.Marks = append(v.Marks, mark)
 }

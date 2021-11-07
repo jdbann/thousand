@@ -240,3 +240,29 @@ func TestAddCharacter(t *testing.T) {
 		bt.Text(`#characters`).Contains("Immortal"),
 	)
 }
+
+func TestAddMark(t *testing.T) {
+	t.Parallel()
+
+	bt := NewBrowserTest(t)
+
+	vampire, err := bt.Models().CreateVampire(context.Background(), "Gruffudd")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	newMarkLinkSelector := `#marks a[href$="/marks/new"]`
+	markDescriptionSelector := `#marks input[name="description"]`
+	expectedMark := "Muddy footprints, muddy handprints, muddy sheets - I leave a trail of dirt wherever I travel."
+
+	bt.Run(
+		bt.Navigate(fmt.Sprintf("/vampires/%s", vampire.ID.String())),
+		bt.WaitForTurbo(),
+		bt.WaitVisible(newMarkLinkSelector),
+		bt.Click(newMarkLinkSelector),
+		bt.WaitVisible(markDescriptionSelector),
+		bt.SendKeys(markDescriptionSelector, expectedMark),
+		bt.Submit(markDescriptionSelector),
+		bt.Text(`#marks`).Contains(expectedMark),
+	)
+}
