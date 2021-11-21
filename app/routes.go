@@ -3,6 +3,7 @@ package app
 import (
 	"net/http"
 
+	"emailaddress.horse/thousand/handlers"
 	"emailaddress.horse/thousand/static"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -23,7 +24,7 @@ func (app *App) setupRoutes() {
 	app.Group("/assets", static.Middleware())
 
 	// Vampires
-	app.GET("/vampires", app.listVampires).Name = "list-vampires"
+	handlers.ListVampires(app.Echo, app.Models)
 	app.GET("/vampires/new", app.newVampire).Name = "new-vampire"
 	app.POST("/vampires", app.createVampire).Name = "create-vampire"
 	app.GET("/vampires/:id", app.showVampire).Name = "show-vampire"

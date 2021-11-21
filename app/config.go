@@ -44,7 +44,7 @@ var _ Configurer = EnvConfigurer(baseConfig)
 // baseConfig sets up common configuration values for all environments.
 func baseConfig(app *App) {
 	// Echo configuration values
-	app.Renderer = templates.NewRenderer()
+	app.Renderer = templates.NewRenderer(app.Echo)
 
 	// App configuration values
 	app.DBConnector = defaultDBConnector

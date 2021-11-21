@@ -47,14 +47,14 @@ func NewApp(configurers ...Configurer) *App {
 		configurer.applyTo(app)
 	}
 
-	app.setupRoutes()
-
 	dbtx, err := app.DBConnector(app.DatabaseURL)
 	if err != nil {
 		app.Logger.Fatal(err)
 	}
 
 	app.Models = models.NewModels(dbtx)
+
+	app.setupRoutes()
 
 	return app
 }

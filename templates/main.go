@@ -18,13 +18,17 @@ var viewTemplates embed.FS
 //go:embed layouts/*.tmpl
 var layoutTemplates embed.FS
 
+type routeReverser interface {
+	Reverse(name string, params ...interface{}) string
+}
+
 // NewRenderer returns a value that implements the echo.Renderer interface for
 // rendering the HTML templates required by this application.
 //
 // It creates templates for each file in templates/views using the path and
 // filename without the file extension. So "templates/views/vampires/show.tmpl"
 // has the name "vampires/show".
-func NewRenderer() echo.Renderer {
+func NewRenderer(rr routeReverser) echo.Renderer {
 	views := map[string]*template.Template{}
 
 	// Traverse the views directory, descending into each folder
@@ -49,8 +53,15 @@ func NewRenderer() echo.Renderer {
 		name := strings.TrimPrefix(path, "views/")
 		name = strings.TrimSuffix(name, ".tmpl")
 
-		// Setup the new template for the view and parse the contents of the file
+		// Setup the new template for the view
 		viewTemplate := template.New(name)
+
+		// Add the Reverse function to the template
+		viewTemplate.Funcs(template.FuncMap{
+			"reverse": rr.Reverse,
+		})
+
+		// Parse the contents of the file
 		viewTemplate, err = viewTemplate.Parse(string(viewBytes))
 		if err != nil {
 			log.Fatal(err)

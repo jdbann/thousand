@@ -24,16 +24,6 @@ func (app *App) root(c echo.Context) error {
 	return c.Render(http.StatusOK, "root", app)
 }
 
-func (app *App) listVampires(c echo.Context) error {
-	vampires, err := app.Models.GetVampires(c.Request().Context())
-	if err != nil {
-		return err
-	}
-
-	data := app.data(dataMap{"vampires": vampires})
-	return c.Render(http.StatusOK, "vampires/index", data)
-}
-
 func (app *App) newVampire(c echo.Context) error {
 	data := app.data(dataMap{})
 	return c.Render(http.StatusOK, "vampires/new", data)
