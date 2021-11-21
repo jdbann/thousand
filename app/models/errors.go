@@ -3,11 +3,19 @@ package models
 import (
 	"errors"
 	"fmt"
-
-	"github.com/jackc/pgconn"
 )
 
-var ErrNotFound = NewError("Not found")
+var (
+	PgErrCodeMemoryFull = "TH001"
+)
+
+var (
+	// ErrNotFound is returned when a requested record could not be found.
+	ErrNotFound = NewError("Not found")
+
+	// ErrMemoryFull is returned when trying to add experiences to a full memory.
+	ErrMemoryFull = NewError("Memory is full")
+)
 
 type Error struct {
 	msg   string
@@ -40,15 +48,3 @@ func (err Error) Is(target error) bool {
 }
 
 func (err Error) Unwrap() error { return err.cause }
-
-// ErrMemoryFull is returned when trying to add experiences to a full memory.
-var ErrMemoryFull = errors.New("memory is full")
-
-func isMemoryFullError(err error) bool {
-	var pgErr *pgconn.PgError
-	if errors.As(err, &pgErr) {
-		return pgErr.Code == "TH001"
-	}
-
-	return false
-}

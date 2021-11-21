@@ -7,6 +7,7 @@ import (
 
 	"emailaddress.horse/thousand/db"
 	"github.com/google/uuid"
+	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v4"
 )
 
@@ -166,11 +167,10 @@ func (m *Models) AddExperience(ctx context.Context, vampireID, memoryID uuid.UUI
 	}
 
 	dbExperience, err := m.Queries.CreateExperience(ctx, params)
-	if err != nil {
-		if isMemoryFullError(err) {
-			err = ErrMemoryFull
-		}
-
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) && pgErr.Code == PgErrCodeMemoryFull {
+		return Experience{}, ErrMemoryFull.Cause(err)
+	} else if err != nil {
 		return Experience{}, err
 	}
 
