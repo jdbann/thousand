@@ -26,7 +26,7 @@ func (app *App) setupRoutes() {
 	// Vampires
 	handlers.ListVampires(app.Echo, app.Models)
 	handlers.NewVampire(app.Echo)
-	app.POST("/vampires", app.createVampire).Name = "create-vampire"
+	handlers.CreateVampire(app.Echo, app.Models)
 	app.GET("/vampires/:id", app.showVampire).Name = "show-vampire"
 	app.GET("/vampires/:vampireID/memories/:id/experiences/new", app.newExperience).Name = "new-experience"
 	app.POST("/vampires/:vampireID/memories/:id/experiences", app.createExperience).Name = "create-experience"

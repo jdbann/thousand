@@ -4,11 +4,14 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"strings"
 	"testing"
 
 	"emailaddress.horse/thousand/app/models"
 	"emailaddress.horse/thousand/handlers"
 	"emailaddress.horse/thousand/templates"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -85,6 +88,75 @@ func TestNewVampire(t *testing.T) {
 
 			if tt.expectedStatus != response.Code {
 				t.Errorf("expected %d; got %d", tt.expectedStatus, response.Code)
+			}
+		})
+	}
+}
+
+type mockVampireCreator struct {
+	vampire      models.Vampire
+	receivedName string
+}
+
+func (m *mockVampireCreator) CreateVampire(_ context.Context, name string) (models.Vampire, error) {
+	m.receivedName = name
+	return m.vampire, nil
+}
+
+func TestCreateVampire(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name             string
+		body             url.Values
+		vampireCreator   *mockVampireCreator
+		expectedStatus   int
+		expectedName     string
+		expectedLocation string
+	}{
+		{
+			name: "successful",
+			body: url.Values{"name": []string{"Gruffudd"}},
+			vampireCreator: &mockVampireCreator{
+				vampire: models.Vampire{
+					ID: uuid.MustParse("12345678-90ab-cdef-1234-567890abcdef"),
+				},
+			},
+			expectedStatus:   http.StatusSeeOther,
+			expectedName:     "Gruffudd",
+			expectedLocation: "/vampires/12345678-90ab-cdef-1234-567890abcdef",
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			e := echo.New()
+			e.Renderer = templates.NewRenderer(e)
+
+			request := httptest.NewRequest(http.MethodPost, "/vampires", strings.NewReader(tt.body.Encode()))
+			request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationForm)
+			response := httptest.NewRecorder()
+
+			handlers.CreateVampire(e, tt.vampireCreator)
+			handlers.ShowVampire(e)
+
+			e.ServeHTTP(response, request)
+
+			if tt.expectedStatus != response.Code {
+				t.Errorf("expected %d; got %d", tt.expectedStatus, response.Code)
+			}
+
+			if tt.expectedName != tt.vampireCreator.receivedName {
+				t.Errorf("expected %q; got %q", tt.expectedName, tt.vampireCreator.receivedName)
+			}
+
+			actualLocation := response.Header().Get(echo.HeaderLocation)
+			if tt.expectedLocation != actualLocation {
+				t.Errorf("expected %q; got %q", tt.expectedLocation, actualLocation)
 			}
 		})
 	}

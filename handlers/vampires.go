@@ -29,3 +29,26 @@ func NewVampire(e *echo.Echo) {
 		return c.Render(http.StatusOK, "vampires/new", templates.NewData())
 	}).Name = "new-vampire"
 }
+
+type vampireCreator interface {
+	CreateVampire(context.Context, string) (models.Vampire, error)
+}
+
+func CreateVampire(e *echo.Echo, vc vampireCreator) {
+	e.POST("/vampires", func(c echo.Context) error {
+		name := c.FormValue("name")
+
+		vampire, err := vc.CreateVampire(c.Request().Context(), name)
+		if err != nil {
+			return err
+		}
+
+		return c.Redirect(http.StatusSeeOther, e.Reverse("show-vampire", vampire.ID.String()))
+	}).Name = "create-vampire"
+}
+
+func ShowVampire(e *echo.Echo) {
+	e.GET("/vampires/:id", func(c echo.Context) error {
+		return nil
+	}).Name = "show-vampire"
+}
