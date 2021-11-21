@@ -23,3 +23,9 @@ func ListVampires(e *echo.Echo, vg vampiresGetter) {
 		return c.Render(http.StatusOK, "vampires/index", templates.NewData().Add("vampires", vampires))
 	}).Name = "list-vampires"
 }
+
+func NewVampire(e *echo.Echo) {
+	e.GET("/vampires/new", func(c echo.Context) error {
+		return c.Render(http.StatusOK, "vampires/new", templates.NewData())
+	}).Name = "new-vampire"
+}
