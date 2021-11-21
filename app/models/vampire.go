@@ -8,9 +8,9 @@ import (
 	"github.com/google/uuid"
 )
 
-// ErrNotFound is returned when trying to reference a model by an ID if a model
-// cannot be found with that ID.
-var ErrNotFound = errors.New("Record not found")
+// OldErrNotFound is returned when trying to reference a model by an ID if a
+// model cannot be found with that ID.
+var OldErrNotFound = errors.New("Record not found")
 
 const (
 	// vampireMemorySize specifies how many active memories a vampire should have,
@@ -58,7 +58,7 @@ func (v *OldVampire) findMemory(memoryID int) (*OldMemory, error) {
 		}
 	}
 
-	return nil, ErrNotFound
+	return nil, OldErrNotFound
 }
 
 // ForgetMemory replaces an existing memory with a blank memory.
@@ -110,7 +110,7 @@ func (v *OldVampire) FindSkill(skillID int) (*OldSkill, error) {
 		}
 	}
 
-	return nil, ErrNotFound
+	return nil, OldErrNotFound
 }
 
 // UpdateSkill replaces a Vampire's existing skill with the new one based on
@@ -141,7 +141,7 @@ func (v *OldVampire) FindResource(resourceID int) (*OldResource, error) {
 		}
 	}
 
-	return nil, ErrNotFound
+	return nil, OldErrNotFound
 }
 
 // UpdateResource replaces a Vampire's existing resource with the new one
@@ -172,7 +172,7 @@ func (v *OldVampire) FindCharacter(characterID int) (*OldCharacter, error) {
 		}
 	}
 
-	return nil, ErrNotFound
+	return nil, OldErrNotFound
 }
 
 // UpdateCharacter replaces a Vampire's existing character with the new one

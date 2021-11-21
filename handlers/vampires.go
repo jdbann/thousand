@@ -2,10 +2,12 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
 	"emailaddress.horse/thousand/app/models"
 	"emailaddress.horse/thousand/templates"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -47,8 +49,24 @@ func CreateVampire(e *echo.Echo, vc vampireCreator) {
 	}).Name = "create-vampire"
 }
 
-func ShowVampire(e *echo.Echo) {
+type vampireGetter interface {
+	GetVampire(context.Context, uuid.UUID) (models.Vampire, error)
+}
+
+func ShowVampire(e *echo.Echo, vg vampireGetter) {
 	e.GET("/vampires/:id", func(c echo.Context) error {
-		return nil
+		id, err := uuid.Parse(c.Param("id"))
+		if err != nil {
+			return err
+		}
+
+		vampire, err := vg.GetVampire(c.Request().Context(), id)
+		if errors.Is(err, models.ErrNotFound) {
+			return echo.NewHTTPError(http.StatusNotFound, "Vampire could not be found").SetInternal(err)
+		} else if err != nil {
+			return err
+		}
+
+		return c.Render(http.StatusOK, "vampires/show", templates.NewData().Add("vampire", vampire))
 	}).Name = "show-vampire"
 }

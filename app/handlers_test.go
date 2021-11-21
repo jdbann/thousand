@@ -54,55 +54,6 @@ func TestRoot(t *testing.T) {
 	}
 }
 
-func TestShowVampire(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name           string
-		expectedStatus int
-		expectedError  error
-	}{
-		{
-			name:           "successful",
-			expectedStatus: http.StatusOK,
-			expectedError:  nil,
-		},
-	}
-
-	for _, tt := range tests {
-		tt := tt
-
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			app := NewApp(TestConfig(t))
-
-			vampire, err := app.Models.CreateVampire(context.Background(), "Gruffudd")
-			if err != nil {
-				t.Fatal(err)
-			}
-
-			url := fmt.Sprintf("/vampires/%s", vampire.ID.String())
-			request := httptest.NewRequest(http.MethodGet, url, nil)
-			response := httptest.NewRecorder()
-			ctx := app.NewContext(request, response)
-			ctx.SetPath(url)
-			ctx.SetParamNames("id")
-			ctx.SetParamValues(vampire.ID.String())
-
-			err = app.showVampire(ctx)
-
-			if tt.expectedStatus != response.Code {
-				t.Errorf("expected %d; got %d", tt.expectedStatus, response.Code)
-			}
-
-			if tt.expectedError != err {
-				t.Errorf("expected %v; got %v", tt.expectedError, err)
-			}
-		})
-	}
-}
-
 func TestCreateDetails(t *testing.T) {
 	t.Parallel()
 
@@ -337,7 +288,7 @@ func TestCreateExperience(t *testing.T) {
 			ctx.SetParamNames("vampireID", "id")
 			ctx.SetParamValues(vampire.ID.String(), vampire.Memories[0].ID.String())
 
-			err = app.createVampire(ctx)
+			err = app.createExperience(ctx)
 
 			if tt.expectedStatus != response.Code {
 				t.Errorf("expected %d; got %d", tt.expectedStatus, response.Code)

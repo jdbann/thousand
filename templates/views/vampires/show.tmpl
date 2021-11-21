@@ -1,7 +1,7 @@
 {{ template "base" . }}
 
 {{ define "main" }}
-  {{ with .Data.vampire }}
+  {{ with .vampire }}
     <div id="details">
       {{ .Name }}
     </div>
@@ -22,7 +22,7 @@
                   data-controller="frame"
                   data-action="click@window->frame#restore"
                 >
-                  <a href="{{ $.Reverse "new-experience" .VampireID .ID }}">
+                  <a href="{{ reverse "new-experience" .VampireID .ID }}">
                     New Experience
                   </a>
                 </turbo-frame>
@@ -46,7 +46,7 @@
             data-controller="frame"
             data-action="click@window->frame#restore"
           >
-            <a href="{{ $.Reverse "new-skill" .ID }}">New Skill</a>
+            <a href="{{ reverse "new-skill" .ID }}">New Skill</a>
           </turbo-frame>
         </li>
       </ul>
@@ -65,7 +65,7 @@
             data-controller="frame"
             data-action="click@window->frame#restore"
           >
-            <a href="{{ $.Reverse "new-resource" .ID }}">New Resource</a>
+            <a href="{{ reverse "new-resource" .ID }}">New Resource</a>
           </turbo-frame>
         </li>
       </ul>
@@ -83,7 +83,7 @@
               data-controller="frame"
               data-action="click@window->frame#restore"
             >
-              <a href="{{ $.Reverse "new-character" .ID }}">New Character</a>
+              <a href="{{ reverse "new-character" .ID }}">New Character</a>
             </turbo-frame>
           </li>
         </ul>
@@ -102,7 +102,7 @@
               data-controller="frame"
               data-action="click@window->frame#restore"
             >
-              <a href="{{ $.Reverse "new-mark" .ID }}">New Mark</a>
+              <a href="{{ reverse "new-mark" .ID }}">New Mark</a>
             </turbo-frame>
           </li>
         </ul>

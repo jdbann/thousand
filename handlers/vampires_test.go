@@ -142,7 +142,7 @@ func TestCreateVampire(t *testing.T) {
 			response := httptest.NewRecorder()
 
 			handlers.CreateVampire(e, tt.vampireCreator)
-			handlers.ShowVampire(e)
+			handlers.ShowVampire(e, nil)
 
 			e.ServeHTTP(response, request)
 
@@ -157,6 +157,60 @@ func TestCreateVampire(t *testing.T) {
 			actualLocation := response.Header().Get(echo.HeaderLocation)
 			if tt.expectedLocation != actualLocation {
 				t.Errorf("expected %q; got %q", tt.expectedLocation, actualLocation)
+			}
+		})
+	}
+}
+
+type mockVampireGetter struct {
+	vampire    models.Vampire
+	err        error
+	receivedID uuid.UUID
+}
+
+func (m *mockVampireGetter) GetVampire(_ context.Context, id uuid.UUID) (models.Vampire, error) {
+	m.receivedID = id
+	return m.vampire, m.err
+}
+
+func TestShowVampire(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name           string
+		vampireGetter  *mockVampireGetter
+		expectedStatus int
+	}{
+		{
+			name:           "successful",
+			vampireGetter:  &mockVampireGetter{vampire: models.Vampire{}},
+			expectedStatus: http.StatusOK,
+		},
+		{
+			name:           "not found",
+			vampireGetter:  &mockVampireGetter{err: models.ErrNotFound},
+			expectedStatus: http.StatusNotFound,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			e := echo.New()
+			e.Renderer = templates.NewRenderer(e)
+
+			request := httptest.NewRequest(http.MethodGet, "/vampires/12345678-90ab-cdef-1234-567890abcdef", nil)
+			response := httptest.NewRecorder()
+
+			handlers.ShowVampire(e, tt.vampireGetter)
+
+			e.ServeHTTP(response, request)
+
+			if tt.expectedStatus != response.Code {
+				t.Errorf("expected %d; got %d", tt.expectedStatus, response.Code)
 			}
 		})
 	}

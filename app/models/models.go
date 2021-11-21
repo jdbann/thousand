@@ -2,10 +2,12 @@ package models
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"emailaddress.horse/thousand/db"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v4"
 )
 
 // Models holds a configured *db.Queries which can be used to load values from
@@ -52,7 +54,9 @@ func (m *Models) CreateVampire(ctx context.Context, name string) (Vampire, error
 // GetVampire attempts to retrieve a vampire from the DB with the provided ID.
 func (m *Models) GetVampire(ctx context.Context, id uuid.UUID) (Vampire, error) {
 	v, err := m.Queries.GetVampire(ctx, id)
-	if err != nil {
+	if errors.Is(err, pgx.ErrNoRows) {
+		return Vampire{}, ErrNotFound.Cause(err)
+	} else if err != nil {
 		return Vampire{}, err
 	}
 

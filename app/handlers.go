@@ -24,21 +24,6 @@ func (app *App) root(c echo.Context) error {
 	return c.Render(http.StatusOK, "root", app)
 }
 
-func (app *App) showVampire(c echo.Context) error {
-	id, err := uuid.Parse(c.Param("id"))
-	if err != nil {
-		return err
-	}
-
-	vampire, err := app.Models.GetVampire(c.Request().Context(), id)
-	if err != nil {
-		return err
-	}
-
-	data := app.data(dataMap{"vampire": vampire})
-	return c.Render(http.StatusOK, "vampires/show", data)
-}
-
 func (app *App) createDetails(c echo.Context) error {
 	var details = new(models.Details)
 	if err := c.Bind(details); err != nil {

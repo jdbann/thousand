@@ -71,7 +71,7 @@ func TestForgetMemory(t *testing.T) {
 			vampire:         &OldVampire{},
 			memoryID:        1,
 			expectedVampire: &OldVampire{},
-			expectedError:   ErrNotFound,
+			expectedError:   OldErrNotFound,
 		},
 	}
 
@@ -162,7 +162,7 @@ func TestVampire_AddExperience(t *testing.T) {
 			memoryID:         1,
 			experienceString: "one",
 			expectedVampire:  &OldVampire{},
-			expectedError:    ErrNotFound,
+			expectedError:    OldErrNotFound,
 		},
 	}
 
@@ -278,7 +278,7 @@ func TestFindSkill(t *testing.T) {
 			name:          "failure with unknown ID",
 			vampire:       &OldVampire{},
 			skillID:       1,
-			expectedError: ErrNotFound,
+			expectedError: OldErrNotFound,
 		},
 	}
 
@@ -354,7 +354,7 @@ func TestUpdateSkill(t *testing.T) {
 				Checked:     true,
 			},
 			expectedVampire: &OldVampire{},
-			expectedError:   ErrNotFound,
+			expectedError:   OldErrNotFound,
 		},
 	}
 
@@ -472,7 +472,7 @@ func TestFindResource(t *testing.T) {
 			name:          "failure with unknown ID",
 			vampire:       &OldVampire{},
 			resourceID:    1,
-			expectedError: ErrNotFound,
+			expectedError: OldErrNotFound,
 		},
 	}
 
@@ -548,7 +548,7 @@ func TestUpdateResource(t *testing.T) {
 				Lost:        true,
 			},
 			expectedVampire: &OldVampire{},
-			expectedError:   ErrNotFound,
+			expectedError:   OldErrNotFound,
 		},
 	}
 
@@ -672,7 +672,7 @@ func TestFindCharacter(t *testing.T) {
 			name:          "failure with unknown ID",
 			vampire:       &OldVampire{},
 			characterID:   1,
-			expectedError: ErrNotFound,
+			expectedError: OldErrNotFound,
 		},
 	}
 
@@ -754,7 +754,7 @@ func TestUpdateCharacter(t *testing.T) {
 				Deceased: true,
 			},
 			expectedVampire: &OldVampire{},
-			expectedError:   ErrNotFound,
+			expectedError:   OldErrNotFound,
 		},
 	}
 
@@ -813,7 +813,7 @@ func TestVampire_AddDescriptor(t *testing.T) {
 			characterID:     1,
 			descriptor:      "one",
 			expectedVampire: &OldVampire{},
-			expectedError:   ErrNotFound,
+			expectedError:   OldErrNotFound,
 		},
 	}
 
