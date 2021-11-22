@@ -61,26 +61,6 @@ func (app *App) oldCreateExperience(c echo.Context) error {
 	return c.Redirect(http.StatusFound, "/")
 }
 
-func (app *App) newExperience(c echo.Context) error {
-	vampireID, err := uuid.Parse(c.Param("vampireID"))
-	if err != nil {
-		return err
-	}
-
-	memoryID, err := uuid.Parse(c.Param("id"))
-	if err != nil {
-		return err
-	}
-
-	memory, err := app.Models.GetMemory(c.Request().Context(), vampireID, memoryID)
-	if err != nil {
-		return err
-	}
-
-	data := app.data(dataMap{"memory": memory})
-	return c.Render(http.StatusOK, "experiences/new", data)
-}
-
 func (app *App) createExperience(c echo.Context) error {
 	vampireID, err := uuid.Parse(c.Param("vampireID"))
 	if err != nil {

@@ -149,7 +149,9 @@ func (m *Models) GetMemory(ctx context.Context, vampireID, id uuid.UUID) (Memory
 	}
 
 	dbMemory, err := m.Queries.GetMemory(ctx, params)
-	if err != nil {
+	if errors.Is(err, pgx.ErrNoRows) {
+		return Memory{}, ErrNotFound.Cause(err)
+	} else if err != nil {
 		return Memory{}, err
 	}
 

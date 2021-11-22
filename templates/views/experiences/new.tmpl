@@ -1,11 +1,11 @@
 {{ template "base" . }}
 
 {{ define "main" }}
-  {{ with .Data.memory }}
+  {{ with .memory }}
     <turbo-frame id="memory-{{ .ID }}-newExperience">
       <form
         method="POST"
-        action="{{ $.Reverse "create-experience" .VampireID.String .ID.String }}"
+        action="{{ reverse "create-experience" .VampireID.String .ID.String }}"
         data-turbo-frame="_top"
       >
         <div class="cluster">

@@ -220,3 +220,57 @@ func TestAddExperience(t *testing.T) {
 		})
 	}
 }
+
+func TestGetMemory(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name          string
+		id            func(Vampire) (vampireID uuid.UUID, id uuid.UUID)
+		expectedError error
+	}{
+		{
+			name:          "successful",
+			id:            func(v Vampire) (uuid.UUID, uuid.UUID) { return v.ID, v.Memories[0].ID },
+			expectedError: nil,
+		},
+		{
+			name:          "vampire not found",
+			id:            func(v Vampire) (uuid.UUID, uuid.UUID) { return uuid.New(), v.Memories[0].ID },
+			expectedError: ErrNotFound,
+		},
+		{
+			name:          "memory not found",
+			id:            func(v Vampire) (uuid.UUID, uuid.UUID) { return v.ID, uuid.New() },
+			expectedError: ErrNotFound,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			m := newTestModels(t)
+			err := m.WithSavepoint(func(m *Models) error {
+				vampire, err := m.CreateVampire(context.Background(), "test vampire")
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				vampireID, id := tt.id(vampire)
+
+				_, err = m.GetMemory(context.Background(), vampireID, id)
+				if !errors.Is(err, tt.expectedError) {
+					t.Errorf("expected %q; received %q", tt.expectedError, err)
+				}
+
+				return nil
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+		})
+	}
+}
