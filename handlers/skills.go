@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"errors"
 	"net/http"
 
@@ -27,4 +28,27 @@ func NewSkill(e *echo.Echo, vg vampireGetter) {
 		data := templates.NewData().Add("vampire", vampire)
 		return c.Render(http.StatusOK, "skills/new", data)
 	}).Name = "new-skill"
+}
+
+type skillCreator interface {
+	CreateSkill(context.Context, uuid.UUID, string) (models.Skill, error)
+}
+
+func CreateSkill(e *echo.Echo, sc skillCreator) {
+	e.POST("/vampires/:vampireID/skills", func(c echo.Context) error {
+		vampireID, err := uuid.Parse(c.Param("vampireID"))
+		if err != nil {
+			return err
+		}
+
+		description := c.FormValue("description")
+
+		if _, err := sc.CreateSkill(c.Request().Context(), vampireID, description); errors.Is(err, models.ErrNotFound) {
+			return echo.NewHTTPError(http.StatusNotFound, "Vampire could not be found").SetInternal(err)
+		} else if err != nil {
+			return err
+		}
+
+		return c.Redirect(http.StatusSeeOther, e.Reverse("show-vampire", vampireID.String()))
+	}).Name = "create-skill"
 }

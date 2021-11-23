@@ -204,15 +204,22 @@ func (m *Models) GetExperiences(ctx context.Context, vampireID uuid.UUID) ([]Exp
 	return experiences, nil
 }
 
-// AddSkill attempts to add a new skill to the DB for the provided vampire.
-func (m *Models) AddSkill(ctx context.Context, vampireID uuid.UUID, description string) (Skill, error) {
+// CreateSkill attempts to add a new skill to the DB for the provided vampire.
+func (m *Models) CreateSkill(ctx context.Context, vampireID uuid.UUID, description string) (Skill, error) {
 	params := db.CreateSkillParams{
 		VampireID:   vampireID,
 		Description: description,
 	}
 
 	dbSkill, err := m.Queries.CreateSkill(ctx, params)
-	if err != nil {
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) {
+		if pgErr.Code == pgerrcode.ForeignKeyViolation && pgErr.ConstraintName == "skills_vampire_id_fkey" {
+			return Skill{}, ErrNotFound.Cause(err)
+		}
+
+		return Skill{}, err
+	} else if err != nil {
 		return Skill{}, err
 	}
 
