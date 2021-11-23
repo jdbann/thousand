@@ -7,8 +7,8 @@ require (
 	github.com/chromedp/chromedp v0.7.4
 	github.com/google/go-cmp v0.5.6
 	github.com/google/uuid v1.3.0
-	github.com/jackc/pgconn v1.10.0
-	github.com/jackc/pgx/v4 v4.13.0
+	github.com/jackc/pgconn v1.10.1
+	github.com/jackc/pgx/v4 v4.14.0
 	github.com/jdbann/browsertest v0.1.4
 	github.com/labstack/echo/v4 v4.6.1
 	github.com/mattn/go-colorable v0.1.10 // indirect
