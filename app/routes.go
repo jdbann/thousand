@@ -29,7 +29,7 @@ func (app *App) setupRoutes() {
 	handlers.CreateVampire(app.Echo, app.Models)
 	handlers.ShowVampire(app.Echo, app.Models)
 	handlers.NewExperience(app.Echo, app.Models)
-	app.POST("/vampires/:vampireID/memories/:id/experiences", app.createExperience).Name = "create-experience"
+	handlers.CreateExperience(app.Echo, app.Models)
 	app.GET("/vampires/:vampireID/skills/new", app.newSkill).Name = "new-skill"
 	app.POST("/vampires/:vampireID/skills", app.createSkill).Name = "create-skill"
 	app.GET("/vampires/:vampireID/resources/new", app.newResource).Name = "new-resource"

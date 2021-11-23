@@ -1,8 +1,6 @@
 package app
 
 import (
-	"context"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -190,59 +188,6 @@ func TestDeleteMemory(t *testing.T) {
 
 			if diff := cmp.Diff(tt.expectedVampire, app.Vampire); diff != "" {
 				t.Error(diff)
-			}
-
-			if tt.expectedError != err {
-				t.Errorf("expected %v; got %v", tt.expectedError, err)
-			}
-		})
-	}
-}
-
-func TestCreateExperience(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name           string
-		body           string
-		expectedStatus int
-		expectedError  error
-	}{
-		{
-			name: "successful",
-			body: url.Values{
-				"description": []string{"I am Gruffudd, a Welsh farmer in the valleys of Pembroke; I am a recluse, fond of nature and withdrawn from the village."},
-			}.Encode(),
-			expectedStatus: http.StatusSeeOther,
-			expectedError:  nil,
-		},
-	}
-
-	for _, tt := range tests {
-		tt := tt
-
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			app := NewApp(TestConfig(t))
-
-			vampire, err := app.Models.CreateVampire(context.Background(), "Gruffudd")
-			if err != nil {
-				t.Fatal(err)
-			}
-
-			url := fmt.Sprintf("/vampires/%s/memories/%s/experiences/new", vampire.ID.String(), vampire.Memories[0].ID.String())
-			request := httptest.NewRequest(http.MethodPost, url, strings.NewReader(tt.body))
-			response := httptest.NewRecorder()
-			ctx := app.NewContext(request, response)
-			ctx.SetPath(url)
-			ctx.SetParamNames("vampireID", "id")
-			ctx.SetParamValues(vampire.ID.String(), vampire.Memories[0].ID.String())
-
-			err = app.createExperience(ctx)
-
-			if tt.expectedStatus != response.Code {
-				t.Errorf("expected %d; got %d", tt.expectedStatus, response.Code)
 			}
 
 			if tt.expectedError != err {

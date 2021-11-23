@@ -11,8 +11,6 @@ import (
 )
 
 func TestCreateVampire(t *testing.T) {
-	t.Parallel()
-
 	ignoreFields := cmp.Options{
 		ignoreVampireFields,
 	}
@@ -40,8 +38,6 @@ func TestCreateVampire(t *testing.T) {
 		tt := tt
 
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
 			m := newTestModels(t)
 
 			actualVampire, err := m.CreateVampire(context.Background(), tt.vampireName)
@@ -61,8 +57,6 @@ func TestCreateVampire(t *testing.T) {
 }
 
 func TestGetVampire(t *testing.T) {
-	t.Parallel()
-
 	tests := []struct {
 		name          string
 		id            func(Vampire) uuid.UUID
@@ -84,8 +78,6 @@ func TestGetVampire(t *testing.T) {
 		tt := tt
 
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
 			m := newTestModels(t)
 			err := m.WithSavepoint(func(m *Models) error {
 				vampire, err := m.CreateVampire(context.Background(), "test vampire")
@@ -110,8 +102,6 @@ func TestGetVampire(t *testing.T) {
 }
 
 func TestAddExperience(t *testing.T) {
-	t.Parallel()
-
 	tests := []struct {
 		name                string
 		descriptions        []string
@@ -199,7 +189,7 @@ func TestAddExperience(t *testing.T) {
 			memory := vampire.Memories[0]
 			for _, description := range tt.descriptions {
 				err := m.WithSavepoint(func(m *Models) error {
-					_, err := m.AddExperience(context.Background(), vampire.ID, memory.ID, description)
+					_, err := m.CreateExperience(context.Background(), vampire.ID, memory.ID, description)
 					return err
 				})
 				actualErrors = append(actualErrors, err)
@@ -222,8 +212,6 @@ func TestAddExperience(t *testing.T) {
 }
 
 func TestGetMemory(t *testing.T) {
-	t.Parallel()
-
 	tests := []struct {
 		name          string
 		id            func(Vampire) (vampireID uuid.UUID, id uuid.UUID)
@@ -250,8 +238,6 @@ func TestGetMemory(t *testing.T) {
 		tt := tt
 
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
 			m := newTestModels(t)
 			err := m.WithSavepoint(func(m *Models) error {
 				vampire, err := m.CreateVampire(context.Background(), "test vampire")
@@ -270,6 +256,50 @@ func TestGetMemory(t *testing.T) {
 			})
 			if err != nil {
 				t.Fatal(err)
+			}
+		})
+	}
+}
+
+func TestCreateExperience(t *testing.T) {
+	tests := []struct {
+		name          string
+		ids           func(Vampire) (vampireID uuid.UUID, memoryID uuid.UUID)
+		expectedError error
+	}{
+		{
+			name:          "successful",
+			ids:           func(v Vampire) (uuid.UUID, uuid.UUID) { return v.ID, v.Memories[0].ID },
+			expectedError: nil,
+		},
+		{
+			name:          "vampire not found",
+			ids:           func(v Vampire) (uuid.UUID, uuid.UUID) { return uuid.New(), v.Memories[0].ID },
+			expectedError: ErrNotFound,
+		},
+		{
+			name:          "memory not found",
+			ids:           func(v Vampire) (uuid.UUID, uuid.UUID) { return v.ID, uuid.New() },
+			expectedError: ErrNotFound,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			m := newTestModels(t)
+
+			vampire, err := m.CreateVampire(context.Background(), "test vampire")
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			vampireID, memoryID := tt.ids(vampire)
+
+			_, err = m.CreateExperience(context.Background(), vampireID, memoryID, "test description")
+			if !errors.Is(err, tt.expectedError) {
+				t.Errorf("expected %q; received %q", tt.expectedError, err)
 			}
 		})
 	}

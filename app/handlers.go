@@ -61,26 +61,6 @@ func (app *App) oldCreateExperience(c echo.Context) error {
 	return c.Redirect(http.StatusFound, "/")
 }
 
-func (app *App) createExperience(c echo.Context) error {
-	vampireID, err := uuid.Parse(c.Param("vampireID"))
-	if err != nil {
-		return err
-	}
-
-	memoryID, err := uuid.Parse(c.Param("id"))
-	if err != nil {
-		return err
-	}
-
-	description := c.FormValue("description")
-
-	if _, err := app.Models.AddExperience(c.Request().Context(), vampireID, memoryID, description); err != nil {
-		return err
-	}
-
-	return c.Redirect(http.StatusSeeOther, app.Reverse("show-vampire", vampireID.String()))
-}
-
 func (app *App) newSkill(c echo.Context) error {
 	vampireID, err := uuid.Parse(c.Param("vampireID"))
 	if err != nil {

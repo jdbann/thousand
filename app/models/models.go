@@ -8,6 +8,7 @@ import (
 	"emailaddress.horse/thousand/db"
 	"github.com/google/uuid"
 	"github.com/jackc/pgconn"
+	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v4"
 )
 
@@ -159,9 +160,9 @@ func (m *Models) GetMemory(ctx context.Context, vampireID, id uuid.UUID) (Memory
 	return newMemory(dbMemory, []db.Experience{}), nil
 }
 
-// AddExperience attempts to add a new experience to the DB for the provided
+// CreateExperience attempts to add a new experience to the DB for the provided
 // memory.
-func (m *Models) AddExperience(ctx context.Context, vampireID, memoryID uuid.UUID, description string) (Experience, error) {
+func (m *Models) CreateExperience(ctx context.Context, vampireID, memoryID uuid.UUID, description string) (Experience, error) {
 	params := db.CreateExperienceParams{
 		VampireID:   vampireID,
 		MemoryID:    memoryID,
@@ -170,8 +171,16 @@ func (m *Models) AddExperience(ctx context.Context, vampireID, memoryID uuid.UUI
 
 	dbExperience, err := m.Queries.CreateExperience(ctx, params)
 	var pgErr *pgconn.PgError
-	if errors.As(err, &pgErr) && pgErr.Code == PgErrCodeMemoryFull {
-		return Experience{}, ErrMemoryFull.Cause(err)
+	if errors.As(err, &pgErr) {
+		if pgErr.Code == pgerrcode.NotNullViolation && pgErr.ColumnName == "memory_id" {
+			return Experience{}, ErrNotFound.Cause(err)
+		}
+
+		if pgErr.Code == PgErrCodeMemoryFull {
+			return Experience{}, ErrMemoryFull.Cause(err)
+		}
+
+		return Experience{}, err
 	} else if err != nil {
 		return Experience{}, err
 	}

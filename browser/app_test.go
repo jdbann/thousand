@@ -132,11 +132,11 @@ func TestCannotAddFourExperiences(t *testing.T) {
 
 	memory := vampire.Memories[0]
 
-	if _, err := bt.Models().AddExperience(context.Background(), vampire.ID, memory.ID, "Experience #1"); err != nil {
+	if _, err := bt.Models().CreateExperience(context.Background(), vampire.ID, memory.ID, "Experience #1"); err != nil {
 		t.Fatal(err)
 	}
 
-	if _, err := bt.Models().AddExperience(context.Background(), vampire.ID, memory.ID, "Experience #2"); err != nil {
+	if _, err := bt.Models().CreateExperience(context.Background(), vampire.ID, memory.ID, "Experience #2"); err != nil {
 		t.Fatal(err)
 	}
 
