@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"errors"
 	"net/http"
 
@@ -27,4 +28,31 @@ func NewResource(e *echo.Echo, vg vampireGetter) {
 		data := templates.NewData().Add("vampire", vampire)
 		return c.Render(http.StatusOK, "resources/new", data)
 	}).Name = "new-resource"
+}
+
+type resourceCreator interface {
+	CreateResource(context.Context, uuid.UUID, models.CreateResourceParams) (models.Resource, error)
+}
+
+func CreateResource(e *echo.Echo, rc resourceCreator) {
+	e.POST("/vampires/:vampireID/resources", func(c echo.Context) error {
+		vampireID, err := uuid.Parse(c.Param("vampireID"))
+		if err != nil {
+			return err
+		}
+
+		var params models.CreateResourceParams
+
+		if err := c.Bind(&params); err != nil {
+			return err
+		}
+
+		if _, err := rc.CreateResource(c.Request().Context(), vampireID, params); errors.Is(err, models.ErrNotFound) {
+			return echo.NewHTTPError(http.StatusNotFound, "Vampire could not be found").SetInternal(err)
+		} else if err != nil {
+			return err
+		}
+
+		return c.Redirect(http.StatusSeeOther, e.Reverse("show-vampire", vampireID.String()))
+	}).Name = "create-resource"
 }

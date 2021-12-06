@@ -61,25 +61,6 @@ func (app *App) oldCreateExperience(c echo.Context) error {
 	return c.Redirect(http.StatusFound, "/")
 }
 
-func (app *App) createResource(c echo.Context) error {
-	vampireID, err := uuid.Parse(c.Param("vampireID"))
-	if err != nil {
-		return err
-	}
-
-	var params models.AddResourceParams
-
-	if err := c.Bind(&params); err != nil {
-		return err
-	}
-
-	if _, err := app.Models.AddResource(c.Request().Context(), vampireID, params); err != nil {
-		return err
-	}
-
-	return c.Redirect(http.StatusSeeOther, app.Reverse("show-vampire", vampireID.String()))
-}
-
 func (app *App) newCharacter(c echo.Context) error {
 	vampireID, err := uuid.Parse(c.Param("vampireID"))
 	if err != nil {

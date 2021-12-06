@@ -226,13 +226,14 @@ func (m *Models) CreateSkill(ctx context.Context, vampireID uuid.UUID, descripti
 	return newSkill(dbSkill), nil
 }
 
-type AddResourceParams struct {
+type CreateResourceParams struct {
 	Description string `form:"description"`
 	Stationary  bool   `form:"stationary"`
 }
 
-// AddResource attempts to add a new resource to the DB for the provided vampire.
-func (m *Models) AddResource(ctx context.Context, vampireID uuid.UUID, params AddResourceParams) (Resource, error) {
+// CreateResource attempts to add a new resource to the DB for the provided
+// vampire.
+func (m *Models) CreateResource(ctx context.Context, vampireID uuid.UUID, params CreateResourceParams) (Resource, error) {
 	dbParams := db.CreateResourceParams{
 		VampireID:   vampireID,
 		Description: params.Description,
@@ -240,7 +241,14 @@ func (m *Models) AddResource(ctx context.Context, vampireID uuid.UUID, params Ad
 	}
 
 	dbResource, err := m.Queries.CreateResource(ctx, dbParams)
-	if err != nil {
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) {
+		if pgErr.Code == pgerrcode.ForeignKeyViolation && pgErr.ConstraintName == "resources_vampire_id_fkey" {
+			return Resource{}, ErrNotFound.Cause(err)
+		}
+
+		return Resource{}, err
+	} else if err != nil {
 		return Resource{}, err
 	}
 
