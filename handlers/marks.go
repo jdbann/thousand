@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"errors"
 	"net/http"
 
@@ -28,10 +27,6 @@ func NewMark(e *echo.Echo, vg vampireGetter) {
 		data := templates.NewData().Add("vampire", vampire)
 		return c.Render(http.StatusOK, "marks/new", data)
 	}).Name = "new-mark"
-}
-
-type markCreator interface {
-	CreateMark(context.Context, uuid.UUID, string) (models.Mark, error)
 }
 
 func CreateMark(e *echo.Echo, cm markCreator) {

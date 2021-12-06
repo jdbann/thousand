@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"errors"
 	"net/http"
 
@@ -28,10 +27,6 @@ func NewSkill(e *echo.Echo, vg vampireGetter) {
 		data := templates.NewData().Add("vampire", vampire)
 		return c.Render(http.StatusOK, "skills/new", data)
 	}).Name = "new-skill"
-}
-
-type skillCreator interface {
-	CreateSkill(context.Context, uuid.UUID, string) (models.Skill, error)
 }
 
 func CreateSkill(e *echo.Echo, sc skillCreator) {

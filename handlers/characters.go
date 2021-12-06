@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"errors"
 	"net/http"
 
@@ -28,10 +27,6 @@ func NewCharacter(e *echo.Echo, vg vampireGetter) {
 		data := templates.NewData().Add("vampire", vampire)
 		return c.Render(http.StatusOK, "characters/new", data)
 	}).Name = "new-character"
-}
-
-type characterCreator interface {
-	CreateCharacter(context.Context, uuid.UUID, models.CreateCharacterParams) (models.Character, error)
 }
 
 func CreateCharacter(e *echo.Echo, cc characterCreator) {

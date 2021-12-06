@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"errors"
 	"net/http"
 
@@ -10,10 +9,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
-
-type memoryGetter interface {
-	GetMemory(context.Context, uuid.UUID, uuid.UUID) (models.Memory, error)
-}
 
 func NewExperience(e *echo.Echo, mg memoryGetter) {
 	e.GET("/vampires/:vampireID/memories/:id/experiences/new", func(c echo.Context) error {
@@ -37,10 +32,6 @@ func NewExperience(e *echo.Echo, mg memoryGetter) {
 		data := templates.NewData().Add("memory", memory)
 		return c.Render(http.StatusOK, "experiences/new", data)
 	}).Name = "new-experience"
-}
-
-type experienceCreator interface {
-	CreateExperience(context.Context, uuid.UUID, uuid.UUID, string) (models.Experience, error)
 }
 
 func CreateExperience(e *echo.Echo, ec experienceCreator) {

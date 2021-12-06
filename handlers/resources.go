@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"errors"
 	"net/http"
 
@@ -28,10 +27,6 @@ func NewResource(e *echo.Echo, vg vampireGetter) {
 		data := templates.NewData().Add("vampire", vampire)
 		return c.Render(http.StatusOK, "resources/new", data)
 	}).Name = "new-resource"
-}
-
-type resourceCreator interface {
-	CreateResource(context.Context, uuid.UUID, models.CreateResourceParams) (models.Resource, error)
 }
 
 func CreateResource(e *echo.Echo, rc resourceCreator) {

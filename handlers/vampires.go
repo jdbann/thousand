@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"errors"
 	"net/http"
 
@@ -10,10 +9,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
-
-type vampiresGetter interface {
-	GetVampires(context.Context) ([]models.Vampire, error)
-}
 
 func ListVampires(e *echo.Echo, vg vampiresGetter) {
 	e.GET("/vampires", func(c echo.Context) error {
@@ -32,10 +27,6 @@ func NewVampire(e *echo.Echo) {
 	}).Name = "new-vampire"
 }
 
-type vampireCreator interface {
-	CreateVampire(context.Context, string) (models.Vampire, error)
-}
-
 func CreateVampire(e *echo.Echo, vc vampireCreator) {
 	e.POST("/vampires", func(c echo.Context) error {
 		name := c.FormValue("name")
@@ -47,10 +38,6 @@ func CreateVampire(e *echo.Echo, vc vampireCreator) {
 
 		return c.Redirect(http.StatusSeeOther, e.Reverse("show-vampire", vampire.ID.String()))
 	}).Name = "create-vampire"
-}
-
-type vampireGetter interface {
-	GetVampire(context.Context, uuid.UUID) (models.Vampire, error)
 }
 
 func ShowVampire(e *echo.Echo, vg vampireGetter) {
