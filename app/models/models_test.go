@@ -381,3 +381,43 @@ func TestCreateResource(t *testing.T) {
 		})
 	}
 }
+
+func TestCreateCharacter(t *testing.T) {
+	tests := []struct {
+		name          string
+		id            func(Vampire) uuid.UUID
+		expectedError error
+	}{
+		{
+			name:          "successful",
+			id:            func(v Vampire) uuid.UUID { return v.ID },
+			expectedError: nil,
+		},
+		{
+			name:          "vampire not found",
+			id:            func(v Vampire) uuid.UUID { return uuid.New() },
+			expectedError: ErrNotFound,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			m := newTestModels(t)
+
+			vampire, err := m.CreateVampire(context.Background(), "test vampire")
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			_, err = m.CreateCharacter(context.Background(), tt.id(vampire), CreateCharacterParams{
+				Name: "A name",
+				Type: "mortal",
+			})
+			if !errors.Is(err, tt.expectedError) {
+				t.Errorf("expected %q; received %q", tt.expectedError, err)
+			}
+		})
+	}
+}

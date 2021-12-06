@@ -255,12 +255,12 @@ func (m *Models) CreateResource(ctx context.Context, vampireID uuid.UUID, params
 	return newResource(dbResource), nil
 }
 
-type AddCharacterParams struct {
+type CreateCharacterParams struct {
 	Name string `form:"name"`
 	Type string `form:"type"`
 }
 
-func (m *Models) AddCharacter(ctx context.Context, vampireID uuid.UUID, params AddCharacterParams) (Character, error) {
+func (m *Models) CreateCharacter(ctx context.Context, vampireID uuid.UUID, params CreateCharacterParams) (Character, error) {
 	var characterType db.CharacterType
 	switch params.Type {
 	case "mortal":
@@ -278,7 +278,14 @@ func (m *Models) AddCharacter(ctx context.Context, vampireID uuid.UUID, params A
 	}
 
 	dbCharacter, err := m.Queries.CreateCharacter(ctx, dbParams)
-	if err != nil {
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) {
+		if pgErr.Code == pgerrcode.ForeignKeyViolation && pgErr.ConstraintName == "characters_vampire_id_fkey" {
+			return Character{}, ErrNotFound.Cause(err)
+		}
+
+		return Character{}, err
+	} else if err != nil {
 		return Character{}, err
 	}
 

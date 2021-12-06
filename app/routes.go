@@ -35,7 +35,7 @@ func (app *App) setupRoutes() {
 	handlers.NewResource(app.Echo, app.Models)
 	handlers.CreateResource(app.Echo, app.Models)
 	handlers.NewCharacter(app.Echo, app.Models)
-	app.POST("/vampires/:vampireID/characters", app.createCharacter).Name = "create-character"
+	handlers.CreateCharacter(app.Echo, app.Models)
 	app.GET("/vampires/:vampireID/marks/new", app.newMark).Name = "new-mark"
 	app.POST("/vampires/:vampireID/marks", app.createMark).Name = "create-mark"
 
