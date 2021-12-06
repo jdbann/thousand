@@ -19,7 +19,7 @@ func (app *App) setupRoutes() {
 		Getter: middleware.MethodFromForm("_method"),
 	}))
 
-	app.GET("/", app.root).Name = "root"
+	handlers.Root(app.Echo)
 
 	app.Group("/assets", static.Middleware())
 
@@ -38,27 +38,4 @@ func (app *App) setupRoutes() {
 	handlers.CreateCharacter(app.Echo, app.Models)
 	handlers.NewMark(app.Echo, app.Models)
 	handlers.CreateMark(app.Echo, app.Models)
-
-	// Details
-	app.POST("/details", app.createDetails).Name = "create-details"
-
-	// Memories
-	app.DELETE("/memories/:id", app.deleteMemory).Name = "delete-memory"
-	app.POST("/memories/:id/experiences", app.oldCreateExperience).Name = "old-create-experience"
-
-	// Skills
-	app.POST("/skills", app.oldCreateSkill).Name = "old-create-skill"
-	app.PATCH("/skills/:id", app.updateSkill).Name = "update-skill"
-
-	// Resources
-	app.POST("/resources", app.oldCreateResource).Name = "old-create-resource"
-	app.PATCH("/resources/:id", app.updateResource).Name = "update-resource"
-
-	// Characters
-	app.POST("/characters", app.oldCreateCharacter).Name = "old-create-character"
-	app.PATCH("/characters/:id", app.updateCharacter).Name = "update-character"
-	app.POST("/characters/:id/descriptor", app.createDescriptor).Name = "create-descriptor"
-
-	// Marks
-	app.POST("/marks", app.oldCreateMark).Name = "old-create-mark"
 }

@@ -19,9 +19,6 @@ type App struct {
 
 	// Runtime values
 	Models *models.Models
-
-	// Temporary data store
-	Vampire *models.OldVampire
 }
 
 // DBConnector is a function that returns a connection to the provided URL or
@@ -30,18 +27,7 @@ type DBConnector func(databaseURL string) (models.DBTX, error)
 
 // NewApp configures an instance of the application with helpful defaults.
 func NewApp(configurers ...Configurer) *App {
-	app := &App{
-		Echo: echo.New(),
-		Vampire: &models.OldVampire{
-			Memories: []*models.OldMemory{
-				{ID: 1},
-				{ID: 2},
-				{ID: 3},
-				{ID: 4},
-				{ID: 5},
-			},
-		},
-	}
+	app := &App{Echo: echo.New()}
 
 	for _, configurer := range configurers {
 		configurer.applyTo(app)

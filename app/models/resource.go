@@ -20,11 +20,3 @@ func newResource(dbResource db.Resource) Resource {
 		Stationary:  dbResource.Stationary,
 	}
 }
-
-// OldResource holds the details of a resource possessed by a Vampire.
-type OldResource struct {
-	ID          int
-	Description string `form:"description"`
-	Stationary  bool   `form:"stationary"`
-	Lost        bool   `form:"lost"`
-}

@@ -16,9 +16,3 @@ func newMark(dbMark db.Mark) Mark {
 		Description: dbMark.Description,
 	}
 }
-
-// OldMark holds the details of a mark which betrays the player as a Vampire.
-type OldMark struct {
-	ID          int
-	Description string `form:"description"`
-}
