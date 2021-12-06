@@ -292,14 +292,21 @@ func (m *Models) CreateCharacter(ctx context.Context, vampireID uuid.UUID, param
 	return newCharacter(dbCharacter), nil
 }
 
-func (m *Models) AddMark(ctx context.Context, vampireID uuid.UUID, description string) (Mark, error) {
+func (m *Models) CreateMark(ctx context.Context, vampireID uuid.UUID, description string) (Mark, error) {
 	params := db.CreateMarkParams{
 		VampireID:   vampireID,
 		Description: description,
 	}
 
 	dbMark, err := m.Queries.CreateMark(ctx, params)
-	if err != nil {
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) {
+		if pgErr.Code == pgerrcode.ForeignKeyViolation && pgErr.ConstraintName == "marks_vampire_id_fkey" {
+			return Mark{}, ErrNotFound.Cause(err)
+		}
+
+		return Mark{}, err
+	} else if err != nil {
 		return Mark{}, err
 	}
 

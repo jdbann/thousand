@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"emailaddress.horse/thousand/app/models"
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -182,19 +181,4 @@ func (app *App) oldCreateMark(c echo.Context) error {
 	app.Vampire.AddMark(mark)
 
 	return c.Redirect(http.StatusFound, "/")
-}
-
-func (app *App) createMark(c echo.Context) error {
-	vampireID, err := uuid.Parse(c.Param("vampireID"))
-	if err != nil {
-		return err
-	}
-
-	description := c.FormValue("description")
-
-	if _, err := app.Models.AddMark(c.Request().Context(), vampireID, description); err != nil {
-		return err
-	}
-
-	return c.Redirect(http.StatusSeeOther, app.Reverse("show-vampire", vampireID.String()))
 }

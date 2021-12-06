@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"errors"
 	"net/http"
 
@@ -27,4 +28,27 @@ func NewMark(e *echo.Echo, vg vampireGetter) {
 		data := templates.NewData().Add("vampire", vampire)
 		return c.Render(http.StatusOK, "marks/new", data)
 	}).Name = "new-mark"
+}
+
+type markCreator interface {
+	CreateMark(context.Context, uuid.UUID, string) (models.Mark, error)
+}
+
+func CreateMark(e *echo.Echo, cm markCreator) {
+	e.POST("/vampires/:vampireID/marks", func(c echo.Context) error {
+		vampireID, err := uuid.Parse(c.Param("vampireID"))
+		if err != nil {
+			return err
+		}
+
+		description := c.FormValue("description")
+
+		if _, err := cm.CreateMark(c.Request().Context(), vampireID, description); errors.Is(err, models.ErrNotFound) {
+			return echo.NewHTTPError(http.StatusNotFound, "Vampire could not be found").SetInternal(err)
+		} else if err != nil {
+			return err
+		}
+
+		return c.Redirect(http.StatusSeeOther, e.Reverse("show-vampire", vampireID.String()))
+	}).Name = "create-mark"
 }
