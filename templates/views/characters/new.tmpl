@@ -1,11 +1,11 @@
 {{ template "base" . }}
 
 {{ define "main" }}
-  {{ with .Data.vampire }}
+  {{ with .vampire }}
     <turbo-frame id="newCharacter">
       <form
         method="POST"
-        action="{{ $.Reverse "create-character" .ID }}"
+        action="{{ reverse "create-character" .ID }}"
         data-turbo-frame="_top"
       >
         <div class="cluster">

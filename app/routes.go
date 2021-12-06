@@ -34,7 +34,7 @@ func (app *App) setupRoutes() {
 	handlers.CreateSkill(app.Echo, app.Models)
 	handlers.NewResource(app.Echo, app.Models)
 	handlers.CreateResource(app.Echo, app.Models)
-	app.GET("/vampires/:vampireID/characters/new", app.newCharacter).Name = "new-character"
+	handlers.NewCharacter(app.Echo, app.Models)
 	app.POST("/vampires/:vampireID/characters", app.createCharacter).Name = "create-character"
 	app.GET("/vampires/:vampireID/marks/new", app.newMark).Name = "new-mark"
 	app.POST("/vampires/:vampireID/marks", app.createMark).Name = "create-mark"
