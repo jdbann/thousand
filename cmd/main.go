@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"sort"
@@ -12,17 +11,22 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-var thousand app.App
-
 func BuildCLIApp() *cli.App {
+	var thousand *app.App
+
 	return &cli.App{
 		Name:  "thousand",
 		Usage: "I forget why I made this...",
 		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:    "debug",
+				Usage:   "enable debug mode for detailed logging",
+				Value:   true,
+				EnvVars: []string{"DEBUG"},
+			},
 			&cli.StringFlag{
 				Name:    "database-url",
 				Usage:   "override the default DB connection",
-				Value:   "postgres://localhost:5432/thousand_development?sslmode=disable",
 				EnvVars: []string{"DATABASE_URL"},
 			},
 			&cli.StringFlag{
@@ -32,29 +36,17 @@ func BuildCLIApp() *cli.App {
 			},
 		},
 		Before: func(c *cli.Context) error {
-			requestedEnv := c.String("environment")
-
-			envConfig, err := app.ConfigFor(requestedEnv)
-			if err != nil {
-				if errors.Is(app.ErrUnrecognisedEnvironment, err) {
-					return cli.Exit(fmt.Sprintf("Unrecognised environment: %q", requestedEnv), 0)
-				}
-
-				return err
-			}
-
-			databaseURL := c.String("database-url")
-
 			repo, err := repository.New(repository.Options{
-				DatabaseURL: databaseURL,
+				DatabaseURL: databaseURL(c),
 			})
 			if err != nil {
 				return err
 			}
 
-			thousand = *app.NewApp(app.Options{
+			thousand = app.NewApp(app.Options{
+				Debug:      c.Bool("debug"),
 				Repository: repo,
-			}, envConfig)
+			})
 
 			return nil
 		},
@@ -152,4 +144,20 @@ func BuildCLIApp() *cli.App {
 			},
 		},
 	}
+}
+
+func databaseURL(c *cli.Context) string {
+	var databaseURL string
+	switch c.String("environment") {
+	case "development":
+		databaseURL = "postgres://localhost:5432/thousand_development?sslmode=disable"
+	case "test":
+		databaseURL = "postgres://localhost:5432/thousand_test?sslmode=disable"
+	}
+
+	if c.String("database-url") != "" {
+		databaseURL = c.String("database-url")
+	}
+
+	return databaseURL
 }

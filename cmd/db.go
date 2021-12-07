@@ -10,7 +10,7 @@ import (
 )
 
 func createDatabase(c *cli.Context) error {
-	databaseURL := c.String("database-url")
+	databaseURL := databaseURL(c)
 
 	dbName, err := getDatabaseName(databaseURL)
 	if err != nil {
@@ -27,7 +27,7 @@ func createDatabase(c *cli.Context) error {
 }
 
 func dropDatabase(c *cli.Context) error {
-	databaseURL := c.String("database-url")
+	databaseURL := databaseURL(c)
 
 	dbName, err := getDatabaseName(databaseURL)
 	if err != nil {

@@ -9,33 +9,33 @@ import (
 )
 
 func (app *App) setupRoutes() {
-	app.Use(app.LoggerMiddleware)
+	app.echo.Use(middleware.Logger())
 
-	app.Pre(middleware.RemoveTrailingSlashWithConfig(middleware.TrailingSlashConfig{
+	app.echo.Pre(middleware.RemoveTrailingSlashWithConfig(middleware.TrailingSlashConfig{
 		RedirectCode: http.StatusMovedPermanently,
 	}))
 
-	app.Pre(middleware.MethodOverrideWithConfig(middleware.MethodOverrideConfig{
+	app.echo.Pre(middleware.MethodOverrideWithConfig(middleware.MethodOverrideConfig{
 		Getter: middleware.MethodFromForm("_method"),
 	}))
 
-	handlers.Root(app.Echo)
+	handlers.Root(app.echo)
 
-	app.Group("/assets", static.Middleware())
+	app.echo.Group("/assets", static.Middleware())
 
 	// Vampires
-	handlers.ListVampires(app.Echo, app.Repository)
-	handlers.NewVampire(app.Echo)
-	handlers.CreateVampire(app.Echo, app.Repository)
-	handlers.ShowVampire(app.Echo, app.Repository)
-	handlers.NewExperience(app.Echo, app.Repository)
-	handlers.CreateExperience(app.Echo, app.Repository)
-	handlers.NewSkill(app.Echo, app.Repository)
-	handlers.CreateSkill(app.Echo, app.Repository)
-	handlers.NewResource(app.Echo, app.Repository)
-	handlers.CreateResource(app.Echo, app.Repository)
-	handlers.NewCharacter(app.Echo, app.Repository)
-	handlers.CreateCharacter(app.Echo, app.Repository)
-	handlers.NewMark(app.Echo, app.Repository)
-	handlers.CreateMark(app.Echo, app.Repository)
+	handlers.ListVampires(app.echo, app.repository)
+	handlers.NewVampire(app.echo)
+	handlers.CreateVampire(app.echo, app.repository)
+	handlers.ShowVampire(app.echo, app.repository)
+	handlers.NewExperience(app.echo, app.repository)
+	handlers.CreateExperience(app.echo, app.repository)
+	handlers.NewSkill(app.echo, app.repository)
+	handlers.CreateSkill(app.echo, app.repository)
+	handlers.NewResource(app.echo, app.repository)
+	handlers.CreateResource(app.echo, app.repository)
+	handlers.NewCharacter(app.echo, app.repository)
+	handlers.CreateCharacter(app.echo, app.repository)
+	handlers.NewMark(app.echo, app.repository)
+	handlers.CreateMark(app.echo, app.repository)
 }

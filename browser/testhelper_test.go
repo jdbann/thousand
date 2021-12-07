@@ -25,7 +25,8 @@ func init() {
 
 type BrowserTest struct {
 	browsertest.Test
-	app *app.App
+	app  *app.App
+	repo *repository.Repository
 }
 
 func NewBrowserTest(t *testing.T) *BrowserTest {
@@ -54,7 +55,7 @@ func NewBrowserTest(t *testing.T) *BrowserTest {
 
 	app := app.NewApp(app.Options{
 		Repository: repo,
-	}, app.TestConfig(t))
+	})
 
 	ts := httptest.NewServer(app)
 	t.Cleanup(func() {
@@ -64,11 +65,12 @@ func NewBrowserTest(t *testing.T) *BrowserTest {
 	return &BrowserTest{
 		browsertest.NewTest(t, ts.URL),
 		app,
+		repo,
 	}
 }
 
 func (bt *BrowserTest) Repository() *repository.Repository {
-	return bt.app.Repository
+	return bt.repo
 }
 
 func (bt *BrowserTest) WaitForTurbo() browsertest.Action {
