@@ -10,12 +10,14 @@ import (
 )
 
 func createDatabase(c *cli.Context) error {
-	dbName, err := getDatabaseName(thousand.DatabaseURL)
+	databaseURL := c.String("database-url")
+
+	dbName, err := getDatabaseName(databaseURL)
 	if err != nil {
 		return err
 	}
 
-	err = execOnPostgresDB(c.Context, fmt.Sprintf("CREATE database %s", dbName))
+	err = execOnPostgresDB(c.Context, databaseURL, fmt.Sprintf("CREATE database %s", dbName))
 	if err != nil {
 		return err
 	}
@@ -25,12 +27,14 @@ func createDatabase(c *cli.Context) error {
 }
 
 func dropDatabase(c *cli.Context) error {
-	dbName, err := getDatabaseName(thousand.DatabaseURL)
+	databaseURL := c.String("database-url")
+
+	dbName, err := getDatabaseName(databaseURL)
 	if err != nil {
 		return err
 	}
 
-	err = execOnPostgresDB(c.Context, fmt.Sprintf("DROP database %s", dbName))
+	err = execOnPostgresDB(c.Context, databaseURL, fmt.Sprintf("DROP database %s", dbName))
 	if err != nil {
 		return err
 	}
@@ -53,8 +57,8 @@ func getDatabaseName(dbURL string) (string, error) {
 	return dbName, nil
 }
 
-func execOnPostgresDB(ctx context.Context, sqlString string) error {
-	url, err := url.Parse(thousand.DatabaseURL)
+func execOnPostgresDB(ctx context.Context, databaseURL, sqlString string) error {
+	url, err := url.Parse(databaseURL)
 	if err != nil {
 		return err
 	}

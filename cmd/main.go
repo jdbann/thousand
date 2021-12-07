@@ -8,25 +8,22 @@ import (
 	"text/tabwriter"
 
 	"emailaddress.horse/thousand/app"
+	"emailaddress.horse/thousand/repository"
 	"github.com/urfave/cli/v2"
 )
 
 var thousand app.App
 
 func BuildCLIApp() *cli.App {
-	// Setup an app.CLIConfig struct to receive config values from CLI flags for
-	// application before any actions are performed.
-	var cliConfig app.CLIConfig
-
 	return &cli.App{
 		Name:  "thousand",
 		Usage: "I forget why I made this...",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:        "database-url",
-				Usage:       "override the default DB connection",
-				Destination: &cliConfig.DatabaseURL,
-				EnvVars:     []string{"DATABASE_URL"},
+				Name:    "database-url",
+				Usage:   "override the default DB connection",
+				Value:   "postgres://localhost:5432/thousand_development?sslmode=disable",
+				EnvVars: []string{"DATABASE_URL"},
 			},
 			&cli.StringFlag{
 				Name:  "environment",
@@ -46,7 +43,18 @@ func BuildCLIApp() *cli.App {
 				return err
 			}
 
-			thousand = *app.NewApp(envConfig, cliConfig)
+			databaseURL := c.String("database-url")
+
+			repo, err := repository.New(repository.Options{
+				DatabaseURL: databaseURL,
+			})
+			if err != nil {
+				return err
+			}
+
+			thousand = *app.NewApp(app.Options{
+				Repository: repo,
+			}, envConfig)
 
 			return nil
 		},

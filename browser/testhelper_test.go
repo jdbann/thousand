@@ -13,7 +13,7 @@ import (
 	"github.com/jdbann/browsertest"
 
 	"emailaddress.horse/thousand/app"
-	"emailaddress.horse/thousand/app/models"
+	"emailaddress.horse/thousand/repository"
 )
 
 var screenshotDir string
@@ -29,7 +29,33 @@ type BrowserTest struct {
 }
 
 func NewBrowserTest(t *testing.T) *BrowserTest {
-	app := app.NewApp(app.TestConfig(t))
+	databaseURL := "postgres://localhost:5432/thousand_test?sslmode=disable"
+	if os.Getenv("DATABASE_URL") != "" {
+		databaseURL = os.Getenv("DATABASE_URL")
+	}
+
+	repo, err := repository.New(repository.Options{
+		DatabaseURL: databaseURL,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	repo, tx, err := repo.WithTx(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Cleanup(func() {
+		if err := tx.Rollback(context.Background()); err != nil {
+			t.Fatal(err)
+		}
+	})
+
+	app := app.NewApp(app.Options{
+		Repository: repo,
+	}, app.TestConfig(t))
+
 	ts := httptest.NewServer(app)
 	t.Cleanup(func() {
 		ts.Close()
@@ -41,8 +67,8 @@ func NewBrowserTest(t *testing.T) *BrowserTest {
 	}
 }
 
-func (bt *BrowserTest) Models() *models.Models {
-	return bt.app.Models
+func (bt *BrowserTest) Repository() *repository.Repository {
+	return bt.app.Repository
 }
 
 func (bt *BrowserTest) WaitForTurbo() browsertest.Action {

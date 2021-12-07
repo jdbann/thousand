@@ -11,9 +11,6 @@ func developmentConfig(app *App) {
 	// Echo configuraton values
 	app.Debug = true
 
-	// App configuration values
-	app.DatabaseURL = "postgres://localhost:5432/thousand_development?sslmode=disable"
-
 	// Injected middleware
 	app.LoggerMiddleware = middleware.Logger()
 }

@@ -1,7 +1,7 @@
 package app
 
 import (
-	"emailaddress.horse/thousand/app/models"
+	"emailaddress.horse/thousand/repository"
 	"github.com/labstack/echo/v4"
 )
 
@@ -10,35 +10,26 @@ import (
 type App struct {
 	*echo.Echo
 
-	// Config values
-	DatabaseURL string
-	DBConnector DBConnector
-
 	// Injected middleware
 	LoggerMiddleware echo.MiddlewareFunc
 
 	// Runtime values
-	Models *models.Models
+	Repository *repository.Repository
 }
 
-// DBConnector is a function that returns a connection to the provided URL or
-// any appropriate errors.
-type DBConnector func(databaseURL string) (models.DBTX, error)
+type Options struct {
+	Repository *repository.Repository
+}
 
 // NewApp configures an instance of the application with helpful defaults.
-func NewApp(configurers ...Configurer) *App {
+func NewApp(opts Options, configurers ...Configurer) *App {
 	app := &App{Echo: echo.New()}
 
 	for _, configurer := range configurers {
 		configurer.applyTo(app)
 	}
 
-	dbtx, err := app.DBConnector(app.DatabaseURL)
-	if err != nil {
-		app.Logger.Fatal(err)
-	}
-
-	app.Models = models.NewModels(dbtx)
+	app.Repository = opts.Repository
 
 	app.setupRoutes()
 

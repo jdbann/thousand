@@ -22,7 +22,7 @@ func TestShowVampires(t *testing.T) {
 
 	bt := NewBrowserTest(t)
 
-	if _, err := bt.Models().CreateVampire(context.Background(), "Gruffudd"); err != nil {
+	if _, err := bt.Repository().CreateVampire(context.Background(), "Gruffudd"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -57,7 +57,7 @@ func TestAddExperience(t *testing.T) {
 
 	bt := NewBrowserTest(t)
 
-	vampire, err := bt.Models().CreateVampire(context.Background(), "Gruffudd")
+	vampire, err := bt.Repository().CreateVampire(context.Background(), "Gruffudd")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -83,7 +83,7 @@ func TestAddExperienceFormDismisses(t *testing.T) {
 
 	bt := NewBrowserTest(t)
 
-	vampire, err := bt.Models().CreateVampire(context.Background(), "Gruffudd")
+	vampire, err := bt.Repository().CreateVampire(context.Background(), "Gruffudd")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -125,18 +125,18 @@ func TestCannotAddFourExperiences(t *testing.T) {
 
 	bt := NewBrowserTest(t)
 
-	vampire, err := bt.Models().CreateVampire(context.Background(), "Gruffudd")
+	vampire, err := bt.Repository().CreateVampire(context.Background(), "Gruffudd")
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	memory := vampire.Memories[0]
 
-	if _, err := bt.Models().CreateExperience(context.Background(), vampire.ID, memory.ID, "Experience #1"); err != nil {
+	if _, err := bt.Repository().CreateExperience(context.Background(), vampire.ID, memory.ID, "Experience #1"); err != nil {
 		t.Fatal(err)
 	}
 
-	if _, err := bt.Models().CreateExperience(context.Background(), vampire.ID, memory.ID, "Experience #2"); err != nil {
+	if _, err := bt.Repository().CreateExperience(context.Background(), vampire.ID, memory.ID, "Experience #2"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -162,7 +162,7 @@ func TestAddSkill(t *testing.T) {
 
 	bt := NewBrowserTest(t)
 
-	vampire, err := bt.Models().CreateVampire(context.Background(), "Gruffudd")
+	vampire, err := bt.Repository().CreateVampire(context.Background(), "Gruffudd")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -188,7 +188,7 @@ func TestAddResource(t *testing.T) {
 
 	bt := NewBrowserTest(t)
 
-	vampire, err := bt.Models().CreateVampire(context.Background(), "Gruffudd")
+	vampire, err := bt.Repository().CreateVampire(context.Background(), "Gruffudd")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -217,7 +217,7 @@ func TestAddCharacter(t *testing.T) {
 
 	bt := NewBrowserTest(t)
 
-	vampire, err := bt.Models().CreateVampire(context.Background(), "Gruffudd")
+	vampire, err := bt.Repository().CreateVampire(context.Background(), "Gruffudd")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -246,7 +246,7 @@ func TestAddMark(t *testing.T) {
 
 	bt := NewBrowserTest(t)
 
-	vampire, err := bt.Models().CreateVampire(context.Background(), "Gruffudd")
+	vampire, err := bt.Repository().CreateVampire(context.Background(), "Gruffudd")
 	if err != nil {
 		t.Fatal(err)
 	}

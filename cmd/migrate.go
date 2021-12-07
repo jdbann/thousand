@@ -21,7 +21,9 @@ func createMigration(c *cli.Context) error {
 }
 
 func runMigrations(c *cli.Context) error {
-	conn, err := sql.Open("pgx", thousand.DatabaseURL)
+	databaseURL := c.String("database-url")
+
+	conn, err := sql.Open("pgx", databaseURL)
 	if err != nil {
 		return err
 	}
@@ -30,7 +32,9 @@ func runMigrations(c *cli.Context) error {
 }
 
 func rollbackMigrations(c *cli.Context) error {
-	conn, err := sql.Open("pgx", thousand.DatabaseURL)
+	databaseURL := c.String("database-url")
+
+	conn, err := sql.Open("pgx", databaseURL)
 	if err != nil {
 		return err
 	}
@@ -39,7 +43,9 @@ func rollbackMigrations(c *cli.Context) error {
 }
 
 func migrationsStatus(c *cli.Context) error {
-	conn, err := sql.Open("pgx", thousand.DatabaseURL)
+	databaseURL := c.String("database-url")
+
+	conn, err := sql.Open("pgx", databaseURL)
 	if err != nil {
 		return err
 	}

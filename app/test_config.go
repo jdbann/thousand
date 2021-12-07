@@ -1,13 +1,9 @@
 package app
 
 import (
-	"context"
-	"os"
 	"strings"
 	"testing"
 
-	"emailaddress.horse/thousand/app/models"
-	"github.com/jackc/pgx/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -19,14 +15,6 @@ func TestConfig(t *testing.T) EnvConfigurer {
 	return func(app *App) {
 		// Apply base config
 		BaseTestConfigurer(t.Logf)(app)
-
-		// App configuration values
-		// Manually check for DATABASE_URL as tests cannot infer config from flags
-		// and environment variables through the CLI.
-		if os.Getenv("DATABASE_URL") != "" {
-			app.DatabaseURL = os.Getenv("DATABASE_URL")
-		}
-		app.DBConnector = _transactionConnector(t)
 	}
 }
 
@@ -46,34 +34,9 @@ func BaseTestConfigurer(outf func(string, ...interface{})) EnvConfigurer {
 		// Echo configuraton values
 		app.Debug = true
 
-		// App configuration values
-		app.DatabaseURL = "postgres://localhost:5432/thousand_test?sslmode=disable"
-
 		// Injected middleware
 		app.LoggerMiddleware = _readableLogger(outf)
 		app.HTTPErrorHandler = _logError(outf, app.HTTPErrorHandler)
-	}
-}
-
-func _transactionConnector(t *testing.T) DBConnector {
-	return func(databaseURL string) (models.DBTX, error) {
-		conn, err := pgx.Connect(context.Background(), databaseURL)
-		if err != nil {
-			return nil, err
-		}
-
-		txn, err := conn.BeginTx(context.Background(), pgx.TxOptions{})
-		if err != nil {
-			return nil, err
-		}
-
-		t.Cleanup(func() {
-			if err := txn.Rollback(context.Background()); err != nil {
-				t.Fatal(err)
-			}
-		})
-
-		return txn, nil
 	}
 }
 
