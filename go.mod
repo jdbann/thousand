@@ -15,8 +15,8 @@ require (
 	github.com/mattn/go-colorable v0.1.10 // indirect
 	github.com/pressly/goose/v3 v3.3.1
 	github.com/urfave/cli/v2 v2.3.0
+	go.uber.org/zap v1.19.1
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
 	golang.org/x/sys v0.0.0-20211102192858-4dd72447c267 // indirect
 	golang.org/x/time v0.0.0-20210723032227-1f47c861a9ac // indirect
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )

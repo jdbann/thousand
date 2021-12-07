@@ -9,7 +9,7 @@ import (
 )
 
 func (app *App) setupRoutes() {
-	app.echo.Use(middleware.Logger())
+	app.echo.Use(loggerMiddleware(app.logger))
 
 	app.echo.Pre(middleware.RemoveTrailingSlashWithConfig(middleware.TrailingSlashConfig{
 		RedirectCode: http.StatusMovedPermanently,

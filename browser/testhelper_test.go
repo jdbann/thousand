@@ -11,6 +11,8 @@ import (
 
 	"github.com/chromedp/chromedp"
 	"github.com/jdbann/browsertest"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 
 	"emailaddress.horse/thousand/app"
 	"emailaddress.horse/thousand/repository"
@@ -29,14 +31,33 @@ type BrowserTest struct {
 	repo *repository.Repository
 }
 
+type tlogWriter func(...interface{})
+
+func (w tlogWriter) Write(p []byte) (int, error) {
+	w(string(p))
+	return len(p), nil
+}
+
 func NewBrowserTest(t *testing.T) *BrowserTest {
 	databaseURL := "postgres://localhost:5432/thousand_test?sslmode=disable"
 	if os.Getenv("DATABASE_URL") != "" {
 		databaseURL = os.Getenv("DATABASE_URL")
 	}
 
+	sync := zapcore.AddSync(tlogWriter(t.Log))
+	core := zapcore.NewCore(
+		zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig()),
+		sync,
+		zap.DebugLevel,
+	)
+	logger := zap.New(core)
+	t.Cleanup(func() {
+		logger.Sync()
+	})
+
 	repo, err := repository.New(repository.Options{
 		DatabaseURL: databaseURL,
+		Logger:      logger,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -54,6 +75,7 @@ func NewBrowserTest(t *testing.T) *BrowserTest {
 	})
 
 	app := app.NewApp(app.Options{
+		Logger:     logger,
 		Repository: repo,
 	})
 

@@ -9,11 +9,10 @@ import (
 	"emailaddress.horse/thousand/app"
 	"emailaddress.horse/thousand/repository"
 	"github.com/urfave/cli/v2"
+	"go.uber.org/zap"
 )
 
 func BuildCLIApp() *cli.App {
-	var thousand *app.App
-
 	return &cli.App{
 		Name:  "thousand",
 		Usage: "I forget why I made this...",
@@ -35,22 +34,26 @@ func BuildCLIApp() *cli.App {
 				Value: "development",
 			},
 		},
-		Before: func(c *cli.Context) error {
+		Action: func(c *cli.Context) error {
+			logger, err := buildLogger(c)
+			if err != nil {
+				return err
+			}
+			defer logger.Sync()
+
 			repo, err := repository.New(repository.Options{
 				DatabaseURL: databaseURL(c),
+				Logger:      logger,
 			})
 			if err != nil {
 				return err
 			}
 
-			thousand = app.NewApp(app.Options{
+			thousand := app.NewApp(app.Options{
 				Debug:      c.Bool("debug"),
+				Logger:     logger,
 				Repository: repo,
 			})
-
-			return nil
-		},
-		Action: func(c *cli.Context) error {
 			port := os.Getenv("PORT")
 			if port == "" {
 				port = "4000"
@@ -80,7 +83,7 @@ func BuildCLIApp() *cli.App {
 						"TRACE":   8,
 					}
 
-					routes := thousand.Routes()
+					routes := app.NewApp(app.Options{}).Routes()
 
 					sort.Slice(routes, func(i, j int) bool {
 						if routes[i].Path == routes[j].Path {
@@ -160,4 +163,17 @@ func databaseURL(c *cli.Context) string {
 	}
 
 	return databaseURL
+}
+
+func buildLogger(c *cli.Context) (*zap.Logger, error) {
+	switch c.String("environment") {
+	case "production":
+		return zap.NewProduction()
+	case "development":
+		return zap.NewDevelopment()
+	case "test":
+		return zap.NewDevelopment()
+	default:
+		return zap.NewNop(), nil
+	}
 }

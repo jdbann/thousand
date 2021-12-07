@@ -6,33 +6,36 @@ import (
 	"emailaddress.horse/thousand/repository"
 	"emailaddress.horse/thousand/templates"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 )
 
 // App is a configured instance of the application, ready to be served by a
 // server or interacted with by CLI commands.
 type App struct {
-	echo *echo.Echo
-
-	// Injected middleware
-	loggerMiddleware echo.MiddlewareFunc
-
-	// Runtime values
+	echo       *echo.Echo
+	logger     *zap.Logger
 	repository *repository.Repository
 }
 
 type Options struct {
 	Debug      bool
+	Logger     *zap.Logger
 	Repository *repository.Repository
 }
 
 // NewApp configures an instance of the application with helpful defaults.
 func NewApp(opts Options) *App {
+	if opts.Logger == nil {
+		opts.Logger = zap.NewNop()
+	}
+
 	echo := echo.New()
 	echo.Renderer = templates.NewRenderer(echo)
 	echo.Debug = opts.Debug
 
 	app := &App{
 		echo:       echo,
+		logger:     opts.Logger,
 		repository: opts.Repository,
 	}
 

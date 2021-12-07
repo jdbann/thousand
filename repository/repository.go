@@ -7,7 +7,9 @@ import (
 
 	"emailaddress.horse/thousand/repository/queries"
 	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/log/zapadapter"
 	"github.com/jackc/pgx/v4/pgxpool"
+	"go.uber.org/zap"
 )
 
 type Repository struct {
@@ -21,14 +23,20 @@ type txConnector interface {
 
 type Options struct {
 	DatabaseURL string
+	Logger      *zap.Logger
 }
 
 func New(opts Options) (*Repository, error) {
+	if opts.Logger == nil {
+		opts.Logger = zap.NewNop()
+	}
+
 	config, err := pgxpool.ParseConfig(opts.DatabaseURL)
 	if err != nil {
 		return nil, fmt.Errorf("error parsing database URL: %w", err)
 	}
 
+	config.ConnConfig.Logger = zapadapter.NewLogger(opts.Logger)
 	config.LazyConnect = true
 
 	conn, err := pgxpool.ConnectConfig(context.Background(), config)
