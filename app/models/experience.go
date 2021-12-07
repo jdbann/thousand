@@ -1,7 +1,7 @@
 package models
 
 import (
-	"emailaddress.horse/thousand/db"
+	"emailaddress.horse/thousand/repository/queries"
 	"github.com/google/uuid"
 )
 
@@ -11,7 +11,7 @@ type Experience struct {
 	Description string
 }
 
-func newExperience(experience db.Experience) Experience {
+func newExperience(experience queries.Experience) Experience {
 	return Experience{
 		ID:          experience.ID,
 		MemoryID:    experience.MemoryID,

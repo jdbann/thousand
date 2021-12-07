@@ -49,8 +49,8 @@ func TestCreateVampire(t *testing.T) {
 				t.Error(diff)
 			}
 
-			if len(actualVampire.Memories) != vampireMemorySize {
-				t.Errorf("expected %d memories; found %d", vampireMemorySize, len(actualVampire.Memories))
+			if len(actualVampire.Memories) != VampireMemorySize {
+				t.Errorf("expected %d memories; found %d", VampireMemorySize, len(actualVampire.Memories))
 			}
 		})
 	}

@@ -1,7 +1,7 @@
 package models
 
 import (
-	"emailaddress.horse/thousand/db"
+	"emailaddress.horse/thousand/repository/queries"
 	"github.com/google/uuid"
 )
 
@@ -11,7 +11,7 @@ type Memory struct {
 	Experiences []Experience
 }
 
-func newMemory(dbMemory db.Memory, dbExperiences []db.Experience) Memory {
+func newMemory(dbMemory queries.Memory, dbExperiences []queries.Experience) Memory {
 	var experiences = make([]Experience, len(dbExperiences))
 	for i, dbExperience := range dbExperiences {
 		experiences[i] = newExperience(dbExperience)

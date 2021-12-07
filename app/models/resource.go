@@ -1,7 +1,7 @@
 package models
 
 import (
-	"emailaddress.horse/thousand/db"
+	"emailaddress.horse/thousand/repository/queries"
 	"github.com/google/uuid"
 )
 
@@ -12,7 +12,7 @@ type Resource struct {
 	Stationary  bool
 }
 
-func newResource(dbResource db.Resource) Resource {
+func newResource(dbResource queries.Resource) Resource {
 	return Resource{
 		ID:          dbResource.ID,
 		VampireID:   dbResource.VampireID,

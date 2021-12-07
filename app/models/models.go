@@ -5,26 +5,26 @@ import (
 	"errors"
 	"fmt"
 
-	"emailaddress.horse/thousand/db"
+	"emailaddress.horse/thousand/repository/queries"
 	"github.com/google/uuid"
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v4"
 )
 
-// Models holds a configured *db.Queries which can be used to load values from
-// the DB and return them as model types from this package.
+// Models holds a configured *queries.Queries which can be used to load values
+// from the DB and return them as model types from this package.
 type Models struct {
-	*db.Queries
+	*queries.Queries
 }
 
-// DBTX is an alias of db.DBTX to ensure that the models package completely
+// DBTX is an alias of queries.DBTX to ensure that the models package completely
 // encapsulates any DB interactions.
-type DBTX = db.DBTX
+type DBTX = queries.DBTX
 
 // NewModels returns a newly configured models.Models struct.
 func NewModels(dbtx DBTX) *Models {
-	return &Models{db.New(dbtx)}
+	return &Models{queries.New(dbtx)}
 }
 
 // CreateVampire attempts to create a new vampire in the DB with the provided
@@ -35,7 +35,7 @@ func (m *Models) CreateVampire(ctx context.Context, name string) (Vampire, error
 		return Vampire{}, err
 	}
 
-	var createMemoriesParams = make([]uuid.UUID, vampireMemorySize)
+	var createMemoriesParams = make([]uuid.UUID, VampireMemorySize)
 	for i := range createMemoriesParams {
 		createMemoriesParams[i] = v.ID
 	}
@@ -47,7 +47,7 @@ func (m *Models) CreateVampire(ctx context.Context, name string) (Vampire, error
 
 	memories := make([]Memory, len(dbMemories))
 	for i, dbMemory := range dbMemories {
-		memories[i] = newMemory(dbMemory, make([]db.Experience, 0, 3))
+		memories[i] = newMemory(dbMemory, make([]queries.Experience, 0, 3))
 	}
 
 	return newVampire(v, memories, []Skill{}, []Resource{}, []Character{}, []Mark{}), nil
@@ -74,7 +74,7 @@ func (m *Models) GetVampire(ctx context.Context, id uuid.UUID) (Vampire, error) 
 
 	memories := make([]Memory, len(dbMemories))
 	for i, dbMemory := range dbMemories {
-		experiences := make([]db.Experience, 0, 3)
+		experiences := make([]queries.Experience, 0, 3)
 
 		for _, experience := range dbExperiences {
 			if experience.MemoryID == dbMemory.ID {
@@ -144,7 +144,7 @@ func (m *Models) GetVampires(ctx context.Context) ([]Vampire, error) {
 }
 
 func (m *Models) GetMemory(ctx context.Context, vampireID, id uuid.UUID) (Memory, error) {
-	params := db.GetMemoryParams{
+	params := queries.GetMemoryParams{
 		VampireID: vampireID,
 		MemoryID:  id,
 	}
@@ -157,13 +157,13 @@ func (m *Models) GetMemory(ctx context.Context, vampireID, id uuid.UUID) (Memory
 	}
 
 	// TODO: Also return experiences?
-	return newMemory(dbMemory, []db.Experience{}), nil
+	return newMemory(dbMemory, []queries.Experience{}), nil
 }
 
 // CreateExperience attempts to add a new experience to the DB for the provided
 // memory.
 func (m *Models) CreateExperience(ctx context.Context, vampireID, memoryID uuid.UUID, description string) (Experience, error) {
-	params := db.CreateExperienceParams{
+	params := queries.CreateExperienceParams{
 		VampireID:   vampireID,
 		MemoryID:    memoryID,
 		Description: description,
@@ -206,7 +206,7 @@ func (m *Models) GetExperiences(ctx context.Context, vampireID uuid.UUID) ([]Exp
 
 // CreateSkill attempts to add a new skill to the DB for the provided vampire.
 func (m *Models) CreateSkill(ctx context.Context, vampireID uuid.UUID, description string) (Skill, error) {
-	params := db.CreateSkillParams{
+	params := queries.CreateSkillParams{
 		VampireID:   vampireID,
 		Description: description,
 	}
@@ -234,7 +234,7 @@ type CreateResourceParams struct {
 // CreateResource attempts to add a new resource to the DB for the provided
 // vampire.
 func (m *Models) CreateResource(ctx context.Context, vampireID uuid.UUID, params CreateResourceParams) (Resource, error) {
-	dbParams := db.CreateResourceParams{
+	dbParams := queries.CreateResourceParams{
 		VampireID:   vampireID,
 		Description: params.Description,
 		Stationary:  params.Stationary,
@@ -261,17 +261,17 @@ type CreateCharacterParams struct {
 }
 
 func (m *Models) CreateCharacter(ctx context.Context, vampireID uuid.UUID, params CreateCharacterParams) (Character, error) {
-	var characterType db.CharacterType
+	var characterType queries.CharacterType
 	switch params.Type {
 	case "mortal":
-		characterType = db.CharacterTypeMortal
+		characterType = queries.CharacterTypeMortal
 	case "immortal":
-		characterType = db.CharacterTypeImmortal
+		characterType = queries.CharacterTypeImmortal
 	default:
 		return Character{}, fmt.Errorf("unrecognised character type: %q", params.Type)
 	}
 
-	dbParams := db.CreateCharacterParams{
+	dbParams := queries.CreateCharacterParams{
 		VampireID: vampireID,
 		Name:      params.Name,
 		Type:      characterType,
@@ -293,7 +293,7 @@ func (m *Models) CreateCharacter(ctx context.Context, vampireID uuid.UUID, param
 }
 
 func (m *Models) CreateMark(ctx context.Context, vampireID uuid.UUID, description string) (Mark, error) {
-	params := db.CreateMarkParams{
+	params := queries.CreateMarkParams{
 		VampireID:   vampireID,
 		Description: description,
 	}

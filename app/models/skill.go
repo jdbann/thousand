@@ -1,7 +1,7 @@
 package models
 
 import (
-	"emailaddress.horse/thousand/db"
+	"emailaddress.horse/thousand/repository/queries"
 	"github.com/google/uuid"
 )
 
@@ -11,7 +11,7 @@ type Skill struct {
 	Description string
 }
 
-func newSkill(dbSkill db.Skill) Skill {
+func newSkill(dbSkill queries.Skill) Skill {
 	return Skill{
 		ID:          dbSkill.ID,
 		VampireID:   dbSkill.VampireID,

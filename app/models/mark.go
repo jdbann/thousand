@@ -1,7 +1,7 @@
 package models
 
 import (
-	"emailaddress.horse/thousand/db"
+	"emailaddress.horse/thousand/repository/queries"
 	"github.com/google/uuid"
 )
 
@@ -10,7 +10,7 @@ type Mark struct {
 	Description string
 }
 
-func newMark(dbMark db.Mark) Mark {
+func newMark(dbMark queries.Mark) Mark {
 	return Mark{
 		ID:          dbMark.ID,
 		Description: dbMark.Description,

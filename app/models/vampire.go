@@ -1,14 +1,14 @@
 package models
 
 import (
-	"emailaddress.horse/thousand/db"
+	"emailaddress.horse/thousand/repository/queries"
 	"github.com/google/uuid"
 )
 
 const (
-	// vampireMemorySize specifies how many active memories a vampire should have,
+	// VampireMemorySize specifies how many active memories a vampire should have,
 	// whether they are empty or not.
-	vampireMemorySize = 5
+	VampireMemorySize = 5
 )
 
 type Vampire struct {
@@ -21,7 +21,7 @@ type Vampire struct {
 	Marks      []Mark
 }
 
-func newVampire(dbVampire db.Vampire, memories []Memory, skills []Skill, resources []Resource, characters []Character, marks []Mark) Vampire {
+func newVampire(dbVampire queries.Vampire, memories []Memory, skills []Skill, resources []Resource, characters []Character, marks []Mark) Vampire {
 	return Vampire{
 		ID:         dbVampire.ID,
 		Name:       dbVampire.Name,

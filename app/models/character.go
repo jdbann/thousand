@@ -3,7 +3,7 @@ package models
 import (
 	"strings"
 
-	"emailaddress.horse/thousand/db"
+	"emailaddress.horse/thousand/repository/queries"
 	"github.com/google/uuid"
 )
 
@@ -13,7 +13,7 @@ type Character struct {
 	Type string
 }
 
-func newCharacter(dbCharacter db.Character) Character {
+func newCharacter(dbCharacter queries.Character) Character {
 	return Character{
 		ID:   dbCharacter.ID,
 		Name: dbCharacter.Name,

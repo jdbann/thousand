@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"emailaddress.horse/thousand/app/models"
+	"emailaddress.horse/thousand/repository"
 	"github.com/google/uuid"
 )
 
@@ -19,6 +20,7 @@ type _totalInterface interface {
 	vampiresGetter
 }
 
+var _ _totalInterface = (*repository.Repository)(nil)
 var _ _totalInterface = (*models.Models)(nil)
 
 type characterCreator interface {

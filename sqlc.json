@@ -2,11 +2,11 @@
   "version": "1",
   "packages": [
     {
-      "path": "db",
+      "path": "repository/queries",
       "engine": "postgresql",
       "sql_package": "pgx/v4",
       "schema": "./db/migrations",
-      "queries": "./db/queries"
+      "queries": "./repository/queries"
     }
   ]
 }
