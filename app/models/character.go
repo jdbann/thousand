@@ -1,9 +1,6 @@
 package models
 
 import (
-	"strings"
-
-	"emailaddress.horse/thousand/repository/queries"
 	"github.com/google/uuid"
 )
 
@@ -13,10 +10,7 @@ type Character struct {
 	Type string
 }
 
-func newCharacter(dbCharacter queries.Character) Character {
-	return Character{
-		ID:   dbCharacter.ID,
-		Name: dbCharacter.Name,
-		Type: strings.Title(string(dbCharacter.Type)),
-	}
+type CreateCharacterParams struct {
+	Name string `form:"name"`
+	Type string `form:"type"`
 }

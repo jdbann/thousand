@@ -21,7 +21,6 @@ type _totalInterface interface {
 }
 
 var _ _totalInterface = (*repository.Repository)(nil)
-var _ _totalInterface = (*models.Models)(nil)
 
 type characterCreator interface {
 	CreateCharacter(context.Context, uuid.UUID, models.CreateCharacterParams) (models.Character, error)
