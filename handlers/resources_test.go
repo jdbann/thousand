@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"emailaddress.horse/thousand/app/models"
 	"emailaddress.horse/thousand/handlers"
+	"emailaddress.horse/thousand/models"
 	"emailaddress.horse/thousand/templates"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"

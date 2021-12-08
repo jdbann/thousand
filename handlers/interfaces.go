@@ -3,7 +3,7 @@ package handlers
 import (
 	"context"
 
-	"emailaddress.horse/thousand/app/models"
+	"emailaddress.horse/thousand/models"
 	"emailaddress.horse/thousand/repository"
 	"github.com/google/uuid"
 )

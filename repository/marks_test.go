@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"emailaddress.horse/thousand/app/models"
+	"emailaddress.horse/thousand/models"
 	"github.com/google/uuid"
 )
 

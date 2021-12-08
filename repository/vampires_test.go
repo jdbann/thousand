@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"emailaddress.horse/thousand/app/models"
+	"emailaddress.horse/thousand/models"
 	"emailaddress.horse/thousand/repository"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"

@@ -3,7 +3,7 @@ package repository
 import (
 	"strings"
 
-	"emailaddress.horse/thousand/app/models"
+	"emailaddress.horse/thousand/models"
 	"emailaddress.horse/thousand/repository/queries"
 )
 

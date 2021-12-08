@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"emailaddress.horse/thousand/app/models"
+	"emailaddress.horse/thousand/models"
 	"emailaddress.horse/thousand/repository/queries"
 	"github.com/google/uuid"
 	"github.com/jackc/pgconn"
