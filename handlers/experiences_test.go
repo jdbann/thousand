@@ -51,7 +51,7 @@ func TestNewExperience(t *testing.T) {
 			t.Parallel()
 
 			e := echo.New()
-			e.Renderer = templates.NewRenderer(e)
+			e.Renderer = templates.NewEchoRenderer(e)
 
 			request := httptest.NewRequest(http.MethodGet, "/vampires/12345678-90ab-cdef-1234-567890abcdef/memories/12345678-90ab-cdef-1234-567890abcdef/experiences/new", nil)
 			response := httptest.NewRecorder()
@@ -124,7 +124,7 @@ func TestCreateExperience(t *testing.T) {
 			t.Parallel()
 
 			e := echo.New()
-			e.Renderer = templates.NewRenderer(e)
+			e.Renderer = templates.NewEchoRenderer(e)
 
 			request := httptest.NewRequest(http.MethodPost, "/vampires/11111111-1111-1111-1111-111111111111/memories/22222222-2222-2222-2222-222222222222/experiences", strings.NewReader(tt.body.Encode()))
 			request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationForm)

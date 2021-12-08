@@ -17,13 +17,11 @@ func New(msg string) Error {
 func (err Error) Cause(cause error) Error { err.cause = cause; return err }
 
 func (err Error) Error() string {
-	msg := "Not found"
-
 	if err.cause != nil {
-		return fmt.Sprintf("%s: %s", msg, err.cause.Error())
+		return fmt.Sprintf("%s: %s", err.msg, err.cause.Error())
 	}
 
-	return msg
+	return err.msg
 }
 
 func (err Error) Is(target error) bool {

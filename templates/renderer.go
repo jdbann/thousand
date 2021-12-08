@@ -1,35 +1,20 @@
 package templates
 
 import (
-	"embed"
 	"fmt"
 	"html/template"
 	"io"
 	"io/fs"
 	"log"
 	"strings"
-
-	"github.com/labstack/echo/v4"
 )
 
-//go:embed views
-var viewTemplates embed.FS
-
-//go:embed layouts/*.tmpl
-var layoutTemplates embed.FS
-
-type routeReverser interface {
-	Reverse(name string, params ...interface{}) string
+type Renderer struct {
+	templateMap map[string]*template.Template
 }
 
-// NewEchoRenderer returns a value that implements the echo.Renderer interface for
-// rendering the HTML templates required by this application.
-//
-// It creates templates for each file in templates/views using the path and
-// filename without the file extension. So "templates/views/vampires/show.tmpl"
-// has the name "vampires/show".
-func NewEchoRenderer(rr routeReverser) echo.Renderer {
-	views := map[string]*template.Template{}
+func NewRenderer() *Renderer {
+	templateMap := map[string]*template.Template{}
 
 	// Traverse the views directory, descending into each folder
 	err := fs.WalkDir(viewTemplates, "views", func(path string, d fs.DirEntry, err error) error {
@@ -73,7 +58,7 @@ func NewEchoRenderer(rr routeReverser) echo.Renderer {
 		}
 
 		// Add the view to the templates map
-		views[name] = viewTemplate
+		templateMap[name] = viewTemplate
 
 		return nil
 	})
@@ -81,17 +66,13 @@ func NewEchoRenderer(rr routeReverser) echo.Renderer {
 		log.Fatal(err)
 	}
 
-	return &echoRenderer{views}
+	return &Renderer{
+		templateMap: templateMap,
+	}
 }
 
-type echoRenderer struct {
-	views map[string]*template.Template
-}
-
-// Render allows the renderer type to adhere to the echo.Renderer interface for
-// rendering HTML templates.
-func (t *echoRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	view, ok := t.views[name]
+func (r *Renderer) render(w io.Writer, name string, data interface{}) error {
+	view, ok := r.templateMap[name]
 	if !ok {
 		return fmt.Errorf("No template found with name: %q", name)
 	}

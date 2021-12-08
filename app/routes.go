@@ -22,14 +22,14 @@ func (app *App) setupRoutes() {
 	}))
 
 	r := chi.NewRouter()
-	app.echo.Any("", echo.WrapHandler(r))
+	app.echo.Any("*", echo.WrapHandler(r))
 
 	handlers.Root(r)
 
+	handlers.ListVampires(r, app.logger, app.renderer, app.repository)
+
 	app.echo.Group("/assets", static.Middleware())
 
-	// Vampires
-	handlers.ListVampires(app.echo, app.repository)
 	handlers.NewVampire(app.echo)
 	handlers.CreateVampire(app.echo, app.repository)
 	handlers.ShowVampire(app.echo, app.repository)

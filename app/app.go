@@ -15,6 +15,7 @@ type App struct {
 	echo       *echo.Echo
 	logger     *zap.Logger
 	repository *repository.Repository
+	renderer   *templates.Renderer
 }
 
 type Options struct {
@@ -30,13 +31,14 @@ func NewApp(opts Options) *App {
 	}
 
 	echo := echo.New()
-	echo.Renderer = templates.NewRenderer(echo)
+	echo.Renderer = templates.NewEchoRenderer(echo)
 	echo.Debug = opts.Debug
 
 	app := &App{
 		echo:       echo,
 		logger:     opts.Logger,
 		repository: opts.Repository,
+		renderer:   templates.NewRenderer(),
 	}
 
 	app.setupRoutes()

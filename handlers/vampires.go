@@ -6,19 +6,31 @@ import (
 
 	"emailaddress.horse/thousand/models"
 	"emailaddress.horse/thousand/templates"
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 )
 
-func ListVampires(e *echo.Echo, vg vampiresGetter) {
-	e.GET("/vampires", func(c echo.Context) error {
-		vampires, err := vg.GetVampires(c.Request().Context())
+type showVampiresRenderer interface {
+	ShowVampires(http.ResponseWriter, []models.Vampire) error
+}
+
+func ListVampires(r *chi.Mux, l *zap.Logger, t showVampiresRenderer, vg vampiresGetter) {
+	r.Get("/vampires", func(w http.ResponseWriter, r *http.Request) {
+		vampires, err := vg.GetVampires(r.Context())
 		if err != nil {
-			return err
+			l.Error("failed to load vampires", zap.Error(err))
+			handleError(w, err)
+			return
 		}
 
-		return c.Render(http.StatusOK, "vampires/index", templates.NewData().Add("vampires", vampires))
-	}).Name = "list-vampires"
+		err = t.ShowVampires(w, vampires)
+		if err != nil {
+			l.Error("failed to render", zap.Error(err))
+			handleError(w, err)
+		}
+	})
 }
 
 func NewVampire(e *echo.Echo) {

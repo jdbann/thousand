@@ -2,14 +2,14 @@
 
 {{ define "main" }}
   <turbo-frame id="newVampire">
-    <a href="{{ reverse "new-vampire" }}">New Vampire</a>
+    <a href="{{ newVampirePath }}">New Vampire</a>
   </turbo-frame>
 
   <div id="vampires">
     {{ with .vampires }}
       <ul>
         {{ range . }}
-          <li><a href="{{ reverse "show-vampire" .ID }}">{{ .Name }}</a></li>
+          <li><a href="{{ vampirePath .ID }}">{{ .Name }}</a></li>
         {{ end }}
       </ul>
     {{ end }}

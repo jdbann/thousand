@@ -5,7 +5,7 @@
     <turbo-frame id="newCharacter">
       <form
         method="POST"
-        action="{{ reverse "create-character" .ID }}"
+        action="{{ createCharacterPath .ID }}"
         data-turbo-frame="_top"
       >
         <div class="cluster">

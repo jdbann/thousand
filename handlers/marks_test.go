@@ -45,7 +45,7 @@ func TestNewMark(t *testing.T) {
 			t.Parallel()
 
 			e := echo.New()
-			e.Renderer = templates.NewRenderer(e)
+			e.Renderer = templates.NewEchoRenderer(e)
 
 			request := httptest.NewRequest(http.MethodGet, "/vampires/12345678-90ab-cdef-1234-567890abcdef/marks/new", nil)
 			response := httptest.NewRecorder()
@@ -115,7 +115,7 @@ func TestCreateMark(t *testing.T) {
 			t.Parallel()
 
 			e := echo.New()
-			e.Renderer = templates.NewRenderer(e)
+			e.Renderer = templates.NewEchoRenderer(e)
 
 			request := httptest.NewRequest(http.MethodPost, "/vampires/12345678-90ab-cdef-1234-567890abcdef/marks", strings.NewReader(tt.body.Encode()))
 			request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationForm)

@@ -2,6 +2,7 @@ package handlers_test
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -11,14 +12,40 @@ import (
 	"emailaddress.horse/thousand/handlers"
 	"emailaddress.horse/thousand/models"
 	"emailaddress.horse/thousand/templates"
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
-type mockVampiresGetter struct{}
+type mockShowVampiresRenderer struct {
+	err error
+}
 
-func (m mockVampiresGetter) GetVampires(_ context.Context) ([]models.Vampire, error) {
-	return []models.Vampire{}, nil
+func (m *mockShowVampiresRenderer) ShowVampires(w http.ResponseWriter, vampires []models.Vampire) error {
+	if m.err != nil {
+		return m.err
+	}
+
+	names := make([]string, len(vampires))
+	for i, v := range vampires {
+		names[i] = v.Name
+	}
+
+	_, err := w.Write([]byte(strings.Join(names, ", ")))
+	if err != nil {
+		panic(err)
+	}
+
+	return nil
+}
+
+type mockVampiresGetter struct {
+	vampires []models.Vampire
+	err      error
+}
+
+func (m *mockVampiresGetter) GetVampires(_ context.Context) ([]models.Vampire, error) {
+	return m.vampires, m.err
 }
 
 func TestListVampires(t *testing.T) {
@@ -26,11 +53,46 @@ func TestListVampires(t *testing.T) {
 
 	tests := []struct {
 		name           string
+		renderer       *mockShowVampiresRenderer
+		getter         *mockVampiresGetter
 		expectedStatus int
+		expectedBody   string
 	}{
 		{
-			name:           "successful",
+			name:     "successful",
+			renderer: &mockShowVampiresRenderer{},
+			getter: &mockVampiresGetter{
+				vampires: []models.Vampire{
+					{Name: "one"},
+					{Name: "two"},
+					{Name: "three"},
+				},
+			},
 			expectedStatus: http.StatusOK,
+			expectedBody:   "one, two, three",
+		},
+		{
+			name: "error from getter",
+			getter: &mockVampiresGetter{
+				err: errors.New("mock error"),
+			},
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   "500: Internal Server Error",
+		},
+		{
+			name: "error from renderer",
+			renderer: &mockShowVampiresRenderer{
+				err: errors.New("mock error"),
+			},
+			getter: &mockVampiresGetter{
+				vampires: []models.Vampire{
+					{Name: "one"},
+					{Name: "two"},
+					{Name: "three"},
+				},
+			},
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   "500: Internal Server Error",
 		},
 	}
 
@@ -40,18 +102,18 @@ func TestListVampires(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			e := echo.New()
-			e.Renderer = templates.NewRenderer(e)
+			r := chi.NewMux()
 
-			request := httptest.NewRequest(http.MethodGet, "/vampires", nil)
-			response := httptest.NewRecorder()
+			handlers.ListVampires(r, testLogger(t), tt.renderer, tt.getter)
 
-			handlers.ListVampires(e, mockVampiresGetter{})
+			status, _, body := get(r, "/vampires")
 
-			e.ServeHTTP(response, request)
+			if tt.expectedStatus != status {
+				t.Errorf("expected status %d; got %d", tt.expectedStatus, status)
+			}
 
-			if tt.expectedStatus != response.Code {
-				t.Errorf("expected %d; got %d", tt.expectedStatus, response.Code)
+			if tt.expectedBody != body {
+				t.Errorf("expected body %q; got %q", tt.expectedBody, body)
 			}
 		})
 	}
@@ -77,7 +139,7 @@ func TestNewVampire(t *testing.T) {
 			t.Parallel()
 
 			e := echo.New()
-			e.Renderer = templates.NewRenderer(e)
+			e.Renderer = templates.NewEchoRenderer(e)
 
 			request := httptest.NewRequest(http.MethodGet, "/vampires/new", nil)
 			response := httptest.NewRecorder()
@@ -135,7 +197,7 @@ func TestCreateVampire(t *testing.T) {
 			t.Parallel()
 
 			e := echo.New()
-			e.Renderer = templates.NewRenderer(e)
+			e.Renderer = templates.NewEchoRenderer(e)
 
 			request := httptest.NewRequest(http.MethodPost, "/vampires", strings.NewReader(tt.body.Encode()))
 			request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationForm)
@@ -200,7 +262,7 @@ func TestShowVampire(t *testing.T) {
 			t.Parallel()
 
 			e := echo.New()
-			e.Renderer = templates.NewRenderer(e)
+			e.Renderer = templates.NewEchoRenderer(e)
 
 			request := httptest.NewRequest(http.MethodGet, "/vampires/12345678-90ab-cdef-1234-567890abcdef", nil)
 			response := httptest.NewRecorder()
