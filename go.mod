@@ -5,6 +5,7 @@ go 1.16
 require (
 	github.com/chromedp/cdproto v0.0.0-20211025030258-2570df970243 // indirect
 	github.com/chromedp/chromedp v0.7.4
+	github.com/go-chi/chi/v5 v5.0.7
 	github.com/google/go-cmp v0.5.6
 	github.com/google/uuid v1.3.0
 	github.com/jackc/pgconn v1.10.0

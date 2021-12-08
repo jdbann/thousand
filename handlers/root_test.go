@@ -6,8 +6,7 @@ import (
 	"testing"
 
 	"emailaddress.horse/thousand/handlers"
-	"emailaddress.horse/thousand/templates"
-	"github.com/labstack/echo/v4"
+	"github.com/go-chi/chi/v5"
 )
 
 func TestRoot(t *testing.T) {
@@ -31,22 +30,20 @@ func TestRoot(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			e := echo.New()
-			e.Renderer = templates.NewRenderer(e)
+			r := chi.NewMux()
 
 			request := httptest.NewRequest(http.MethodGet, "/", nil)
 			response := httptest.NewRecorder()
 
-			handlers.Root(e)
-			handlers.ListVampires(e, nil)
+			handlers.Root(r)
 
-			e.ServeHTTP(response, request)
+			r.ServeHTTP(response, request)
 
 			if tt.expectedStatus != response.Code {
 				t.Errorf("expected %d; got %d", tt.expectedStatus, response.Code)
 			}
 
-			actualLocation := response.Header().Get(echo.HeaderLocation)
+			actualLocation := response.Header().Get("Location")
 			if tt.expectedLocation != actualLocation {
 				t.Errorf("expected %q; got %q", tt.expectedLocation, actualLocation)
 			}

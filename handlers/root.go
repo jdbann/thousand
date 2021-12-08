@@ -3,11 +3,11 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/labstack/echo/v4"
+	"github.com/go-chi/chi/v5"
 )
 
-func Root(e *echo.Echo) {
-	e.GET("/", func(c echo.Context) error {
-		return c.Redirect(http.StatusSeeOther, e.Reverse("list-vampires"))
-	}).Name = "root"
+func Root(r *chi.Mux) {
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/vampires", http.StatusSeeOther)
+	})
 }

@@ -5,6 +5,8 @@ import (
 
 	"emailaddress.horse/thousand/handlers"
 	"emailaddress.horse/thousand/static"
+	"github.com/go-chi/chi/v5"
+	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
@@ -19,7 +21,10 @@ func (app *App) setupRoutes() {
 		Getter: middleware.MethodFromForm("_method"),
 	}))
 
-	handlers.Root(app.echo)
+	r := chi.NewRouter()
+	app.echo.Any("", echo.WrapHandler(r))
+
+	handlers.Root(r)
 
 	app.echo.Group("/assets", static.Middleware())
 
