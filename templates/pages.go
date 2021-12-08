@@ -13,3 +13,7 @@ func (r *Renderer) ShowVampires(w http.ResponseWriter, v []models.Vampire) error
 
 	return r.render(w, "vampires/index", data)
 }
+
+func (r *Renderer) NewVampire(w http.ResponseWriter) error {
+	return r.render(w, "vampires/new", nil)
+}

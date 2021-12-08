@@ -119,16 +119,45 @@ func TestListVampires(t *testing.T) {
 	}
 }
 
+type mockNewVampireRenderer struct {
+	err error
+}
+
+func (m *mockNewVampireRenderer) NewVampire(w http.ResponseWriter) error {
+	if m.err != nil {
+		return m.err
+	}
+
+	_, err := w.Write([]byte("new vampire"))
+	if err != nil {
+		panic(err)
+	}
+
+	return nil
+}
+
 func TestNewVampire(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
 		name           string
+		renderer       *mockNewVampireRenderer
 		expectedStatus int
+		expectedBody   string
 	}{
 		{
 			name:           "successful",
+			renderer:       &mockNewVampireRenderer{},
 			expectedStatus: http.StatusOK,
+			expectedBody:   "new vampire",
+		},
+		{
+			name: "error from renderer",
+			renderer: &mockNewVampireRenderer{
+				err: errors.New("mock error"),
+			},
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   "500: Internal Server Error",
 		},
 	}
 
@@ -138,18 +167,18 @@ func TestNewVampire(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			e := echo.New()
-			e.Renderer = templates.NewEchoRenderer(e)
+			r := chi.NewMux()
 
-			request := httptest.NewRequest(http.MethodGet, "/vampires/new", nil)
-			response := httptest.NewRecorder()
+			handlers.NewVampire(r, testLogger(t), tt.renderer)
 
-			handlers.NewVampire(e)
+			status, _, body := get(r, "/vampires/new")
 
-			e.ServeHTTP(response, request)
+			if tt.expectedStatus != status {
+				t.Errorf("expected status %d; got %d", tt.expectedStatus, status)
+			}
 
-			if tt.expectedStatus != response.Code {
-				t.Errorf("expected %d; got %d", tt.expectedStatus, response.Code)
+			if tt.expectedBody != body {
+				t.Errorf("expected body %q; got %q", tt.expectedBody, body)
 			}
 		})
 	}

@@ -22,15 +22,20 @@ func (app *App) setupRoutes() {
 	}))
 
 	r := chi.NewRouter()
-	app.echo.Any("*", echo.WrapHandler(r))
+
+	// Temporarily specify routes whilst we still route through Echo to avoid
+	// routing conflicts between Echo and Chi
+	app.echo.GET("/", echo.WrapHandler(r))
+	app.echo.GET("/vampires", echo.WrapHandler(r))
+	app.echo.GET("/vampires/new", echo.WrapHandler(r))
 
 	handlers.Root(r)
 
 	handlers.ListVampires(r, app.logger, app.renderer, app.repository)
+	handlers.NewVampire(r, app.logger, app.renderer)
 
 	app.echo.Group("/assets", static.Middleware())
 
-	handlers.NewVampire(app.echo)
 	handlers.CreateVampire(app.echo, app.repository)
 	handlers.ShowVampire(app.echo, app.repository)
 	handlers.NewExperience(app.echo, app.repository)

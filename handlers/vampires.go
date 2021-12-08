@@ -33,10 +33,18 @@ func ListVampires(r *chi.Mux, l *zap.Logger, t showVampiresRenderer, vg vampires
 	})
 }
 
-func NewVampire(e *echo.Echo) {
-	e.GET("/vampires/new", func(c echo.Context) error {
-		return c.Render(http.StatusOK, "vampires/new", templates.NewData())
-	}).Name = "new-vampire"
+type newVampireRenderer interface {
+	NewVampire(http.ResponseWriter) error
+}
+
+func NewVampire(r *chi.Mux, l *zap.Logger, t newVampireRenderer) {
+	r.Get("/vampires/new", func(w http.ResponseWriter, r *http.Request) {
+		err := t.NewVampire(w)
+		if err != nil {
+			l.Error("failed to render", zap.Error(err))
+			handleError(w, err)
+		}
+	})
 }
 
 func CreateVampire(e *echo.Echo, vc vampireCreator) {
