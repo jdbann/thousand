@@ -42,3 +42,19 @@ func get(handler http.Handler, path string) (int, http.Header, string) {
 
 	return result.StatusCode, result.Header, strings.TrimSpace(string(body))
 }
+
+func post(handler http.Handler, path, data string) (int, http.Header, string) {
+	request := httptest.NewRequest(http.MethodPost, path, strings.NewReader(data))
+	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	response := httptest.NewRecorder()
+
+	handler.ServeHTTP(response, request)
+	result := response.Result()
+
+	body, err := io.ReadAll(result.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	return result.StatusCode, result.Header, strings.TrimSpace(string(body))
+}

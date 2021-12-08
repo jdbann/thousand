@@ -47,17 +47,19 @@ func NewVampire(r *chi.Mux, l *zap.Logger, t newVampireRenderer) {
 	})
 }
 
-func CreateVampire(e *echo.Echo, vc vampireCreator) {
-	e.POST("/vampires", func(c echo.Context) error {
-		name := c.FormValue("name")
+func CreateVampire(r *chi.Mux, l *zap.Logger, vc vampireCreator) {
+	r.Post("/vampires", func(w http.ResponseWriter, r *http.Request) {
+		name := r.FormValue("name")
 
-		vampire, err := vc.CreateVampire(c.Request().Context(), name)
+		vampire, err := vc.CreateVampire(r.Context(), name)
 		if err != nil {
-			return err
+			l.Error("failed to create vampire", zap.Error(err))
+			handleError(w, err)
+			return
 		}
 
-		return c.Redirect(http.StatusSeeOther, e.Reverse("show-vampire", vampire.ID.String()))
-	}).Name = "create-vampire"
+		http.Redirect(w, r, "/vampires/"+vampire.ID.String(), http.StatusSeeOther)
+	})
 }
 
 func ShowVampire(e *echo.Echo, vg vampireGetter) {

@@ -27,16 +27,17 @@ func (app *App) setupRoutes() {
 	// routing conflicts between Echo and Chi
 	app.echo.GET("/", echo.WrapHandler(r))
 	app.echo.GET("/vampires", echo.WrapHandler(r))
+	app.echo.POST("/vampires", echo.WrapHandler(r))
 	app.echo.GET("/vampires/new", echo.WrapHandler(r))
 
 	handlers.Root(r)
 
 	handlers.ListVampires(r, app.logger, app.renderer, app.repository)
 	handlers.NewVampire(r, app.logger, app.renderer)
+	handlers.CreateVampire(r, app.logger, app.repository)
 
 	app.echo.Group("/assets", static.Middleware())
 
-	handlers.CreateVampire(app.echo, app.repository)
 	handlers.ShowVampire(app.echo, app.repository)
 	handlers.NewExperience(app.echo, app.repository)
 	handlers.CreateExperience(app.echo, app.repository)
