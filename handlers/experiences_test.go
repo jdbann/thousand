@@ -130,7 +130,6 @@ func TestCreateExperience(t *testing.T) {
 			request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationForm)
 			response := httptest.NewRecorder()
 
-			handlers.ShowVampire(e, nil)
 			handlers.CreateExperience(e, tt.experienceCreator)
 
 			e.ServeHTTP(response, request)

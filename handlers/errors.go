@@ -7,6 +7,7 @@ import (
 )
 
 var (
+	NotFoundError       = NewError("Not Found", http.StatusNotFound)
 	InternalServerError = NewError("Internal Server Error", http.StatusInternalServerError)
 )
 
@@ -38,6 +39,11 @@ func (err HTTPError) Is(target error) bool {
 	} else {
 		return false
 	}
+}
+
+func (err HTTPError) Cause(cause error) HTTPError {
+	err.cause = cause
+	return err
 }
 
 func (err HTTPError) PublicError() string {

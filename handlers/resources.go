@@ -48,6 +48,6 @@ func CreateResource(e *echo.Echo, rc resourceCreator) {
 			return err
 		}
 
-		return c.Redirect(http.StatusSeeOther, e.Reverse("show-vampire", vampireID.String()))
+		return c.Redirect(http.StatusSeeOther, "/vampires/"+vampireID.String())
 	}).Name = "create-resource"
 }

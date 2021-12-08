@@ -17,3 +17,11 @@ func (r *Renderer) ShowVampires(w http.ResponseWriter, v []models.Vampire) error
 func (r *Renderer) NewVampire(w http.ResponseWriter) error {
 	return r.render(w, "vampires/new", nil)
 }
+
+func (r *Renderer) ShowVampire(w http.ResponseWriter, v models.Vampire) error {
+	data := map[string]interface{}{
+		"vampire": v,
+	}
+
+	return r.render(w, "vampires/show", data)
+}

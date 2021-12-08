@@ -29,16 +29,17 @@ func (app *App) setupRoutes() {
 	app.echo.GET("/vampires", echo.WrapHandler(r))
 	app.echo.POST("/vampires", echo.WrapHandler(r))
 	app.echo.GET("/vampires/new", echo.WrapHandler(r))
+	app.echo.GET("/vampires/:id", echo.WrapHandler(r))
 
 	handlers.Root(r)
 
 	handlers.ListVampires(r, app.logger, app.renderer, app.repository)
 	handlers.NewVampire(r, app.logger, app.renderer)
 	handlers.CreateVampire(r, app.logger, app.repository)
+	handlers.ShowVampire(r, app.logger, app.renderer, app.repository)
 
 	app.echo.Group("/assets", static.Middleware())
 
-	handlers.ShowVampire(app.echo, app.repository)
 	handlers.NewExperience(app.echo, app.repository)
 	handlers.CreateExperience(app.echo, app.repository)
 	handlers.NewSkill(app.echo, app.repository)

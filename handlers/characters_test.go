@@ -58,8 +58,8 @@ func TestNewCharacter(t *testing.T) {
 				t.Errorf("expected %d; got %d", tt.expectedStatus, response.Code)
 			}
 
-			if tt.expectedID != tt.vampireGetter.receivedID {
-				t.Errorf("expected %q; got %q", tt.expectedID, tt.vampireGetter.receivedID)
+			if tt.expectedID != tt.vampireGetter.id {
+				t.Errorf("expected %q; got %q", tt.expectedID, tt.vampireGetter.id)
 			}
 		})
 	}
@@ -134,7 +134,6 @@ func TestCreateCharacter(t *testing.T) {
 			response := httptest.NewRecorder()
 
 			handlers.CreateCharacter(e, tt.characterCreator)
-			handlers.ShowVampire(e, nil)
 
 			e.ServeHTTP(response, request)
 

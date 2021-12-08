@@ -4,14 +4,12 @@ import (
 	"context"
 	"errors"
 	"net/http"
-	"net/http/httptest"
 	"net/url"
 	"strings"
 	"testing"
 
 	"emailaddress.horse/thousand/handlers"
 	"emailaddress.horse/thousand/models"
-	"emailaddress.horse/thousand/templates"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )
@@ -257,14 +255,31 @@ func TestCreateVampire(t *testing.T) {
 	}
 }
 
+type mockShowVampireRenderer struct {
+	err error
+}
+
+func (m *mockShowVampireRenderer) ShowVampire(w http.ResponseWriter, vampire models.Vampire) error {
+	if m.err != nil {
+		return m.err
+	}
+
+	_, err := w.Write([]byte(vampire.Name))
+	if err != nil {
+		panic(err)
+	}
+
+	return nil
+}
+
 type mockVampireGetter struct {
-	vampire    models.Vampire
-	err        error
-	receivedID uuid.UUID
+	vampire models.Vampire
+	err     error
+	id      uuid.UUID
 }
 
 func (m *mockVampireGetter) GetVampire(_ context.Context, id uuid.UUID) (models.Vampire, error) {
-	m.receivedID = id
+	m.id = id
 	return m.vampire, m.err
 }
 
@@ -273,18 +288,64 @@ func TestShowVampire(t *testing.T) {
 
 	tests := []struct {
 		name           string
-		vampireGetter  *mockVampireGetter
+		renderer       *mockShowVampireRenderer
+		getter         *mockVampireGetter
+		path           string
 		expectedStatus int
+		expectedBody   string
+		expectedID     uuid.UUID
 	}{
 		{
-			name:           "successful",
-			vampireGetter:  &mockVampireGetter{vampire: models.Vampire{}},
+			name:     "successful",
+			renderer: &mockShowVampireRenderer{},
+			getter: &mockVampireGetter{
+				vampire: models.Vampire{Name: "A vampire"},
+			},
+			path:           "/vampires/12345678-90ab-cdef-1234-567890abcdef",
 			expectedStatus: http.StatusOK,
+			expectedBody:   "A vampire",
+			expectedID:     uuid.MustParse("12345678-90ab-cdef-1234-567890abcdef"),
 		},
 		{
-			name:           "not found",
-			vampireGetter:  &mockVampireGetter{err: models.ErrNotFound},
+			name:           "error parsing id",
+			renderer:       &mockShowVampireRenderer{},
+			getter:         &mockVampireGetter{},
+			path:           "/vampires/unknown",
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   "500: Internal Server Error",
+		},
+		{
+			name: "not found error from getter",
+			getter: &mockVampireGetter{
+				err: models.ErrNotFound,
+			},
+			path:           "/vampires/12345678-90ab-cdef-1234-567890abcdef",
 			expectedStatus: http.StatusNotFound,
+			expectedBody:   "404: Not Found",
+			expectedID:     uuid.MustParse("12345678-90ab-cdef-1234-567890abcdef"),
+		},
+		{
+			name: "error from getter",
+			getter: &mockVampireGetter{
+				err: errors.New("mock error"),
+			},
+			path:           "/vampires/12345678-90ab-cdef-1234-567890abcdef",
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   "500: Internal Server Error",
+			expectedID:     uuid.MustParse("12345678-90ab-cdef-1234-567890abcdef"),
+		},
+		{
+			name: "error from renderer",
+			renderer: &mockShowVampireRenderer{
+				err: errors.New("mock error"),
+			},
+			path: "/vampires/12345678-90ab-cdef-1234-567890abcdef",
+			getter: &mockVampireGetter{
+				vampire: models.Vampire{Name: "A vampire"},
+			},
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   "500: Internal Server Error",
+			expectedID:     uuid.MustParse("12345678-90ab-cdef-1234-567890abcdef"),
 		},
 	}
 
@@ -294,18 +355,22 @@ func TestShowVampire(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			e := echo.New()
-			e.Renderer = templates.NewEchoRenderer(e)
+			r := chi.NewMux()
 
-			request := httptest.NewRequest(http.MethodGet, "/vampires/12345678-90ab-cdef-1234-567890abcdef", nil)
-			response := httptest.NewRecorder()
+			handlers.ShowVampire(r, testLogger(t), tt.renderer, tt.getter)
 
-			handlers.ShowVampire(e, tt.vampireGetter)
+			status, _, body := get(r, tt.path)
 
-			e.ServeHTTP(response, request)
+			if tt.expectedStatus != status {
+				t.Errorf("expected status %d; got %d", tt.expectedStatus, status)
+			}
 
-			if tt.expectedStatus != response.Code {
-				t.Errorf("expected %d; got %d", tt.expectedStatus, response.Code)
+			if tt.expectedBody != body {
+				t.Errorf("expected body %q; got %q", tt.expectedBody, body)
+			}
+
+			if tt.expectedID != tt.getter.id {
+				t.Errorf("expected getter to receive ID %s; got %s", tt.expectedID, tt.getter.id)
 			}
 		})
 	}

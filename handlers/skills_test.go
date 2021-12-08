@@ -115,7 +115,6 @@ func TestCreateSkill(t *testing.T) {
 			response := httptest.NewRecorder()
 
 			handlers.CreateSkill(e, tt.skillCreator)
-			handlers.ShowVampire(e, nil)
 
 			e.ServeHTTP(response, request)
 
