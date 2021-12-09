@@ -2,18 +2,15 @@ package handlers_test
 
 import (
 	"context"
+	"errors"
 	"net/http"
-	"net/http/httptest"
 	"net/url"
-	"strings"
 	"testing"
 
 	"emailaddress.horse/thousand/handlers"
 	"emailaddress.horse/thousand/models"
-	"emailaddress.horse/thousand/templates"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
 )
 
 type mockNewSkillRenderer struct {
@@ -128,14 +125,14 @@ func TestNewSkill(t *testing.T) {
 }
 
 type mockSkillCreator struct {
-	receivedVampireID   uuid.UUID
-	receivedDescription string
-	err                 error
+	vampireID   uuid.UUID
+	description string
+	err         error
 }
 
 func (m *mockSkillCreator) CreateSkill(_ context.Context, vampireID uuid.UUID, description string) (models.Skill, error) {
-	m.receivedVampireID = vampireID
-	m.receivedDescription = description
+	m.vampireID = vampireID
+	m.description = description
 	return models.Skill{}, m.err
 }
 
@@ -145,26 +142,53 @@ func TestCreateSkill(t *testing.T) {
 	tests := []struct {
 		name                string
 		body                url.Values
-		skillCreator        *mockSkillCreator
+		creator             *mockSkillCreator
+		path                string
 		expectedStatus      int
+		expectedBody        string
+		expectedLocation    string
 		expectedVampireID   uuid.UUID
 		expectedDescription string
-		expectedLocation    string
 	}{
 		{
 			name:                "successful",
 			body:                url.Values{"description": []string{"A description"}},
-			skillCreator:        &mockSkillCreator{},
+			creator:             &mockSkillCreator{},
+			path:                "/vampires/12345678-90ab-cdef-1234-567890abcdef/skills",
 			expectedStatus:      http.StatusSeeOther,
 			expectedVampireID:   uuid.MustParse("12345678-90ab-cdef-1234-567890abcdef"),
 			expectedDescription: "A description",
 			expectedLocation:    "/vampires/12345678-90ab-cdef-1234-567890abcdef",
 		},
 		{
-			name:                "not found",
-			body:                url.Values{"description": []string{"A description"}},
-			skillCreator:        &mockSkillCreator{err: models.ErrNotFound},
+			name:           "error parsing vampire ID",
+			body:           url.Values{"description": []string{"A description"}},
+			creator:        &mockSkillCreator{},
+			path:           "/vampires/unknown/skills",
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   "500: Internal Server Error",
+		},
+		{
+			name: "not found from creator",
+			body: url.Values{"description": []string{"A description"}},
+			creator: &mockSkillCreator{
+				err: models.ErrNotFound,
+			},
+			path:                "/vampires/12345678-90ab-cdef-1234-567890abcdef/skills",
 			expectedStatus:      http.StatusNotFound,
+			expectedBody:        "404: Not Found",
+			expectedVampireID:   uuid.MustParse("12345678-90ab-cdef-1234-567890abcdef"),
+			expectedDescription: "A description",
+		},
+		{
+			name: "error from creator",
+			body: url.Values{"description": []string{"A description"}},
+			creator: &mockSkillCreator{
+				err: errors.New("mock error"),
+			},
+			path:                "/vampires/12345678-90ab-cdef-1234-567890abcdef/skills",
+			expectedStatus:      http.StatusInternalServerError,
+			expectedBody:        "500: Internal Server Error",
 			expectedVampireID:   uuid.MustParse("12345678-90ab-cdef-1234-567890abcdef"),
 			expectedDescription: "A description",
 		},
@@ -176,32 +200,31 @@ func TestCreateSkill(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			e := echo.New()
-			e.Renderer = templates.NewEchoRenderer(e)
+			r := chi.NewMux()
 
-			request := httptest.NewRequest(http.MethodPost, "/vampires/12345678-90ab-cdef-1234-567890abcdef/skills", strings.NewReader(tt.body.Encode()))
-			request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationForm)
-			response := httptest.NewRecorder()
+			handlers.CreateSkill(r, testLogger(t), tt.creator)
 
-			handlers.CreateSkill(e, tt.skillCreator)
+			status, headers, body := post(r, tt.path, tt.body.Encode())
 
-			e.ServeHTTP(response, request)
-
-			if tt.expectedStatus != response.Code {
-				t.Errorf("expected %d; got %d", tt.expectedStatus, response.Code)
+			if tt.expectedStatus != status {
+				t.Errorf("expected status %d; got %d", tt.expectedStatus, status)
 			}
 
-			if tt.expectedVampireID != tt.skillCreator.receivedVampireID {
-				t.Errorf("expected %q; got %q", tt.expectedVampireID, tt.skillCreator.receivedVampireID)
+			if tt.expectedBody != body {
+				t.Errorf("expected body %q; got %q", tt.expectedBody, body)
 			}
 
-			if tt.expectedDescription != tt.skillCreator.receivedDescription {
-				t.Errorf("expected %q; got %q", tt.expectedDescription, tt.skillCreator.receivedDescription)
+			location := headers.Get("Location")
+			if tt.expectedLocation != location {
+				t.Errorf("expected %q; got %q", tt.expectedLocation, location)
 			}
 
-			actualLocation := response.Header().Get(echo.HeaderLocation)
-			if tt.expectedLocation != actualLocation {
-				t.Errorf("expected %q; got %q", tt.expectedLocation, actualLocation)
+			if tt.expectedVampireID != tt.creator.vampireID {
+				t.Errorf("expected %q; got %q", tt.expectedVampireID, tt.creator.vampireID)
+			}
+
+			if tt.expectedDescription != tt.creator.description {
+				t.Errorf("expected %q; got %q", tt.expectedDescription, tt.creator.description)
 			}
 		})
 	}
