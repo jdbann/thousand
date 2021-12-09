@@ -2,6 +2,7 @@ package handlers_test
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -11,16 +12,38 @@ import (
 	"emailaddress.horse/thousand/handlers"
 	"emailaddress.horse/thousand/models"
 	"emailaddress.horse/thousand/templates"
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
-type mockMemoryGetter struct {
-	memory models.Memory
-	err    error
+type mockNewExperienceRenderer struct {
+	err error
 }
 
-func (m mockMemoryGetter) GetMemory(_ context.Context, _, _ uuid.UUID) (models.Memory, error) {
+func (m *mockNewExperienceRenderer) NewExperience(w http.ResponseWriter, memory models.Memory) error {
+	if m.err != nil {
+		return m.err
+	}
+
+	_, err := w.Write([]byte(memory.ID.String()))
+	if err != nil {
+		panic(err)
+	}
+
+	return nil
+}
+
+type mockMemoryGetter struct {
+	vampireID uuid.UUID
+	memoryID  uuid.UUID
+	memory    models.Memory
+	err       error
+}
+
+func (m *mockMemoryGetter) GetMemory(_ context.Context, vampireID, memoryID uuid.UUID) (models.Memory, error) {
+	m.vampireID = vampireID
+	m.memoryID = memoryID
 	return m.memory, m.err
 }
 
@@ -28,19 +51,86 @@ func TestNewExperience(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name           string
-		memoryGetter   mockMemoryGetter
-		expectedStatus int
+		name              string
+		renderer          *mockNewExperienceRenderer
+		getter            *mockMemoryGetter
+		path              string
+		expectedStatus    int
+		expectedBody      string
+		expectedVampireID uuid.UUID
+		expectedMemoryID  uuid.UUID
 	}{
 		{
-			name:           "successful",
-			memoryGetter:   mockMemoryGetter{memory: models.Memory{}},
-			expectedStatus: http.StatusOK,
+			name:     "successful",
+			renderer: &mockNewExperienceRenderer{},
+			getter: &mockMemoryGetter{
+				memory: models.Memory{
+					ID:        uuid.MustParse("22222222-2222-2222-2222-222222222222"),
+					VampireID: uuid.MustParse("11111111-1111-1111-1111-111111111111"),
+				},
+			},
+			path:              "/vampires/11111111-1111-1111-1111-111111111111/memories/22222222-2222-2222-2222-222222222222/experiences/new",
+			expectedStatus:    http.StatusOK,
+			expectedBody:      "22222222-2222-2222-2222-222222222222",
+			expectedVampireID: uuid.MustParse("11111111-1111-1111-1111-111111111111"),
+			expectedMemoryID:  uuid.MustParse("22222222-2222-2222-2222-222222222222"),
 		},
 		{
-			name:           "not found",
-			memoryGetter:   mockMemoryGetter{err: models.ErrNotFound},
-			expectedStatus: http.StatusNotFound,
+			name:           "error parsing vampire id",
+			renderer:       &mockNewExperienceRenderer{},
+			getter:         &mockMemoryGetter{},
+			path:           "/vampires/unknown/memories/22222222-2222-2222-2222-222222222222/experiences/new",
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   "500: Internal Server Error",
+		},
+		{
+			name:           "error parsing vampire id",
+			renderer:       &mockNewExperienceRenderer{},
+			getter:         &mockMemoryGetter{},
+			path:           "/vampires/11111111-1111-1111-1111-111111111111/memories/unknown/experiences/new",
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   "500: Internal Server Error",
+		},
+		{
+			name:     "not found from getter",
+			renderer: &mockNewExperienceRenderer{},
+			getter: &mockMemoryGetter{
+				err: models.ErrNotFound,
+			},
+			path:              "/vampires/11111111-1111-1111-1111-111111111111/memories/22222222-2222-2222-2222-222222222222/experiences/new",
+			expectedStatus:    http.StatusNotFound,
+			expectedBody:      "404: Not Found",
+			expectedVampireID: uuid.MustParse("11111111-1111-1111-1111-111111111111"),
+			expectedMemoryID:  uuid.MustParse("22222222-2222-2222-2222-222222222222"),
+		},
+		{
+			name:     "error from getter",
+			renderer: &mockNewExperienceRenderer{},
+			getter: &mockMemoryGetter{
+				err: errors.New("mock error"),
+			},
+			path:              "/vampires/11111111-1111-1111-1111-111111111111/memories/22222222-2222-2222-2222-222222222222/experiences/new",
+			expectedStatus:    http.StatusInternalServerError,
+			expectedBody:      "500: Internal Server Error",
+			expectedVampireID: uuid.MustParse("11111111-1111-1111-1111-111111111111"),
+			expectedMemoryID:  uuid.MustParse("22222222-2222-2222-2222-222222222222"),
+		},
+		{
+			name: "error from renderer",
+			renderer: &mockNewExperienceRenderer{
+				err: errors.New("mock error"),
+			},
+			getter: &mockMemoryGetter{
+				memory: models.Memory{
+					ID:        uuid.MustParse("22222222-2222-2222-2222-222222222222"),
+					VampireID: uuid.MustParse("11111111-1111-1111-1111-111111111111"),
+				},
+			},
+			path:              "/vampires/11111111-1111-1111-1111-111111111111/memories/22222222-2222-2222-2222-222222222222/experiences/new",
+			expectedStatus:    http.StatusInternalServerError,
+			expectedBody:      "500: Internal Server Error",
+			expectedVampireID: uuid.MustParse("11111111-1111-1111-1111-111111111111"),
+			expectedMemoryID:  uuid.MustParse("22222222-2222-2222-2222-222222222222"),
 		},
 	}
 
@@ -50,18 +140,26 @@ func TestNewExperience(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			e := echo.New()
-			e.Renderer = templates.NewEchoRenderer(e)
+			r := chi.NewMux()
 
-			request := httptest.NewRequest(http.MethodGet, "/vampires/12345678-90ab-cdef-1234-567890abcdef/memories/12345678-90ab-cdef-1234-567890abcdef/experiences/new", nil)
-			response := httptest.NewRecorder()
+			handlers.NewExperience(r, testLogger(t), tt.renderer, tt.getter)
 
-			handlers.NewExperience(e, tt.memoryGetter)
+			status, _, body := get(r, tt.path)
 
-			e.ServeHTTP(response, request)
+			if tt.expectedStatus != status {
+				t.Errorf("expected status %d; got %d", tt.expectedStatus, status)
+			}
 
-			if tt.expectedStatus != response.Code {
-				t.Errorf("expected %d; got %d", tt.expectedStatus, response.Code)
+			if tt.expectedBody != body {
+				t.Errorf("expected body %q; got %q", tt.expectedBody, body)
+			}
+
+			if tt.expectedVampireID != tt.getter.vampireID {
+				t.Errorf("expected getter to receive vampire ID %s; got %s", tt.expectedVampireID, tt.getter.vampireID)
+			}
+
+			if tt.expectedMemoryID != tt.getter.memoryID {
+				t.Errorf("expected getter to receive memory ID %s; got %s", tt.expectedMemoryID, tt.getter.memoryID)
 			}
 		})
 	}

@@ -5,33 +5,49 @@ import (
 	"net/http"
 
 	"emailaddress.horse/thousand/models"
-	"emailaddress.horse/thousand/templates"
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 )
 
-func NewExperience(e *echo.Echo, mg memoryGetter) {
-	e.GET("/vampires/:vampireID/memories/:id/experiences/new", func(c echo.Context) error {
-		vampireID, err := uuid.Parse(c.Param("vampireID"))
+type newExperienceRenderer interface {
+	NewExperience(http.ResponseWriter, models.Memory) error
+}
+
+func NewExperience(r *chi.Mux, l *zap.Logger, t newExperienceRenderer, mg memoryGetter) {
+	r.Get("/vampires/{vampireID}/memories/{id}/experiences/new", func(w http.ResponseWriter, r *http.Request) {
+		vampireID, err := uuid.Parse(chi.URLParam(r, "vampireID"))
 		if err != nil {
-			return err
+			l.Error("failed to parse id as UUID", zap.Error(err))
+			handleError(w, err)
+			return
 		}
 
-		memoryID, err := uuid.Parse(c.Param("id"))
+		memoryID, err := uuid.Parse(chi.URLParam(r, "id"))
 		if err != nil {
-			return err
+			l.Error("failed to parse id as UUID", zap.Error(err))
+			handleError(w, err)
+			return
 		}
 
-		memory, err := mg.GetMemory(c.Request().Context(), vampireID, memoryID)
-		if errors.Is(err, models.ErrNotFound) {
-			return echo.NewHTTPError(http.StatusNotFound, "Memory could not be found").SetInternal(err)
-		} else if err != nil {
-			return err
+		memory, err := mg.GetMemory(r.Context(), vampireID, memoryID)
+		if err != nil {
+			if errors.Is(err, models.ErrNotFound) {
+				err = NotFoundError.Cause(err)
+			}
+
+			l.Error("failed to find memory", zap.Stringer("vampireID", vampireID), zap.Stringer("memoryID", memoryID), zap.Error(err))
+			handleError(w, err)
+			return
 		}
 
-		data := templates.NewData().Add("memory", memory)
-		return c.Render(http.StatusOK, "experiences/new", data)
-	}).Name = "new-experience"
+		err = t.NewExperience(w, memory)
+		if err != nil {
+			l.Error("failed to render", zap.Error(err))
+			handleError(w, err)
+		}
+	})
 }
 
 func CreateExperience(e *echo.Echo, ec experienceCreator) {
