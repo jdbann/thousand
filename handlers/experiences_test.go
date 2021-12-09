@@ -4,17 +4,13 @@ import (
 	"context"
 	"errors"
 	"net/http"
-	"net/http/httptest"
 	"net/url"
-	"strings"
 	"testing"
 
 	"emailaddress.horse/thousand/handlers"
 	"emailaddress.horse/thousand/models"
-	"emailaddress.horse/thousand/templates"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
 )
 
 type mockNewExperienceRenderer struct {
@@ -166,16 +162,16 @@ func TestNewExperience(t *testing.T) {
 }
 
 type mockExperienceCreator struct {
-	err                 error
-	receivedVampireID   uuid.UUID
-	receivedMemoryID    uuid.UUID
-	receivedDescription string
+	err         error
+	vampireID   uuid.UUID
+	memoryID    uuid.UUID
+	description string
 }
 
 func (m *mockExperienceCreator) CreateExperience(_ context.Context, vampireID, memoryID uuid.UUID, description string) (models.Experience, error) {
-	m.receivedVampireID = vampireID
-	m.receivedMemoryID = memoryID
-	m.receivedDescription = description
+	m.vampireID = vampireID
+	m.memoryID = memoryID
+	m.description = description
 	return models.Experience{}, m.err
 }
 
@@ -185,8 +181,11 @@ func TestCreateExperience(t *testing.T) {
 	tests := []struct {
 		name                string
 		body                url.Values
-		experienceCreator   *mockExperienceCreator
+		creator             *mockExperienceCreator
+		path                string
 		expectedStatus      int
+		expectedBody        string
+		expectedLocation    string
 		expectedVampireID   uuid.UUID
 		expectedMemoryID    uuid.UUID
 		expectedDescription string
@@ -196,19 +195,60 @@ func TestCreateExperience(t *testing.T) {
 			body: url.Values{
 				"description": []string{"A description"},
 			},
-			experienceCreator:   &mockExperienceCreator{},
+			creator:             &mockExperienceCreator{},
+			path:                "/vampires/11111111-1111-1111-1111-111111111111/memories/22222222-2222-2222-2222-222222222222/experiences",
 			expectedStatus:      http.StatusSeeOther,
+			expectedLocation:    "/vampires/11111111-1111-1111-1111-111111111111",
 			expectedVampireID:   uuid.MustParse("11111111-1111-1111-1111-111111111111"),
 			expectedMemoryID:    uuid.MustParse("22222222-2222-2222-2222-222222222222"),
 			expectedDescription: "A description",
 		},
 		{
-			name: "not found",
+			name: "error parsing vampire id",
 			body: url.Values{
 				"description": []string{"A description"},
 			},
-			experienceCreator:   &mockExperienceCreator{err: models.ErrNotFound},
+			creator:        &mockExperienceCreator{},
+			path:           "/vampires/unknown/memories/22222222-2222-2222-2222-222222222222/experiences",
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   "500: Internal Server Error",
+		},
+		{
+			name: "error parsing memory id",
+			body: url.Values{
+				"description": []string{"A description"},
+			},
+			creator:        &mockExperienceCreator{},
+			path:           "/vampires/11111111-1111-1111-1111-111111111111/memories/unknown/experiences",
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   "500: Internal Server Error",
+		},
+		{
+			name: "not found from creator",
+			body: url.Values{
+				"description": []string{"A description"},
+			},
+			creator: &mockExperienceCreator{
+				err: models.ErrNotFound,
+			},
+			path:                "/vampires/11111111-1111-1111-1111-111111111111/memories/22222222-2222-2222-2222-222222222222/experiences",
 			expectedStatus:      http.StatusNotFound,
+			expectedBody:        "404: Not Found",
+			expectedVampireID:   uuid.MustParse("11111111-1111-1111-1111-111111111111"),
+			expectedMemoryID:    uuid.MustParse("22222222-2222-2222-2222-222222222222"),
+			expectedDescription: "A description",
+		},
+		{
+			name: "error from creator",
+			body: url.Values{
+				"description": []string{"A description"},
+			},
+			creator: &mockExperienceCreator{
+				err: errors.New("mock error"),
+			},
+			path:                "/vampires/11111111-1111-1111-1111-111111111111/memories/22222222-2222-2222-2222-222222222222/experiences",
+			expectedStatus:      http.StatusInternalServerError,
+			expectedBody:        "500: Internal Server Error",
 			expectedVampireID:   uuid.MustParse("11111111-1111-1111-1111-111111111111"),
 			expectedMemoryID:    uuid.MustParse("22222222-2222-2222-2222-222222222222"),
 			expectedDescription: "A description",
@@ -221,31 +261,35 @@ func TestCreateExperience(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			e := echo.New()
-			e.Renderer = templates.NewEchoRenderer(e)
+			r := chi.NewMux()
 
-			request := httptest.NewRequest(http.MethodPost, "/vampires/11111111-1111-1111-1111-111111111111/memories/22222222-2222-2222-2222-222222222222/experiences", strings.NewReader(tt.body.Encode()))
-			request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationForm)
-			response := httptest.NewRecorder()
+			handlers.CreateExperience(r, testLogger(t), tt.creator)
 
-			handlers.CreateExperience(e, tt.experienceCreator)
+			status, headers, body := post(r, tt.path, tt.body.Encode())
 
-			e.ServeHTTP(response, request)
-
-			if tt.expectedStatus != response.Code {
-				t.Errorf("expected %d; got %d", tt.expectedStatus, response.Code)
+			if tt.expectedStatus != status {
+				t.Errorf("expected status %d; got %d", tt.expectedStatus, status)
 			}
 
-			if tt.expectedVampireID != tt.experienceCreator.receivedVampireID {
-				t.Errorf("expected %q; got %q", tt.expectedVampireID, tt.experienceCreator.receivedVampireID)
+			if tt.expectedBody != body {
+				t.Errorf("expected body %q; got %q", tt.expectedBody, body)
 			}
 
-			if tt.expectedMemoryID != tt.experienceCreator.receivedMemoryID {
-				t.Errorf("expected %q; got %q", tt.expectedMemoryID, tt.experienceCreator.receivedMemoryID)
+			location := headers.Get("Location")
+			if tt.expectedLocation != location {
+				t.Errorf("expected location %q; got %q", tt.expectedLocation, location)
 			}
 
-			if tt.expectedDescription != tt.experienceCreator.receivedDescription {
-				t.Errorf("expected %q; got %q", tt.expectedDescription, tt.experienceCreator.receivedDescription)
+			if tt.expectedVampireID != tt.creator.vampireID {
+				t.Errorf("expected %q; got %q", tt.expectedVampireID, tt.creator.vampireID)
+			}
+
+			if tt.expectedMemoryID != tt.creator.memoryID {
+				t.Errorf("expected %q; got %q", tt.expectedMemoryID, tt.creator.memoryID)
+			}
+
+			if tt.expectedDescription != tt.creator.description {
+				t.Errorf("expected %q; got %q", tt.expectedDescription, tt.creator.description)
 			}
 		})
 	}
