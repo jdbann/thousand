@@ -22,6 +22,14 @@ func (r *Renderer) NewSkill(w http.ResponseWriter, v models.Vampire) error {
 	return r.render(w, "skills/new", data)
 }
 
+func (r *Renderer) NewResource(w http.ResponseWriter, v models.Vampire) error {
+	data := map[string]interface{}{
+		"vampire": v,
+	}
+
+	return r.render(w, "resources/new", data)
+}
+
 func (r *Renderer) ShowVampires(w http.ResponseWriter, v []models.Vampire) error {
 	data := map[string]interface{}{
 		"vampires": v,
