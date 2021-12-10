@@ -2,18 +2,15 @@ package handlers_test
 
 import (
 	"context"
+	"errors"
 	"net/http"
-	"net/http/httptest"
 	"net/url"
-	"strings"
 	"testing"
 
 	"emailaddress.horse/thousand/handlers"
 	"emailaddress.horse/thousand/models"
-	"emailaddress.horse/thousand/templates"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
 )
 
 type mockNewResourceRenderer struct {
@@ -132,20 +129,15 @@ func TestNewResource(t *testing.T) {
 }
 
 type mockResourceCreator struct {
-	receivedVampireID uuid.UUID
-	receivedParams    models.CreateResourceParams
-	err               error
+	vampireID uuid.UUID
+	params    models.CreateResourceParams
+	err       error
 }
 
 func (m *mockResourceCreator) CreateResource(_ context.Context, vampireID uuid.UUID, params models.CreateResourceParams) (models.Resource, error) {
-	m.receivedVampireID = vampireID
-	m.receivedParams = params
-	return models.Resource{
-		ID:          uuid.New(),
-		VampireID:   vampireID,
-		Description: m.receivedParams.Description,
-		Stationary:  m.receivedParams.Stationary,
-	}, m.err
+	m.vampireID = vampireID
+	m.params = params
+	return models.Resource{}, m.err
 }
 
 func TestCreateResource(t *testing.T) {
@@ -154,11 +146,13 @@ func TestCreateResource(t *testing.T) {
 	tests := []struct {
 		name              string
 		body              url.Values
-		resourceCreator   *mockResourceCreator
+		creator           *mockResourceCreator
+		path              string
 		expectedStatus    int
+		expectedBody      string
+		expectedLocation  string
 		expectedVampireID uuid.UUID
 		expectedParams    models.CreateResourceParams
-		expectedLocation  string
 	}{
 		{
 			name: "successful",
@@ -166,23 +160,68 @@ func TestCreateResource(t *testing.T) {
 				"description": []string{"A description"},
 				"stationary":  []string{"1"},
 			},
-			resourceCreator:   &mockResourceCreator{},
+			creator:           &mockResourceCreator{},
+			path:              "/vampires/12345678-90ab-cdef-1234-567890abcdef/resources",
 			expectedStatus:    http.StatusSeeOther,
+			expectedLocation:  "/vampires/12345678-90ab-cdef-1234-567890abcdef",
 			expectedVampireID: uuid.MustParse("12345678-90ab-cdef-1234-567890abcdef"),
 			expectedParams: models.CreateResourceParams{
 				Description: "A description",
 				Stationary:  true,
 			},
-			expectedLocation: "/vampires/12345678-90ab-cdef-1234-567890abcdef",
 		},
 		{
-			name: "not found",
+			name: "error parsing vampire ID",
 			body: url.Values{
 				"description": []string{"A description"},
 				"stationary":  []string{"1"},
 			},
-			resourceCreator:   &mockResourceCreator{err: models.ErrNotFound},
+			creator:        &mockResourceCreator{},
+			path:           "/vampires/unknown/resources",
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   "500: Internal Server Error",
+		},
+		{
+			name: "error parsing stationary",
+			body: url.Values{
+				"description": []string{"A description"},
+				"stationary":  []string{"horses"},
+			},
+			creator:        &mockResourceCreator{},
+			path:           "/vampires/12345678-90ab-cdef-1234-567890abcdef/resources",
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   "500: Internal Server Error",
+		},
+		{
+			name: "not found from creator",
+			body: url.Values{
+				"description": []string{"A description"},
+				"stationary":  []string{"1"},
+			},
+			creator: &mockResourceCreator{
+				err: models.ErrNotFound,
+			},
+			path:              "/vampires/12345678-90ab-cdef-1234-567890abcdef/resources",
 			expectedStatus:    http.StatusNotFound,
+			expectedBody:      "404: Not Found",
+			expectedVampireID: uuid.MustParse("12345678-90ab-cdef-1234-567890abcdef"),
+			expectedParams: models.CreateResourceParams{
+				Description: "A description",
+				Stationary:  true,
+			},
+		},
+		{
+			name: "error from creator",
+			body: url.Values{
+				"description": []string{"A description"},
+				"stationary":  []string{"1"},
+			},
+			creator: &mockResourceCreator{
+				err: errors.New("mock error"),
+			},
+			path:              "/vampires/12345678-90ab-cdef-1234-567890abcdef/resources",
+			expectedStatus:    http.StatusInternalServerError,
+			expectedBody:      "500: Internal Server Error",
 			expectedVampireID: uuid.MustParse("12345678-90ab-cdef-1234-567890abcdef"),
 			expectedParams: models.CreateResourceParams{
 				Description: "A description",
@@ -197,32 +236,31 @@ func TestCreateResource(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			e := echo.New()
-			e.Renderer = templates.NewEchoRenderer(e)
+			r := chi.NewMux()
 
-			request := httptest.NewRequest(http.MethodPost, "/vampires/12345678-90ab-cdef-1234-567890abcdef/resources", strings.NewReader(tt.body.Encode()))
-			request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationForm)
-			response := httptest.NewRecorder()
+			handlers.CreateResource(r, testLogger(t), tt.creator)
 
-			handlers.CreateResource(e, tt.resourceCreator)
+			status, headers, body := post(r, tt.path, tt.body.Encode())
 
-			e.ServeHTTP(response, request)
-
-			if tt.expectedStatus != response.Code {
-				t.Errorf("expected %d; got %d", tt.expectedStatus, response.Code)
+			if tt.expectedStatus != status {
+				t.Errorf("expected status %d; got %d", tt.expectedStatus, status)
 			}
 
-			if tt.expectedVampireID != tt.resourceCreator.receivedVampireID {
-				t.Errorf("expected %q; got %q", tt.expectedVampireID, tt.resourceCreator.receivedVampireID)
+			if tt.expectedBody != body {
+				t.Errorf("expected body %q; got %q", tt.expectedBody, body)
 			}
 
-			if tt.expectedParams != tt.resourceCreator.receivedParams {
-				t.Errorf("expected %+v; got %+v", tt.expectedParams, tt.resourceCreator.receivedParams)
+			if tt.expectedVampireID != tt.creator.vampireID {
+				t.Errorf("expected creator to receive vampire ID %q; got %q", tt.expectedVampireID, tt.creator.vampireID)
 			}
 
-			actualLocation := response.Header().Get(echo.HeaderLocation)
-			if tt.expectedLocation != actualLocation {
-				t.Errorf("expected %q; got %q", tt.expectedLocation, actualLocation)
+			if tt.expectedParams != tt.creator.params {
+				t.Errorf("expected creator to receive params %+v; got %+v", tt.expectedParams, tt.creator.params)
+			}
+
+			location := headers.Get("Location")
+			if tt.expectedLocation != location {
+				t.Errorf("expected location %q; got %q", tt.expectedLocation, location)
 			}
 		})
 	}

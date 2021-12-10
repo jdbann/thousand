@@ -3,11 +3,11 @@ package handlers
 import (
 	"errors"
 	"net/http"
+	"strconv"
 
 	"emailaddress.horse/thousand/models"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
 )
 
@@ -43,25 +43,36 @@ func NewResource(r *chi.Mux, l *zap.Logger, t newResourceRenderer, vg vampireGet
 	})
 }
 
-func CreateResource(e *echo.Echo, rc resourceCreator) {
-	e.POST("/vampires/:vampireID/resources", func(c echo.Context) error {
-		vampireID, err := uuid.Parse(c.Param("vampireID"))
+func CreateResource(r *chi.Mux, l *zap.Logger, rc resourceCreator) {
+	r.Post("/vampires/{vampireID}/resources", func(w http.ResponseWriter, r *http.Request) {
+		vampireID, err := uuid.Parse(chi.URLParam(r, "vampireID"))
 		if err != nil {
-			return err
+			l.Error("failed to parse id as UUID", zap.Error(err))
+			handleError(w, err)
+			return
 		}
 
-		var params models.CreateResourceParams
-
-		if err := c.Bind(&params); err != nil {
-			return err
+		params := models.CreateResourceParams{
+			Description: r.FormValue("description"),
 		}
 
-		if _, err := rc.CreateResource(c.Request().Context(), vampireID, params); errors.Is(err, models.ErrNotFound) {
-			return echo.NewHTTPError(http.StatusNotFound, "Vampire could not be found").SetInternal(err)
-		} else if err != nil {
-			return err
+		if params.Stationary, err = strconv.ParseBool(r.FormValue("stationary")); err != nil {
+			l.Error("failed to parse stationary param as bool", zap.Error(err))
+			handleError(w, err)
+			return
 		}
 
-		return c.Redirect(http.StatusSeeOther, "/vampires/"+vampireID.String())
-	}).Name = "create-resource"
+		_, err = rc.CreateResource(r.Context(), vampireID, params)
+		if err != nil {
+			if errors.Is(err, models.ErrNotFound) {
+				err = NotFoundError.Cause(err)
+			}
+
+			l.Error("failed to create resource", zap.Stringer("vampireID", vampireID), zap.Object("params", params), zap.Error(err))
+			handleError(w, err)
+			return
+		}
+
+		http.Redirect(w, r, "/vampires/"+vampireID.String(), http.StatusSeeOther)
+	})
 }
