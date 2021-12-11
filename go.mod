@@ -11,7 +11,7 @@ require (
 	github.com/jackc/pgconn v1.10.0
 	github.com/jackc/pgerrcode v0.0.0-20201024163028-a0d42d470451
 	github.com/jackc/pgx/v4 v4.13.0
-	github.com/jdbann/browsertest v0.1.4
+	github.com/jdbann/browsertest v0.1.5
 	github.com/pressly/goose/v3 v3.3.1
 	github.com/urfave/cli/v2 v2.3.0
 	go.uber.org/zap v1.19.1
