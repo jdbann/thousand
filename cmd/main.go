@@ -43,7 +43,7 @@ func BuildCLIApp() *cli.App {
 
 			repo, err := repository.New(repository.Options{
 				DatabaseURL: databaseURL(c),
-				Logger:      logger,
+				Logger:      logger.Named("repository"),
 			})
 			if err != nil {
 				return err

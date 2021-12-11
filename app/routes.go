@@ -11,8 +11,6 @@ import (
 )
 
 func (app *App) setupRoutes() {
-	app.echo.Use(loggerMiddleware(app.logger))
-
 	app.echo.Pre(middleware.RemoveTrailingSlashWithConfig(middleware.TrailingSlashConfig{
 		RedirectCode: http.StatusMovedPermanently,
 	}))
@@ -22,6 +20,8 @@ func (app *App) setupRoutes() {
 	}))
 
 	r := chi.NewRouter()
+
+	r.Use(RequestLogger(app.logger.Named("server")))
 
 	// Temporarily specify routes whilst we still route through Echo to avoid
 	// routing conflicts between Echo and Chi
