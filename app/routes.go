@@ -6,18 +6,14 @@ import (
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 )
 
 func (app *App) setupRoutes() {
-	app.echo.Pre(middleware.MethodOverrideWithConfig(middleware.MethodOverrideConfig{
-		Getter: middleware.MethodFromForm("_method"),
-	}))
-
 	r := chi.NewRouter()
 
 	r.Use(RequestLogger(app.logger.Named("server")))
 	r.Use(chimiddleware.RedirectSlashes)
+	r.Use(MethodOverride)
 
 	// Temporarily specify routes whilst we still route through Echo to avoid
 	// routing conflicts between Echo and Chi
