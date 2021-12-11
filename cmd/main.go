@@ -8,6 +8,7 @@ import (
 
 	"emailaddress.horse/thousand/app"
 	"emailaddress.horse/thousand/repository"
+	"emailaddress.horse/thousand/static"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
 )
@@ -50,6 +51,7 @@ func BuildCLIApp() *cli.App {
 			}
 
 			thousand := app.NewApp(app.Options{
+				Assets:     static.Assets,
 				Debug:      c.Bool("debug"),
 				Logger:     logger,
 				Repository: repo,

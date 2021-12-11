@@ -14,7 +14,7 @@ type showVampiresRenderer interface {
 	ShowVampires(http.ResponseWriter, []models.Vampire) error
 }
 
-func ListVampires(r *chi.Mux, l *zap.Logger, t showVampiresRenderer, vg vampiresGetter) {
+func ListVampires(r chi.Router, l *zap.Logger, t showVampiresRenderer, vg vampiresGetter) {
 	r.Get("/vampires", func(w http.ResponseWriter, r *http.Request) {
 		vampires, err := vg.GetVampires(r.Context())
 		if err != nil {
@@ -35,7 +35,7 @@ type newVampireRenderer interface {
 	NewVampire(http.ResponseWriter) error
 }
 
-func NewVampire(r *chi.Mux, l *zap.Logger, t newVampireRenderer) {
+func NewVampire(r chi.Router, l *zap.Logger, t newVampireRenderer) {
 	r.Get("/vampires/new", func(w http.ResponseWriter, r *http.Request) {
 		err := t.NewVampire(w)
 		if err != nil {
@@ -45,7 +45,7 @@ func NewVampire(r *chi.Mux, l *zap.Logger, t newVampireRenderer) {
 	})
 }
 
-func CreateVampire(r *chi.Mux, l *zap.Logger, vc vampireCreator) {
+func CreateVampire(r chi.Router, l *zap.Logger, vc vampireCreator) {
 	r.Post("/vampires", func(w http.ResponseWriter, r *http.Request) {
 		name := r.FormValue("name")
 
@@ -64,7 +64,7 @@ type showVampireRenderer interface {
 	ShowVampire(http.ResponseWriter, models.Vampire) error
 }
 
-func ShowVampire(r *chi.Mux, l *zap.Logger, t showVampireRenderer, vg vampireGetter) {
+func ShowVampire(r chi.Router, l *zap.Logger, t showVampireRenderer, vg vampireGetter) {
 	r.Get("/vampires/{id}", func(w http.ResponseWriter, r *http.Request) {
 		id, err := uuid.Parse(chi.URLParam(r, "id"))
 		if err != nil {

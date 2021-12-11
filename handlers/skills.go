@@ -14,7 +14,7 @@ type newSkillRenderer interface {
 	NewSkill(http.ResponseWriter, models.Vampire) error
 }
 
-func NewSkill(r *chi.Mux, l *zap.Logger, t newSkillRenderer, vg vampireGetter) {
+func NewSkill(r chi.Router, l *zap.Logger, t newSkillRenderer, vg vampireGetter) {
 	r.Get("/vampires/{vampireID}/skills/new", func(w http.ResponseWriter, r *http.Request) {
 		vampireID, err := uuid.Parse(chi.URLParam(r, "vampireID"))
 		if err != nil {
@@ -42,7 +42,7 @@ func NewSkill(r *chi.Mux, l *zap.Logger, t newSkillRenderer, vg vampireGetter) {
 	})
 }
 
-func CreateSkill(r *chi.Mux, l *zap.Logger, sc skillCreator) {
+func CreateSkill(r chi.Router, l *zap.Logger, sc skillCreator) {
 	r.Post("/vampires/{vampireID}/skills", func(w http.ResponseWriter, r *http.Request) {
 		vampireID, err := uuid.Parse(chi.URLParam(r, "vampireID"))
 		if err != nil {

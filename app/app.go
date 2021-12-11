@@ -1,6 +1,7 @@
 package app
 
 import (
+	"io/fs"
 	"net/http"
 
 	"emailaddress.horse/thousand/repository"
@@ -12,6 +13,7 @@ import (
 // App is a configured instance of the application, ready to be served by a
 // server or interacted with by CLI commands.
 type App struct {
+	assets     fs.FS
 	echo       *echo.Echo
 	logger     *zap.Logger
 	repository *repository.Repository
@@ -19,6 +21,7 @@ type App struct {
 }
 
 type Options struct {
+	Assets     fs.FS
 	Debug      bool
 	Logger     *zap.Logger
 	Repository *repository.Repository
@@ -34,6 +37,7 @@ func NewApp(opts Options) *App {
 	echo.Debug = opts.Debug
 
 	app := &App{
+		assets:     opts.Assets,
 		echo:       echo,
 		logger:     opts.Logger,
 		repository: opts.Repository,

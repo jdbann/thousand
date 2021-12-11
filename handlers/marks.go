@@ -14,7 +14,7 @@ type newMarkRenderer interface {
 	NewMark(http.ResponseWriter, models.Vampire) error
 }
 
-func NewMark(r *chi.Mux, l *zap.Logger, t newMarkRenderer, vg vampireGetter) {
+func NewMark(r chi.Router, l *zap.Logger, t newMarkRenderer, vg vampireGetter) {
 	r.Get("/vampires/{vampireID}/marks/new", func(w http.ResponseWriter, r *http.Request) {
 		vampireID, err := uuid.Parse(chi.URLParam(r, "vampireID"))
 		if err != nil {
@@ -42,7 +42,7 @@ func NewMark(r *chi.Mux, l *zap.Logger, t newMarkRenderer, vg vampireGetter) {
 	})
 }
 
-func CreateMark(r *chi.Mux, l *zap.Logger, cm markCreator) {
+func CreateMark(r chi.Router, l *zap.Logger, cm markCreator) {
 	r.Post("/vampires/{vampireID}/marks", func(w http.ResponseWriter, r *http.Request) {
 		vampireID, err := uuid.Parse(chi.URLParam(r, "vampireID"))
 		if err != nil {

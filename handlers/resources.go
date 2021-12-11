@@ -15,7 +15,7 @@ type newResourceRenderer interface {
 	NewResource(http.ResponseWriter, models.Vampire) error
 }
 
-func NewResource(r *chi.Mux, l *zap.Logger, t newResourceRenderer, vg vampireGetter) {
+func NewResource(r chi.Router, l *zap.Logger, t newResourceRenderer, vg vampireGetter) {
 	r.Get("/vampires/{vampireID}/resources/new", func(w http.ResponseWriter, r *http.Request) {
 		vampireID, err := uuid.Parse(chi.URLParam(r, "vampireID"))
 		if err != nil {
@@ -43,7 +43,7 @@ func NewResource(r *chi.Mux, l *zap.Logger, t newResourceRenderer, vg vampireGet
 	})
 }
 
-func CreateResource(r *chi.Mux, l *zap.Logger, rc resourceCreator) {
+func CreateResource(r chi.Router, l *zap.Logger, rc resourceCreator) {
 	r.Post("/vampires/{vampireID}/resources", func(w http.ResponseWriter, r *http.Request) {
 		vampireID, err := uuid.Parse(chi.URLParam(r, "vampireID"))
 		if err != nil {

@@ -14,7 +14,7 @@ type newCharacterRenderer interface {
 	NewCharacter(http.ResponseWriter, models.Vampire) error
 }
 
-func NewCharacter(r *chi.Mux, l *zap.Logger, t newCharacterRenderer, vg vampireGetter) {
+func NewCharacter(r chi.Router, l *zap.Logger, t newCharacterRenderer, vg vampireGetter) {
 	r.Get("/vampires/{vampireID}/characters/new", func(w http.ResponseWriter, r *http.Request) {
 		vampireID, err := uuid.Parse(chi.URLParam(r, "vampireID"))
 		if err != nil {
@@ -42,7 +42,7 @@ func NewCharacter(r *chi.Mux, l *zap.Logger, t newCharacterRenderer, vg vampireG
 	})
 }
 
-func CreateCharacter(r *chi.Mux, l *zap.Logger, cc characterCreator) {
+func CreateCharacter(r chi.Router, l *zap.Logger, cc characterCreator) {
 	r.Post("/vampires/{vampireID}/characters", func(w http.ResponseWriter, r *http.Request) {
 		vampireID, err := uuid.Parse(chi.URLParam(r, "vampireID"))
 		if err != nil {

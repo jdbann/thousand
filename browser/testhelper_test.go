@@ -16,6 +16,7 @@ import (
 
 	"emailaddress.horse/thousand/app"
 	"emailaddress.horse/thousand/repository"
+	"emailaddress.horse/thousand/static"
 )
 
 var screenshotDir string
@@ -75,6 +76,7 @@ func NewBrowserTest(t *testing.T) *BrowserTest {
 	})
 
 	app := app.NewApp(app.Options{
+		Assets:     static.Assets,
 		Logger:     logger,
 		Repository: repo,
 	})

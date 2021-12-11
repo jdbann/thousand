@@ -14,7 +14,7 @@ type newExperienceRenderer interface {
 	NewExperience(http.ResponseWriter, models.Memory) error
 }
 
-func NewExperience(r *chi.Mux, l *zap.Logger, t newExperienceRenderer, mg memoryGetter) {
+func NewExperience(r chi.Router, l *zap.Logger, t newExperienceRenderer, mg memoryGetter) {
 	r.Get("/vampires/{vampireID}/memories/{id}/experiences/new", func(w http.ResponseWriter, r *http.Request) {
 		vampireID, err := uuid.Parse(chi.URLParam(r, "vampireID"))
 		if err != nil {
@@ -49,7 +49,7 @@ func NewExperience(r *chi.Mux, l *zap.Logger, t newExperienceRenderer, mg memory
 	})
 }
 
-func CreateExperience(r *chi.Mux, l *zap.Logger, ec experienceCreator) {
+func CreateExperience(r chi.Router, l *zap.Logger, ec experienceCreator) {
 	r.Post("/vampires/{vampireID}/memories/{id}/experiences", func(w http.ResponseWriter, r *http.Request) {
 		vampireID, err := uuid.Parse(chi.URLParam(r, "vampireID"))
 		if err != nil {
