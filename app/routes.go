@@ -4,7 +4,7 @@ import (
 	"emailaddress.horse/thousand/handlers"
 	"emailaddress.horse/thousand/static"
 	"github.com/go-chi/chi/v5"
-	chimiddleware "github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/labstack/echo/v4"
 )
 
@@ -12,7 +12,7 @@ func (app *App) setupRoutes() {
 	r := chi.NewRouter()
 
 	r.Use(RequestLogger(app.logger.Named("server")))
-	r.Use(chimiddleware.RedirectSlashes)
+	r.Use(middleware.RedirectSlashes)
 	r.Use(MethodOverride)
 
 	// Temporarily specify routes whilst we still route through Echo to avoid
