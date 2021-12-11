@@ -6,6 +6,14 @@ import (
 	"emailaddress.horse/thousand/models"
 )
 
+func (r *Renderer) NewCharacter(w http.ResponseWriter, v models.Vampire) error {
+	data := map[string]interface{}{
+		"vampire": v,
+	}
+
+	return r.render(w, "characters/new", data)
+}
+
 func (r *Renderer) NewExperience(w http.ResponseWriter, m models.Memory) error {
 	data := map[string]interface{}{
 		"memory": m,
