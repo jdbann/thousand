@@ -36,9 +36,10 @@ func BuildCLIApp() *cli.App {
 				Value: "development",
 			},
 			&cli.IntFlag{
-				Name:  "port",
-				Usage: "port to run the server on",
-				Value: 4000,
+				Name:    "port",
+				Usage:   "port to run the server on",
+				Value:   4000,
+				EnvVars: []string{"PORT"},
 			},
 		},
 		Action: func(c *cli.Context) error {
