@@ -34,6 +34,11 @@ func BuildCLIApp() *cli.App {
 				Usage: "specify the environment to act as",
 				Value: "development",
 			},
+			&cli.IntFlag{
+				Name:  "port",
+				Usage: "port to run the server on",
+				Value: 4000,
+			},
 		},
 		Action: func(c *cli.Context) error {
 			logger, err := buildLogger(c)
@@ -51,18 +56,13 @@ func BuildCLIApp() *cli.App {
 			}
 
 			thousand := app.NewApp(app.Options{
+				Port:       c.Int("port"),
 				Assets:     static.Assets,
 				Debug:      c.Bool("debug"),
 				Logger:     logger,
 				Repository: repo,
 			})
-			port := os.Getenv("PORT")
-			if port == "" {
-				port = "4000"
-			}
-
-			addr := fmt.Sprintf(":%s", port)
-			if err := thousand.Start(addr); err != nil {
+			if err := thousand.Start(); err != nil {
 				return err
 			}
 
@@ -96,9 +96,9 @@ func BuildCLIApp() *cli.App {
 					})
 
 					writer := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
-					fmt.Fprintf(writer, "Method\tPath\tName\n")
+					fmt.Fprintf(writer, "Method\tPath\n")
 					for _, route := range routes {
-						fmt.Fprintf(writer, "%s\t%s\t%s\n", route.Method, route.Path, route.Name)
+						fmt.Fprintf(writer, "%s\t%s\n", route.Method, route.Path)
 					}
 					writer.Flush()
 

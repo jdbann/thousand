@@ -3,7 +3,6 @@ package browser
 import (
 	"context"
 	"fmt"
-	"net/http/httptest"
 	"os"
 	"path"
 	"runtime"
@@ -11,8 +10,6 @@ import (
 
 	"github.com/chromedp/chromedp"
 	"github.com/jdbann/browsertest"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 
 	"emailaddress.horse/thousand/app"
 	"emailaddress.horse/thousand/repository"
@@ -32,29 +29,13 @@ type BrowserTest struct {
 	repo *repository.Repository
 }
 
-type tlogWriter func(...interface{})
-
-func (w tlogWriter) Write(p []byte) (int, error) {
-	w(string(p))
-	return len(p), nil
-}
-
 func NewBrowserTest(t *testing.T) *BrowserTest {
 	databaseURL := "postgres://localhost:5432/thousand_test?sslmode=disable"
 	if os.Getenv("DATABASE_URL") != "" {
 		databaseURL = os.Getenv("DATABASE_URL")
 	}
 
-	sync := zapcore.AddSync(tlogWriter(t.Log))
-	core := zapcore.NewCore(
-		zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig()),
-		sync,
-		zap.DebugLevel,
-	)
-	logger := zap.New(core)
-	t.Cleanup(func() {
-		logger.Sync()
-	})
+	logger := newLogger(t)
 
 	repo, err := repository.New(repository.Options{
 		DatabaseURL: databaseURL,
@@ -75,19 +56,23 @@ func NewBrowserTest(t *testing.T) *BrowserTest {
 		}
 	})
 
+	server := newIntegrationTS()
+
 	app := app.NewApp(app.Options{
 		Assets:     static.Assets,
 		Logger:     logger,
+		Mux:        server.mux,
 		Repository: repo,
+		Server:     server,
 	})
 
-	ts := httptest.NewServer(app)
+	go app.Start()
 	t.Cleanup(func() {
-		ts.Close()
+		app.Stop()
 	})
 
 	return &BrowserTest{
-		browsertest.NewTest(t, ts.URL),
+		browsertest.NewTest(t, server.URL()),
 		app,
 		repo,
 	}
