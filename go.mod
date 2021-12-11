@@ -7,7 +7,7 @@ require (
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/google/go-cmp v0.5.6
 	github.com/google/uuid v1.3.0
-	github.com/jackc/pgconn v1.10.0
+	github.com/jackc/pgconn v1.10.1
 	github.com/jackc/pgerrcode v0.0.0-20201024163028-a0d42d470451
 	github.com/jackc/pgx/v4 v4.13.0
 	github.com/jdbann/browsertest v0.1.5
