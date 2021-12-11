@@ -6,8 +6,8 @@ import (
 	"sort"
 	"text/tabwriter"
 
-	"emailaddress.horse/thousand/app"
 	"emailaddress.horse/thousand/repository"
+	"emailaddress.horse/thousand/server"
 	"emailaddress.horse/thousand/static"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/zap"
@@ -55,7 +55,7 @@ func BuildCLIApp() *cli.App {
 				return err
 			}
 
-			thousand := app.NewApp(app.Options{
+			thousand := server.New(server.Options{
 				Port:       c.Int("port"),
 				Assets:     static.Assets,
 				Debug:      c.Bool("debug"),
@@ -85,7 +85,7 @@ func BuildCLIApp() *cli.App {
 						"TRACE":   8,
 					}
 
-					routes := app.NewApp(app.Options{}).Routes()
+					routes := server.New(server.Options{}).Routes()
 
 					sort.Slice(routes, func(i, j int) bool {
 						if routes[i].Path == routes[j].Path {

@@ -1,4 +1,4 @@
-package app
+package server
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"net"
 	"net/http"
 	"strconv"
+	"sync"
 	"time"
 
 	"emailaddress.horse/thousand/repository"
@@ -16,9 +17,9 @@ import (
 	"go.uber.org/zap"
 )
 
-// App is a configured instance of the application, ready to be served by a
+// Server is a configured instance of the application, ready to be served by a
 // server or interacted with by CLI commands.
-type App struct {
+type Server struct {
 	address    string
 	assets     fs.FS
 	logger     *zap.Logger
@@ -26,6 +27,7 @@ type App struct {
 	renderer   *templates.Renderer
 	repository *repository.Repository
 	server     server
+	setup      sync.Once
 }
 
 type server interface {
@@ -44,8 +46,8 @@ type Options struct {
 	Server     server
 }
 
-// NewApp configures an instance of the application with helpful defaults.
-func NewApp(opts Options) *App {
+// New configures an instance of the application with helpful defaults.
+func New(opts Options) *Server {
 	if opts.Logger == nil {
 		opts.Logger = zap.NewNop()
 	}
@@ -63,7 +65,7 @@ func NewApp(opts Options) *App {
 		}
 	}
 
-	app := &App{
+	return &Server{
 		address:    address,
 		assets:     opts.Assets,
 		logger:     opts.Logger,
@@ -72,27 +74,25 @@ func NewApp(opts Options) *App {
 		renderer:   templates.NewRenderer(),
 		server:     opts.Server,
 	}
-
-	return app
 }
 
-func (a *App) Start() error {
-	a.setupRoutes()
+func (s *Server) Start() error {
+	s.setupRoutes()
 
-	a.logger.Info("starting", zap.String("address", a.address))
-	if err := a.server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+	s.logger.Info("starting", zap.String("address", s.address))
+	if err := s.server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 		return fmt.Errorf("error starting server: %w", err)
 	}
 	return nil
 }
 
-func (a *App) Stop() error {
-	a.logger.Info("stopping")
+func (s *Server) Stop() error {
+	s.logger.Info("stopping")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	if err := a.server.Shutdown(ctx); err != nil {
+	if err := s.server.Shutdown(ctx); err != nil {
 		return fmt.Errorf("error stopping server: %w", err)
 	}
 
@@ -104,8 +104,8 @@ type Route struct {
 	Path   string `json:"path"`
 }
 
-func (a *App) Routes() []*Route {
-	a.setupRoutes()
+func (s *Server) Routes() []*Route {
+	s.setupRoutes()
 
 	routes := []*Route{}
 
@@ -117,7 +117,7 @@ func (a *App) Routes() []*Route {
 		return nil
 	}
 
-	if err := chi.Walk(a.mux, walkFunc); err != nil {
+	if err := chi.Walk(s.mux, walkFunc); err != nil {
 		panic(err)
 	}
 

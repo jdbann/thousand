@@ -11,8 +11,8 @@ import (
 	"github.com/chromedp/chromedp"
 	"github.com/jdbann/browsertest"
 
-	"emailaddress.horse/thousand/app"
 	"emailaddress.horse/thousand/repository"
+	"emailaddress.horse/thousand/server"
 	"emailaddress.horse/thousand/static"
 )
 
@@ -25,8 +25,8 @@ func init() {
 
 type BrowserTest struct {
 	browsertest.Test
-	app  *app.App
-	repo *repository.Repository
+	server *server.Server
+	repo   *repository.Repository
 }
 
 func NewBrowserTest(t *testing.T) *BrowserTest {
@@ -56,24 +56,24 @@ func NewBrowserTest(t *testing.T) *BrowserTest {
 		}
 	})
 
-	server := newIntegrationTS()
+	ts := newIntegrationTS()
 
-	app := app.NewApp(app.Options{
+	server := server.New(server.Options{
 		Assets:     static.Assets,
 		Logger:     logger,
-		Mux:        server.mux,
+		Mux:        ts.mux,
 		Repository: repo,
-		Server:     server,
+		Server:     ts,
 	})
 
-	go app.Start()
+	go server.Start()
 	t.Cleanup(func() {
-		app.Stop()
+		server.Stop()
 	})
 
 	return &BrowserTest{
-		browsertest.NewTest(t, server.URL()),
-		app,
+		browsertest.NewTest(t, ts.URL()),
+		server,
 		repo,
 	}
 }

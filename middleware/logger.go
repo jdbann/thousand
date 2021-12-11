@@ -1,18 +1,19 @@
-package app
+package middleware
 
 import (
 	"fmt"
 	"net/http"
 	"time"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"go.uber.org/zap"
 )
 
-func RequestLogger(logger *zap.Logger) func(http.Handler) http.Handler {
-	return middleware.RequestLogger(&zapRequestLogger{
+func RequestLogger(r chi.Router, logger *zap.Logger) {
+	r.Use(middleware.RequestLogger(&zapRequestLogger{
 		logger: logger,
-	})
+	}))
 }
 
 type zapRequestLogger struct {
