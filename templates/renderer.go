@@ -1,6 +1,7 @@
 package templates
 
 import (
+	"embed"
 	"fmt"
 	"html/template"
 	"io"
@@ -8,6 +9,12 @@ import (
 	"log"
 	"strings"
 )
+
+//go:embed views
+var viewTemplates embed.FS
+
+//go:embed layouts/*.tmpl
+var layoutTemplates embed.FS
 
 type Renderer struct {
 	templateMap map[string]*template.Template

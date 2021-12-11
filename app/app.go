@@ -31,7 +31,6 @@ func NewApp(opts Options) *App {
 	}
 
 	echo := echo.New()
-	echo.Renderer = templates.NewEchoRenderer(echo)
 	echo.Debug = opts.Debug
 
 	app := &App{
