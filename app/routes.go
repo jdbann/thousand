@@ -1,20 +1,15 @@
 package app
 
 import (
-	"net/http"
-
 	"emailaddress.horse/thousand/handlers"
 	"emailaddress.horse/thousand/static"
 	"github.com/go-chi/chi/v5"
+	chimiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
 func (app *App) setupRoutes() {
-	app.echo.Pre(middleware.RemoveTrailingSlashWithConfig(middleware.TrailingSlashConfig{
-		RedirectCode: http.StatusMovedPermanently,
-	}))
-
 	app.echo.Pre(middleware.MethodOverrideWithConfig(middleware.MethodOverrideConfig{
 		Getter: middleware.MethodFromForm("_method"),
 	}))
@@ -22,24 +17,11 @@ func (app *App) setupRoutes() {
 	r := chi.NewRouter()
 
 	r.Use(RequestLogger(app.logger.Named("server")))
+	r.Use(chimiddleware.RedirectSlashes)
 
 	// Temporarily specify routes whilst we still route through Echo to avoid
 	// routing conflicts between Echo and Chi
-	app.echo.GET("/", echo.WrapHandler(r))
-	app.echo.GET("/vampires", echo.WrapHandler(r))
-	app.echo.POST("/vampires", echo.WrapHandler(r))
-	app.echo.GET("/vampires/new", echo.WrapHandler(r))
-	app.echo.GET("/vampires/:id", echo.WrapHandler(r))
-	app.echo.GET("/vampires/:id/memories/:memoryID/experiences/new", echo.WrapHandler(r))
-	app.echo.POST("/vampires/:id/memories/:memoryID/experiences", echo.WrapHandler(r))
-	app.echo.GET("/vampires/:id/skills/new", echo.WrapHandler(r))
-	app.echo.POST("/vampires/:id/skills", echo.WrapHandler(r))
-	app.echo.GET("/vampires/:id/resources/new", echo.WrapHandler(r))
-	app.echo.POST("/vampires/:id/resources", echo.WrapHandler(r))
-	app.echo.GET("/vampires/:id/characters/new", echo.WrapHandler(r))
-	app.echo.POST("/vampires/:id/characters", echo.WrapHandler(r))
-	app.echo.GET("/vampires/:id/marks/new", echo.WrapHandler(r))
-	app.echo.POST("/vampires/:id/marks", echo.WrapHandler(r))
+	app.echo.Any("*", echo.WrapHandler(r))
 
 	handlers.Root(r)
 
