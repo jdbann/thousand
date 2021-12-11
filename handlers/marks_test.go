@@ -11,30 +11,96 @@ import (
 	"emailaddress.horse/thousand/handlers"
 	"emailaddress.horse/thousand/models"
 	"emailaddress.horse/thousand/templates"
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
+
+type mockNewMarkRenderer struct {
+	err error
+}
+
+func (m *mockNewMarkRenderer) NewMark(w http.ResponseWriter, vampire models.Vampire) error {
+	if m.err != nil {
+		return m.err
+	}
+
+	_, err := w.Write([]byte(vampire.Name))
+	if err != nil {
+		panic(err)
+	}
+
+	return nil
+}
 
 func TestNewMark(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
 		name           string
-		vampireGetter  *mockVampireGetter
+		renderer       *mockNewMarkRenderer
+		getter         *mockVampireGetter
+		path           string
 		expectedStatus int
+		expectedBody   string
 		expectedID     uuid.UUID
 	}{
 		{
-			name:           "successful",
-			vampireGetter:  &mockVampireGetter{vampire: models.Vampire{}},
+			name:     "successful",
+			renderer: &mockNewMarkRenderer{},
+			getter: &mockVampireGetter{
+				vampire: models.Vampire{
+					Name: "a vampire",
+				},
+			},
+			path:           "/vampires/11111111-1111-1111-1111-111111111111/marks/new",
 			expectedStatus: http.StatusOK,
-			expectedID:     uuid.MustParse("12345678-90ab-cdef-1234-567890abcdef"),
+			expectedBody:   "a vampire",
+			expectedID:     uuid.MustParse("11111111-1111-1111-1111-111111111111"),
 		},
 		{
-			name:           "not found",
-			vampireGetter:  &mockVampireGetter{err: models.ErrNotFound},
+			name:           "error parsing vampire id",
+			getter:         &mockVampireGetter{},
+			path:           "/vampires/unknown/marks/new",
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   "500: Internal Server Error",
+		},
+		{
+			name:     "not found from getter",
+			renderer: &mockNewMarkRenderer{},
+			getter: &mockVampireGetter{
+				err: models.ErrNotFound,
+			},
+			path:           "/vampires/11111111-1111-1111-1111-111111111111/marks/new",
 			expectedStatus: http.StatusNotFound,
-			expectedID:     uuid.MustParse("12345678-90ab-cdef-1234-567890abcdef"),
+			expectedBody:   "404: Not Found",
+			expectedID:     uuid.MustParse("11111111-1111-1111-1111-111111111111"),
+		},
+		{
+			name:     "error from getter",
+			renderer: &mockNewMarkRenderer{},
+			getter: &mockVampireGetter{
+				err: models.ErrNotFound,
+			},
+			path:           "/vampires/11111111-1111-1111-1111-111111111111/marks/new",
+			expectedStatus: http.StatusNotFound,
+			expectedBody:   "404: Not Found",
+			expectedID:     uuid.MustParse("11111111-1111-1111-1111-111111111111"),
+		},
+		{
+			name: "error from renderer",
+			renderer: &mockNewMarkRenderer{
+				err: models.ErrNotFound,
+			},
+			getter: &mockVampireGetter{
+				vampire: models.Vampire{
+					Name: "a vampire",
+				},
+			},
+			path:           "/vampires/11111111-1111-1111-1111-111111111111/marks/new",
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   "500: Internal Server Error",
+			expectedID:     uuid.MustParse("11111111-1111-1111-1111-111111111111"),
 		},
 	}
 
@@ -44,22 +110,22 @@ func TestNewMark(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			e := echo.New()
-			e.Renderer = templates.NewEchoRenderer(e)
+			r := chi.NewMux()
 
-			request := httptest.NewRequest(http.MethodGet, "/vampires/12345678-90ab-cdef-1234-567890abcdef/marks/new", nil)
-			response := httptest.NewRecorder()
+			handlers.NewMark(r, testLogger(t), tt.renderer, tt.getter)
 
-			handlers.NewMark(e, tt.vampireGetter)
+			status, _, body := get(r, tt.path)
 
-			e.ServeHTTP(response, request)
-
-			if tt.expectedStatus != response.Code {
-				t.Errorf("expected %d; got %d", tt.expectedStatus, response.Code)
+			if tt.expectedStatus != status {
+				t.Errorf("expected %d; got %d", tt.expectedStatus, status)
 			}
 
-			if tt.expectedID != tt.vampireGetter.id {
-				t.Errorf("expected %q; got %q", tt.expectedID, tt.vampireGetter.id)
+			if tt.expectedBody != body {
+				t.Errorf("expected body %q; got %q", tt.expectedBody, body)
+			}
+
+			if tt.expectedID != tt.getter.id {
+				t.Errorf("expected %q; got %q", tt.expectedID, tt.getter.id)
 			}
 		})
 	}

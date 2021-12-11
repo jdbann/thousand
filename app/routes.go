@@ -38,6 +38,7 @@ func (app *App) setupRoutes() {
 	app.echo.POST("/vampires/:id/resources", echo.WrapHandler(r))
 	app.echo.GET("/vampires/:id/characters/new", echo.WrapHandler(r))
 	app.echo.POST("/vampires/:id/characters", echo.WrapHandler(r))
+	app.echo.GET("/vampires/:id/marks/new", echo.WrapHandler(r))
 
 	handlers.Root(r)
 
@@ -53,9 +54,9 @@ func (app *App) setupRoutes() {
 	handlers.CreateResource(r, app.logger, app.repository)
 	handlers.NewCharacter(r, app.logger, app.renderer, app.repository)
 	handlers.CreateCharacter(r, app.logger, app.repository)
+	handlers.NewMark(r, app.logger, app.renderer, app.repository)
 
 	app.echo.Group("/assets", static.Middleware())
 
-	handlers.NewMark(app.echo, app.repository)
 	handlers.CreateMark(app.echo, app.repository)
 }
