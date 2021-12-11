@@ -59,7 +59,7 @@ jobs:
 
   deploy:
     if: ${{ github.ref == 'refs/heads/main' }}
-    needs: [run_tests, run_linter]
+    needs: [run_tests]
     runs-on: ubuntu-latest
 
     steps:
