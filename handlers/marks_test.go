@@ -2,18 +2,15 @@ package handlers_test
 
 import (
 	"context"
+	"errors"
 	"net/http"
-	"net/http/httptest"
 	"net/url"
-	"strings"
 	"testing"
 
 	"emailaddress.horse/thousand/handlers"
 	"emailaddress.horse/thousand/models"
-	"emailaddress.horse/thousand/templates"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
 )
 
 type mockNewMarkRenderer struct {
@@ -132,14 +129,14 @@ func TestNewMark(t *testing.T) {
 }
 
 type mockMarkCreator struct {
-	receivedVampireID   uuid.UUID
-	receivedDescription string
-	err                 error
+	vampireID   uuid.UUID
+	description string
+	err         error
 }
 
 func (m *mockMarkCreator) CreateMark(_ context.Context, vampireID uuid.UUID, description string) (models.Mark, error) {
-	m.receivedVampireID = vampireID
-	m.receivedDescription = description
+	m.vampireID = vampireID
+	m.description = description
 	return models.Mark{}, m.err
 }
 
@@ -149,28 +146,63 @@ func TestCreateMark(t *testing.T) {
 	tests := []struct {
 		name                string
 		body                url.Values
-		markCreator         *mockMarkCreator
+		creator             *mockMarkCreator
+		path                string
 		expectedStatus      int
+		expectedBody        string
+		expectedLocation    string
 		expectedVampireID   uuid.UUID
 		expectedDescription string
-		expectedLocation    string
 	}{
 		{
-			name:                "successful",
-			body:                url.Values{"description": []string{"A description"}},
-			markCreator:         &mockMarkCreator{},
+			name: "successful",
+			body: url.Values{
+				"description": []string{"a description"},
+			},
+			creator:             &mockMarkCreator{},
+			path:                "/vampires/12345678-90ab-cdef-1234-567890abcdef/marks",
 			expectedStatus:      http.StatusSeeOther,
-			expectedVampireID:   uuid.MustParse("12345678-90ab-cdef-1234-567890abcdef"),
-			expectedDescription: "A description",
 			expectedLocation:    "/vampires/12345678-90ab-cdef-1234-567890abcdef",
+			expectedVampireID:   uuid.MustParse("12345678-90ab-cdef-1234-567890abcdef"),
+			expectedDescription: "a description",
 		},
 		{
-			name:                "not found",
-			body:                url.Values{"description": []string{"A description"}},
-			markCreator:         &mockMarkCreator{err: models.ErrNotFound},
+			name: "error parsing vampire ID",
+			body: url.Values{
+				"description": []string{"a description"},
+			},
+			creator:        &mockMarkCreator{},
+			path:           "/vampires/unknown/marks",
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   "500: Internal Server Error",
+		},
+		{
+			name: "not found from creator",
+			body: url.Values{
+				"description": []string{"a description"},
+			},
+			creator: &mockMarkCreator{
+				err: models.ErrNotFound,
+			},
+			path:                "/vampires/12345678-90ab-cdef-1234-567890abcdef/marks",
 			expectedStatus:      http.StatusNotFound,
+			expectedBody:        "404: Not Found",
 			expectedVampireID:   uuid.MustParse("12345678-90ab-cdef-1234-567890abcdef"),
-			expectedDescription: "A description",
+			expectedDescription: "a description",
+		},
+		{
+			name: "error from creator",
+			body: url.Values{
+				"description": []string{"a description"},
+			},
+			creator: &mockMarkCreator{
+				err: errors.New("mock error"),
+			},
+			path:                "/vampires/12345678-90ab-cdef-1234-567890abcdef/marks",
+			expectedStatus:      http.StatusInternalServerError,
+			expectedBody:        "500: Internal Server Error",
+			expectedVampireID:   uuid.MustParse("12345678-90ab-cdef-1234-567890abcdef"),
+			expectedDescription: "a description",
 		},
 	}
 
@@ -180,32 +212,31 @@ func TestCreateMark(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			e := echo.New()
-			e.Renderer = templates.NewEchoRenderer(e)
+			r := chi.NewMux()
 
-			request := httptest.NewRequest(http.MethodPost, "/vampires/12345678-90ab-cdef-1234-567890abcdef/marks", strings.NewReader(tt.body.Encode()))
-			request.Header.Add(echo.HeaderContentType, echo.MIMEApplicationForm)
-			response := httptest.NewRecorder()
+			handlers.CreateMark(r, testLogger(t), tt.creator)
 
-			handlers.CreateMark(e, tt.markCreator)
+			status, headers, body := post(r, tt.path, tt.body.Encode())
 
-			e.ServeHTTP(response, request)
-
-			if tt.expectedStatus != response.Code {
-				t.Errorf("expected %d; got %d", tt.expectedStatus, response.Code)
+			if tt.expectedStatus != status {
+				t.Errorf("expected status %d; got %d", tt.expectedStatus, status)
 			}
 
-			if tt.expectedVampireID != tt.markCreator.receivedVampireID {
-				t.Errorf("expected %q; got %q", tt.expectedVampireID, tt.markCreator.receivedVampireID)
+			if tt.expectedBody != body {
+				t.Errorf("expected body %q; got %q", tt.expectedBody, body)
 			}
 
-			if tt.expectedDescription != tt.markCreator.receivedDescription {
-				t.Errorf("expected %q; got %q", tt.expectedDescription, tt.markCreator.receivedDescription)
+			if tt.expectedVampireID != tt.creator.vampireID {
+				t.Errorf("expected creator to receive vampire ID %q; got %q", tt.expectedVampireID, tt.creator.vampireID)
 			}
 
-			actualLocation := response.Header().Get(echo.HeaderLocation)
-			if tt.expectedLocation != actualLocation {
-				t.Errorf("expected %q; got %q", tt.expectedLocation, actualLocation)
+			if tt.expectedDescription != tt.creator.description {
+				t.Errorf("expected creator to receive description %q; got %q", tt.expectedDescription, tt.creator.description)
+			}
+
+			location := headers.Get("Location")
+			if tt.expectedLocation != location {
+				t.Errorf("expected location %q; got %q", tt.expectedLocation, location)
 			}
 		})
 	}
