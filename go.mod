@@ -3,8 +3,7 @@ module emailaddress.horse/thousand
 go 1.16
 
 require (
-	github.com/chromedp/cdproto v0.0.0-20211025030258-2570df970243 // indirect
-	github.com/chromedp/chromedp v0.7.4
+	github.com/chromedp/chromedp v0.7.6
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/google/go-cmp v0.5.6
 	github.com/google/uuid v1.3.0
@@ -16,6 +15,5 @@ require (
 	github.com/urfave/cli/v2 v2.3.0
 	go.uber.org/zap v1.19.1
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
-	golang.org/x/sys v0.0.0-20211102192858-4dd72447c267 // indirect
 	golang.org/x/text v0.3.7 // indirect
 )
