@@ -66,9 +66,16 @@ func NewBrowserTest(t *testing.T) *BrowserTest {
 		Server:     ts,
 	})
 
-	go server.Start()
+	go func() {
+		if err := server.Start(); err != nil {
+			panic(err)
+		}
+	}()
+
 	t.Cleanup(func() {
-		server.Stop()
+		if err := server.Stop(); err != nil {
+			panic(err)
+		}
 	})
 
 	return &BrowserTest{

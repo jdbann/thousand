@@ -16,7 +16,7 @@ func newLogger(t *testing.T) *zap.Logger {
 	)
 	logger := zap.New(core)
 	t.Cleanup(func() {
-		logger.Sync()
+		_ = logger.Sync()
 	})
 	return logger
 }

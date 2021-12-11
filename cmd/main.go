@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"sort"
 	"text/tabwriter"
@@ -45,7 +46,11 @@ func BuildCLIApp() *cli.App {
 			if err != nil {
 				return err
 			}
-			defer logger.Sync()
+			defer func() {
+				if err := logger.Sync(); err != nil {
+					log.Fatalf("error syncing logger: %s\n", err)
+				}
+			}()
 
 			repo, err := repository.New(repository.Options{
 				DatabaseURL: databaseURL(c),
