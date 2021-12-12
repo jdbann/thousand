@@ -59,6 +59,10 @@ func (r *Repository) Ping(ctx context.Context) error {
 	return r.pool.Ping(ctx)
 }
 
+func (r *Repository) Stat() *pgxpool.Stat {
+	return r.pool.Stat()
+}
+
 func (r *Repository) WithTx(ctx context.Context) (*Repository, pgx.Tx, error) {
 	tx, err := r.txConn.Begin(ctx)
 	if err != nil {

@@ -15,7 +15,7 @@ type RegisterParams struct {
 	fx.In
 
 	Logger   *zap.Logger
-	Registry *prometheus.Registry
+	Registry *prometheus.Registry `optional:"true"`
 	Router   chi.Router
 }
 
@@ -23,5 +23,8 @@ func register(p RegisterParams) {
 	RequestLogger(p.Router, p.Logger.Named("server"))
 	MethodOverride(p.Router)
 	RedirectSlashes(p.Router)
-	CollectMetrics(p.Router, p.Registry)
+
+	if p.Registry != nil {
+		CollectMetrics(p.Router, p.Registry)
+	}
 }

@@ -20,7 +20,7 @@ type RegisterParams struct {
 
 	Health     *health.Health
 	Logger     *zap.Logger
-	Registry   *prometheus.Registry
+	Registry   *prometheus.Registry `optional:"true"`
 	Renderer   *templates.Renderer
 	Repository *repository.Repository
 	Router     chi.Router
@@ -29,7 +29,10 @@ type RegisterParams struct {
 func register(p RegisterParams) {
 	Assets(p.Router, static.Assets)
 	Health(p.Router, p.Logger, p.Health)
-	Metrics(p.Router, p.Registry)
+
+	if p.Registry != nil {
+		Metrics(p.Router, p.Registry)
+	}
 
 	Root(p.Router)
 
