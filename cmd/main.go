@@ -1,16 +1,17 @@
 package cmd
 
 import (
-	"fmt"
-	"log"
-	"os"
-	"sort"
-	"text/tabwriter"
+	"context"
 
+	"emailaddress.horse/thousand/handlers"
+	"emailaddress.horse/thousand/logger"
+	"emailaddress.horse/thousand/middleware"
 	"emailaddress.horse/thousand/repository"
 	"emailaddress.horse/thousand/server"
-	"emailaddress.horse/thousand/static"
+	"emailaddress.horse/thousand/templates"
+	"github.com/go-chi/chi/v5"
 	"github.com/urfave/cli/v2"
+	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
 
@@ -19,21 +20,17 @@ func BuildCLIApp() *cli.App {
 		Name:  "thousand",
 		Usage: "I forget why I made this...",
 		Flags: []cli.Flag{
-			&cli.BoolFlag{
-				Name:    "debug",
-				Usage:   "enable debug mode for detailed logging",
-				Value:   true,
-				EnvVars: []string{"DEBUG"},
-			},
 			&cli.StringFlag{
 				Name:    "database-url",
 				Usage:   "override the default DB connection",
+				Value:   "postgres://localhost:5432/thousand_development?sslmode=disable",
 				EnvVars: []string{"DATABASE_URL"},
 			},
 			&cli.StringFlag{
-				Name:  "environment",
-				Usage: "specify the environment to act as",
-				Value: "development",
+				Name:    "log-format",
+				Usage:   "format for logs: `prod` uses structured logging; `dev` uses readable logging",
+				Value:   "dev",
+				EnvVars: []string{"LOG_FORMAT"},
 			},
 			&cli.IntFlag{
 				Name:    "port",
@@ -43,34 +40,36 @@ func BuildCLIApp() *cli.App {
 			},
 		},
 		Action: func(c *cli.Context) error {
-			logger, err := buildLogger(c)
-			if err != nil {
-				return err
-			}
-			defer func() {
-				if err := logger.Sync(); err != nil {
-					log.Fatalf("error syncing logger: %s\n", err)
-				}
-			}()
+			a := fx.New(
+				fx.Supply(
+					struct {
+						fx.Out
 
-			repo, err := repository.New(repository.Options{
-				DatabaseURL: databaseURL(c),
-				Logger:      logger.Named("repository"),
-			})
-			if err != nil {
-				return err
-			}
+						DatabaseURL string `name:"databaseURL"`
+						Host        string `name:"host" optional:"true"`
+						LogFormat   string `name:"logFormat" optional:"true"`
+						Port        int    `name:"port"`
+					}{
+						DatabaseURL: c.String("database-url"),
+						LogFormat:   c.String("log-format"),
+						Port:        c.Int("port"),
+					},
+				),
 
-			thousand := server.New(server.Options{
-				Port:       c.Int("port"),
-				Assets:     static.Assets,
-				Debug:      c.Bool("debug"),
-				Logger:     logger,
-				Repository: repo,
-			})
-			if err := thousand.Start(); err != nil {
-				return err
-			}
+				fx.Provide(fx.Annotate(chi.NewMux, fx.As(new(chi.Router)))),
+
+				middleware.Module,
+
+				handlers.Module,
+				logger.Module,
+				repository.Module,
+				server.Module,
+				templates.Module,
+
+				fx.Invoke(func(s *server.Server) {}),
+			)
+
+			a.Run()
 
 			return nil
 		},
@@ -79,36 +78,21 @@ func BuildCLIApp() *cli.App {
 				Name:  "routes",
 				Usage: "present a list of routes the app handles",
 				Action: func(c *cli.Context) error {
-					var methodOrder = map[string]int{
-						"GET":     0,
-						"POST":    1,
-						"PUT":     2,
-						"PATCH":   3,
-						"DELETE":  4,
-						"HEAD":    5,
-						"CONNECT": 6,
-						"OPTIONS": 7,
-						"TRACE":   8,
-					}
+					a := fx.New(
+						fx.Provide(fx.Annotate(chi.NewMux, fx.As(new(chi.Router)))),
 
-					routes := server.New(server.Options{}).Routes()
+						fx.Provide(func() *zap.Logger { return nil }),
+						fx.Provide(func() *templates.Renderer { return nil }),
+						fx.Provide(func() *repository.Repository { return nil }),
 
-					sort.Slice(routes, func(i, j int) bool {
-						if routes[i].Path == routes[j].Path {
-							return methodOrder[routes[i].Method] < methodOrder[routes[j].Method]
-						}
+						handlers.Module,
 
-						return routes[i].Path < routes[j].Path
-					})
+						fx.NopLogger,
 
-					writer := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
-					fmt.Fprintf(writer, "Method\tPath\n")
-					for _, route := range routes {
-						fmt.Fprintf(writer, "%s\t%s\n", route.Method, route.Path)
-					}
-					writer.Flush()
+						fx.Invoke(server.PrintRoutes),
+					)
 
-					return nil
+					return a.Start(context.Background())
 				},
 			},
 			{
@@ -154,34 +138,5 @@ func BuildCLIApp() *cli.App {
 				},
 			},
 		},
-	}
-}
-
-func databaseURL(c *cli.Context) string {
-	var databaseURL string
-	switch c.String("environment") {
-	case "development":
-		databaseURL = "postgres://localhost:5432/thousand_development?sslmode=disable"
-	case "test":
-		databaseURL = "postgres://localhost:5432/thousand_test?sslmode=disable"
-	}
-
-	if c.String("database-url") != "" {
-		databaseURL = c.String("database-url")
-	}
-
-	return databaseURL
-}
-
-func buildLogger(c *cli.Context) (*zap.Logger, error) {
-	switch c.String("environment") {
-	case "production":
-		return zap.NewProduction()
-	case "development":
-		return zap.NewDevelopment()
-	case "test":
-		return zap.NewDevelopment()
-	default:
-		return zap.NewNop(), nil
 	}
 }

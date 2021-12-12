@@ -7,13 +7,14 @@ import (
 	"path"
 	"runtime"
 	"testing"
+	"time"
 
 	"github.com/chromedp/chromedp"
 	"github.com/jdbann/browsertest"
+	"go.uber.org/fx"
 
 	"emailaddress.horse/thousand/repository"
 	"emailaddress.horse/thousand/server"
-	"emailaddress.horse/thousand/static"
 )
 
 var screenshotDir string
@@ -25,62 +26,58 @@ func init() {
 
 type BrowserTest struct {
 	browsertest.Test
-	server *server.Server
-	repo   *repository.Repository
+	repo *repository.Repository
 }
 
 func NewBrowserTest(t *testing.T) *BrowserTest {
 	databaseURL := "postgres://localhost:5432/thousand_test?sslmode=disable"
-	if os.Getenv("DATABASE_URL") != "" {
-		databaseURL = os.Getenv("DATABASE_URL")
+	if url, ok := os.LookupEnv("DATABASE_URL"); ok {
+		databaseURL = url
 	}
 
-	logger := newLogger(t)
+	var s *server.Server
+	var repo *repository.Repository
 
-	repo, err := repository.New(repository.Options{
-		DatabaseURL: databaseURL,
-		Logger:      logger,
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
+	a := fx.New(
+		fx.Supply(params{
+			DatabaseURL: databaseURL,
+			Port:        0,
+			T:           t,
+		}),
 
-	repo, tx, err := repo.WithTx(context.Background())
-	if err != nil {
-		t.Fatal(err)
-	}
+		testModule,
 
-	t.Cleanup(func() {
-		if err := tx.Rollback(context.Background()); err != nil {
-			t.Fatal(err)
-		}
-	})
-
-	ts := newIntegrationTS()
-
-	server := server.New(server.Options{
-		Assets:     static.Assets,
-		Logger:     logger,
-		Mux:        ts.mux,
-		Repository: repo,
-		Server:     ts,
-	})
+		fx.Populate(&s, &repo),
+	)
 
 	go func() {
-		if err := server.Start(); err != nil {
+		if err := a.Start(context.Background()); err != nil {
 			panic(err)
 		}
 	}()
 
 	t.Cleanup(func() {
-		if err := server.Stop(); err != nil {
+		if err := a.Stop(context.Background()); err != nil {
 			panic(err)
 		}
 	})
 
+	url := func() string {
+		wait := time.NewTimer(500 * time.Millisecond)
+		for {
+			select {
+			case <-wait.C:
+				panic("error getting address for integration test server")
+			default:
+				if s.URL() != "" {
+					return "http://" + s.URL()
+				}
+			}
+		}
+	}()
+
 	return &BrowserTest{
-		browsertest.NewTest(t, ts.URL()),
-		server,
+		browsertest.NewTest(t, url),
 		repo,
 	}
 }

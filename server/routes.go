@@ -1,38 +1,59 @@
 package server
 
 import (
-	"emailaddress.horse/thousand/handlers"
-	"emailaddress.horse/thousand/middleware"
+	"fmt"
+	"net/http"
+	"os"
+	"sort"
+	"text/tabwriter"
+
+	"github.com/go-chi/chi/v5"
 )
 
-func (s *Server) setupRoutes() {
-	s.setup.Do(func() {
-		middleware.RequestLogger(s.mux, s.logger.Named("server"))
-		middleware.MethodOverride(s.mux)
-		middleware.RedirectSlashes(s.mux)
+type route struct {
+	Method string `json:"method"`
+	Path   string `json:"path"`
+}
 
-		handlers.Assets(s.mux, s.assets)
+func PrintRoutes(r chi.Router) error {
+	var methodOrder = map[string]int{
+		"GET":     0,
+		"POST":    1,
+		"PUT":     2,
+		"PATCH":   3,
+		"DELETE":  4,
+		"HEAD":    5,
+		"CONNECT": 6,
+		"OPTIONS": 7,
+		"TRACE":   8,
+	}
 
-		handlers.Root(s.mux)
+	routes := []*route{}
 
-		handlers.NewCharacter(s.mux, s.logger, s.renderer, s.repository)
-		handlers.CreateCharacter(s.mux, s.logger, s.repository)
+	walkFunc := func(method string, path string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
+		routes = append(routes, &route{
+			Method: method,
+			Path:   path,
+		})
+		return nil
+	}
 
-		handlers.NewExperience(s.mux, s.logger, s.renderer, s.repository)
-		handlers.CreateExperience(s.mux, s.logger, s.repository)
+	if err := chi.Walk(r, walkFunc); err != nil {
+		return err
+	}
 
-		handlers.NewMark(s.mux, s.logger, s.renderer, s.repository)
-		handlers.CreateMark(s.mux, s.logger, s.repository)
+	sort.Slice(routes, func(i, j int) bool {
+		if routes[i].Path == routes[j].Path {
+			return methodOrder[routes[i].Method] < methodOrder[routes[j].Method]
+		}
 
-		handlers.NewResource(s.mux, s.logger, s.renderer, s.repository)
-		handlers.CreateResource(s.mux, s.logger, s.repository)
-
-		handlers.NewSkill(s.mux, s.logger, s.renderer, s.repository)
-		handlers.CreateSkill(s.mux, s.logger, s.repository)
-
-		handlers.ListVampires(s.mux, s.logger, s.renderer, s.repository)
-		handlers.NewVampire(s.mux, s.logger, s.renderer)
-		handlers.CreateVampire(s.mux, s.logger, s.repository)
-		handlers.ShowVampire(s.mux, s.logger, s.renderer, s.repository)
+		return routes[i].Path < routes[j].Path
 	})
+
+	writer := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
+	fmt.Fprintf(writer, "Method\tPath\n")
+	for _, route := range routes {
+		fmt.Fprintf(writer, "%s\t%s\n", route.Method, route.Path)
+	}
+	return writer.Flush()
 }

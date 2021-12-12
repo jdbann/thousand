@@ -4,15 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io/fs"
 	"net"
 	"net/http"
 	"strconv"
-	"sync"
-	"time"
 
-	"emailaddress.horse/thousand/repository"
-	"emailaddress.horse/thousand/templates"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 )
@@ -20,30 +15,18 @@ import (
 // Server is a configured instance of the application, ready to be served by a
 // server or interacted with by CLI commands.
 type Server struct {
-	address    string
-	assets     fs.FS
-	logger     *zap.Logger
-	mux        *chi.Mux
-	renderer   *templates.Renderer
-	repository *repository.Repository
-	server     server
-	setup      sync.Once
-}
-
-type server interface {
-	ListenAndServe() error
-	Shutdown(context.Context) error
+	address  string
+	listener net.Listener
+	logger   *zap.Logger
+	server   *http.Server
 }
 
 type Options struct {
-	Assets     fs.FS
-	Debug      bool
-	Host       string
-	Logger     *zap.Logger
-	Mux        *chi.Mux
-	Port       int
-	Repository *repository.Repository
-	Server     server
+	Host   string
+	Logger *zap.Logger
+	Router chi.Router
+	Port   int
+	Server *http.Server
 }
 
 // New configures an instance of the application with helpful defaults.
@@ -52,45 +35,52 @@ func New(opts Options) *Server {
 		opts.Logger = zap.NewNop()
 	}
 
-	if opts.Mux == nil {
-		opts.Mux = chi.NewMux()
-	}
-
 	address := net.JoinHostPort(opts.Host, strconv.Itoa(opts.Port))
 
 	if opts.Server == nil {
 		opts.Server = &http.Server{
 			Addr:    address,
-			Handler: opts.Mux,
+			Handler: opts.Router,
 		}
 	}
 
 	return &Server{
-		address:    address,
-		assets:     opts.Assets,
-		logger:     opts.Logger,
-		mux:        opts.Mux,
-		repository: opts.Repository,
-		renderer:   templates.NewRenderer(),
-		server:     opts.Server,
+		address: address,
+		logger:  opts.Logger,
+		server: &http.Server{
+			Handler: opts.Router,
+		},
 	}
 }
 
-func (s *Server) Start() error {
-	s.setupRoutes()
-
-	s.logger.Info("starting", zap.String("address", s.address))
-	if err := s.server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
-		return fmt.Errorf("error starting server: %w", err)
+func (s *Server) Listen(ctx context.Context) error {
+	if s.address == "" {
+		s.address = ":http"
 	}
+
+	lc := net.ListenConfig{}
+	listener, err := lc.Listen(ctx, "tcp", s.address)
+	if err != nil {
+		return fmt.Errorf("error creating listener: %w", err)
+	}
+
+	s.listener = listener
+
 	return nil
 }
 
-func (s *Server) Stop() error {
-	s.logger.Info("stopping")
+func (s *Server) Start(_ context.Context) error {
+	s.logger.Info("starting", zap.String("address", s.address))
+	go func() {
+		if err := s.server.Serve(s.listener); !errors.Is(err, http.ErrServerClosed) {
+			s.logger.Error("server closed unexpectedly", zap.Error(err))
+		}
+	}()
+	return nil
+}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
+func (s *Server) Stop(ctx context.Context) error {
+	s.logger.Info("stopping")
 
 	if err := s.server.Shutdown(ctx); err != nil {
 		return fmt.Errorf("error stopping server: %w", err)
@@ -99,27 +89,10 @@ func (s *Server) Stop() error {
 	return nil
 }
 
-type Route struct {
-	Method string `json:"method"`
-	Path   string `json:"path"`
-}
-
-func (s *Server) Routes() []*Route {
-	s.setupRoutes()
-
-	routes := []*Route{}
-
-	walkFunc := func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
-		routes = append(routes, &Route{
-			Method: method,
-			Path:   route,
-		})
-		return nil
+func (s *Server) URL() string {
+	if s.listener == nil {
+		return ""
 	}
 
-	if err := chi.Walk(s.mux, walkFunc); err != nil {
-		panic(err)
-	}
-
-	return routes
+	return s.listener.Addr().String()
 }

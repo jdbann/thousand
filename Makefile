@@ -1,6 +1,10 @@
 BUILD_DIRECTORY = tmp/build
 BINARY_NAME = thousand
 BINARY_PATH = $(BUILD_DIRECTORY)/$(BINARY_NAME)
+TEST_DB = $(DATABASE_URL)
+ifeq ($(strip $(TEST_DB)),)
+TEST_DB = "postgres://localhost:5432/thousand_test?sslmode=disable"
+endif
 
 # Dependencies installed by Go
 GO_DEPS = github.com/kyleconroy/sqlc/cmd/sqlc@v1.10.0 \
@@ -93,13 +97,13 @@ test: test/setup test/run
 ## test/db/migrate: migrate the test database
 .PHONY: test/db/migrate
 test/db/migrate: build
-	${BINARY_PATH} --environment=test migrate run
+	DATABASE_URL=${TEST_DB} ${BINARY_PATH} migrate run
 
 ## test/db/setup: setup the test database
 .PHONY: test/db/setup
 test/db/setup: build
-	-${BINARY_PATH} --environment=test db drop
-	${BINARY_PATH} --environment=test db create
+	-DATABASE_URL=${TEST_DB} ${BINARY_PATH} db drop
+	DATABASE_URL=${TEST_DB} ${BINARY_PATH} db create
 
 ## test/run: run all tests
 .PHONY: test/run
