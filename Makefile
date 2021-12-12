@@ -37,7 +37,7 @@ build/path:
 
 ## check: make sure project is in a tidy state for committing
 .PHONY: check
-check: generate lint build local test build/clean
+check: generate lint build local test routes build/clean
 
 ## ci: setup and run the CI process
 .PHONY: ci
@@ -89,6 +89,11 @@ local/deps: $(GO_DEPS)
 .PHONY: $(GO_DEPS)
 $(GO_DEPS):
 	go install $@
+
+## routes: print routes the application serves
+.PHONY: routes
+routes: build
+	${BINARY_PATH} routes
 
 ## test: setup the test environment and run all tests (default test task)
 .PHONY: test
