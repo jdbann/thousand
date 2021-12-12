@@ -69,7 +69,7 @@ func NewBrowserTest(t *testing.T) *BrowserTest {
 			case <-wait.C:
 				panic("error getting address for integration test server")
 			default:
-				if s.URL() != "" {
+				if s != nil && s.URL() != "" {
 					return "http://" + s.URL()
 				}
 			}
