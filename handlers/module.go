@@ -1,8 +1,7 @@
 package handlers
 
 import (
-	"time"
-
+	"emailaddress.horse/thousand/health"
 	"emailaddress.horse/thousand/repository"
 	"emailaddress.horse/thousand/static"
 	"emailaddress.horse/thousand/templates"
@@ -18,6 +17,7 @@ var Module = fx.Options(
 type RegisterParams struct {
 	fx.In
 
+	Health     *health.Health
 	Logger     *zap.Logger
 	Renderer   *templates.Renderer
 	Repository *repository.Repository
@@ -26,7 +26,7 @@ type RegisterParams struct {
 
 func register(p RegisterParams) {
 	Assets(p.Router, static.Assets)
-	Health(p.Router, p.Logger, p.Repository, time.Now)
+	Health(p.Router, p.Logger, p.Health)
 
 	Root(p.Router)
 

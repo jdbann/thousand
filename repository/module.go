@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"emailaddress.horse/thousand/health"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
@@ -13,7 +14,9 @@ type Params struct {
 	fx.In
 
 	DatabaseURL string `name:"databaseURL"`
-	Logger      *zap.Logger
+
+	Health *health.Health
+	Logger *zap.Logger
 }
 
 func fxNew(params Params) (*Repository, error) {
@@ -21,5 +24,16 @@ func fxNew(params Params) (*Repository, error) {
 		DatabaseURL: params.DatabaseURL,
 		Logger:      params.Logger.Named("repository"),
 	}
-	return New(opts)
+
+	repo, err := New(opts)
+	if err != nil {
+		return nil, err
+	}
+
+	params.Health.Register(&health.Component{
+		Name:  "repository",
+		Check: repo.Ping,
+	})
+
+	return repo, nil
 }

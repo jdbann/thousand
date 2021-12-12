@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"emailaddress.horse/thousand/handlers"
+	"emailaddress.horse/thousand/health"
 	"emailaddress.horse/thousand/middleware"
 	"emailaddress.horse/thousand/repository"
 	"emailaddress.horse/thousand/server"
@@ -29,6 +30,7 @@ var testModule = fx.Options(
 	middleware.Module,
 
 	handlers.Module,
+	health.Module,
 	server.Module,
 	templates.Module,
 

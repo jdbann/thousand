@@ -2,40 +2,55 @@ package handlers_test
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"testing"
 	"time"
 
 	"emailaddress.horse/thousand/handlers"
+	"emailaddress.horse/thousand/health"
 	"github.com/go-chi/chi/v5"
 )
 
-type mockPinger struct {
-	err error
+type mockChecker struct {
+	result health.Result
+	ok     bool
 }
 
-func (m *mockPinger) Ping(_ context.Context) error {
-	return m.err
+func (m *mockChecker) Check(_ context.Context) (health.Result, bool) {
+	return m.result, m.ok
 }
 
 func TestHealth(t *testing.T) {
 	t.Parallel()
 
+	now := time.Date(2021, time.December, 12, 11, 17, 0, 0, time.UTC)
+
 	tests := []struct {
 		name           string
-		pinger         *mockPinger
+		checker        *mockChecker
 		expectedStatus int
 		expectedBody   string
 	}{
 		{
-			name:           "successful",
-			pinger:         &mockPinger{},
+			name: "successful",
+			checker: &mockChecker{
+				result: health.Result{
+					Details: []health.ComponentResult{
+						{
+							Name:      "mock component",
+							Status:    "ok",
+							Timestamp: now,
+						},
+					},
+					Status: "ok",
+				},
+				ok: true,
+			},
 			expectedStatus: http.StatusOK,
 			expectedBody: `{
   "details": [
     {
-      "name": "repository",
+      "name": "mock component",
       "status": "ok",
       "timestamp": "2021-12-12T11:17:00Z"
     }
@@ -44,15 +59,26 @@ func TestHealth(t *testing.T) {
 }`,
 		},
 		{
-			name: "error from pinger",
-			pinger: &mockPinger{
-				err: errors.New("mock error"),
+			name: "failure from checker",
+			checker: &mockChecker{
+				result: health.Result{
+					Details: []health.ComponentResult{
+						{
+							Name:      "mock component",
+							Status:    "failed",
+							Error:     "mock error",
+							Timestamp: now,
+						},
+					},
+					Status: "failed",
+				},
+				ok: false,
 			},
 			expectedStatus: http.StatusBadGateway,
 			expectedBody: `{
   "details": [
     {
-      "name": "repository",
+      "name": "mock component",
       "status": "failed",
       "error": "mock error",
       "timestamp": "2021-12-12T11:17:00Z"
@@ -71,11 +97,7 @@ func TestHealth(t *testing.T) {
 
 			r := chi.NewMux()
 
-			now := func() time.Time {
-				return time.Date(2021, time.December, 12, 11, 17, 0, 0, time.UTC)
-			}
-
-			handlers.Health(r, testLogger(t), tt.pinger, now)
+			handlers.Health(r, testLogger(t), tt.checker)
 
 			status, _, body := get(r, "/health")
 

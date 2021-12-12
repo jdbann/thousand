@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"emailaddress.horse/thousand/handlers"
+	"emailaddress.horse/thousand/health"
 	"emailaddress.horse/thousand/logger"
 	"emailaddress.horse/thousand/middleware"
 	"emailaddress.horse/thousand/repository"
@@ -61,6 +62,7 @@ func BuildCLIApp() *cli.App {
 				middleware.Module,
 
 				handlers.Module,
+				health.Module,
 				logger.Module,
 				repository.Module,
 				server.Module,
@@ -81,9 +83,10 @@ func BuildCLIApp() *cli.App {
 					a := fx.New(
 						fx.Provide(fx.Annotate(chi.NewMux, fx.As(new(chi.Router)))),
 
-						fx.Provide(func() *zap.Logger { return nil }),
-						fx.Provide(func() *templates.Renderer { return nil }),
+						fx.Provide(func() *health.Health { return nil }),
 						fx.Provide(func() *repository.Repository { return nil }),
+						fx.Provide(func() *templates.Renderer { return nil }),
+						fx.Provide(func() *zap.Logger { return nil }),
 
 						handlers.Module,
 
