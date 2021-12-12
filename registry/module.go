@@ -1,21 +1,18 @@
 package registry
 
 import (
+	"context"
+	"net/http"
+
 	"emailaddress.horse/thousand/repository"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/collectors"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/fx"
 )
 
 var Module = fx.Options(
-	fx.Provide(func() *prometheus.Registry {
-		r := prometheus.NewRegistry()
-
-		r.MustRegister(collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}))
-		r.MustRegister(collectors.NewGoCollector())
-
-		return r
-	}),
+	fx.Provide(fxNew),
 )
 
 type Params struct {
@@ -38,6 +35,19 @@ func fxNew(lc fx.Lifecycle, params Params) (*prometheus.Registry, error) {
 	if err := r.Register(newPgxCollector(params.Repository)); err != nil {
 		return nil, err
 	}
+
+	s := &http.Server{
+		Addr:    ":9091",
+		Handler: promhttp.HandlerFor(r, promhttp.HandlerOpts{}),
+	}
+
+	lc.Append(fx.Hook{
+		OnStart: func(_ context.Context) error {
+			go func() { _ = s.ListenAndServe() }()
+			return nil
+		},
+		OnStop: s.Shutdown,
+	})
 
 	return r, nil
 }
