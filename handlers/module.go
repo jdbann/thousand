@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"time"
+
 	"emailaddress.horse/thousand/repository"
 	"emailaddress.horse/thousand/static"
 	"emailaddress.horse/thousand/templates"
@@ -24,6 +26,7 @@ type RegisterParams struct {
 
 func register(p RegisterParams) {
 	Assets(p.Router, static.Assets)
+	Health(p.Router, p.Logger, p.Repository, time.Now)
 
 	Root(p.Router)
 

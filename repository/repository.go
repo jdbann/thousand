@@ -13,6 +13,7 @@ import (
 )
 
 type Repository struct {
+	pool    *pgxpool.Pool
 	txConn  txConnector
 	queries *queries.Queries
 }
@@ -39,15 +40,23 @@ func New(opts Options) (*Repository, error) {
 	config.ConnConfig.Logger = zapadapter.NewLogger(opts.Logger)
 	config.LazyConnect = true
 
-	conn, err := pgxpool.ConnectConfig(context.Background(), config)
+	pool, err := pgxpool.ConnectConfig(context.Background(), config)
 	if err != nil {
 		return nil, fmt.Errorf("error connecting to database: %w", err)
 	}
 
 	return &Repository{
-		txConn:  conn,
-		queries: queries.New(conn),
+		pool:    pool,
+		txConn:  pool,
+		queries: queries.New(pool),
 	}, nil
+}
+
+func (r *Repository) Ping(ctx context.Context) error {
+	if r.pool == nil {
+		return errors.New("cannot ping a transaction")
+	}
+	return r.pool.Ping(ctx)
 }
 
 func (r *Repository) WithTx(ctx context.Context) (*Repository, pgx.Tx, error) {
