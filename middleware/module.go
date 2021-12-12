@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"github.com/go-chi/chi/v5"
+	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
@@ -13,12 +14,14 @@ var Module = fx.Options(
 type RegisterParams struct {
 	fx.In
 
-	Logger *zap.Logger
-	Router chi.Router
+	Logger   *zap.Logger
+	Registry *prometheus.Registry
+	Router   chi.Router
 }
 
-func register(s RegisterParams) {
-	RequestLogger(s.Router, s.Logger.Named("server"))
-	MethodOverride(s.Router)
-	RedirectSlashes(s.Router)
+func register(p RegisterParams) {
+	RequestLogger(p.Router, p.Logger.Named("server"))
+	MethodOverride(p.Router)
+	RedirectSlashes(p.Router)
+	CollectMetrics(p.Router, p.Registry)
 }

@@ -6,6 +6,7 @@ import (
 	"emailaddress.horse/thousand/static"
 	"emailaddress.horse/thousand/templates"
 	"github.com/go-chi/chi/v5"
+	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
@@ -19,6 +20,7 @@ type RegisterParams struct {
 
 	Health     *health.Health
 	Logger     *zap.Logger
+	Registry   *prometheus.Registry
 	Renderer   *templates.Renderer
 	Repository *repository.Repository
 	Router     chi.Router
@@ -27,6 +29,7 @@ type RegisterParams struct {
 func register(p RegisterParams) {
 	Assets(p.Router, static.Assets)
 	Health(p.Router, p.Logger, p.Health)
+	Metrics(p.Router, p.Registry)
 
 	Root(p.Router)
 

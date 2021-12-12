@@ -11,6 +11,7 @@ import (
 	"emailaddress.horse/thousand/server"
 	"emailaddress.horse/thousand/templates"
 	"github.com/go-chi/chi/v5"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/urfave/cli/v2"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
@@ -58,6 +59,7 @@ func BuildCLIApp() *cli.App {
 				),
 
 				fx.Provide(fx.Annotate(chi.NewMux, fx.As(new(chi.Router)))),
+				fx.Provide(prometheus.NewRegistry),
 
 				middleware.Module,
 
