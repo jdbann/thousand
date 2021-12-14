@@ -43,6 +43,10 @@ var helpers = template.FuncMap{
 		return fmt.Sprintf("/vampires/%s/skills", vampireID)
 	},
 
+	"userPath": func() string {
+		return "/user"
+	},
+
 	"vampiresPath": func() string {
 		return "/vampires"
 	},

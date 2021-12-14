@@ -1,0 +1,37 @@
+{{ template "base" . }}
+
+{{ define "main" }}
+  <div id="newUser">
+    {{ with .form }}
+      <form method="POST" action="{{ userPath }}" class="stack">
+        {{ with .Email }}
+          <div class="stack stack-small">
+            <label for="email">Email</label>
+            <input
+              id="email"
+              name="email"
+              type="text"
+              {{ with .Value }}value="{{ . }}"{{ end }}
+            />
+            {{ with .Message }}
+              <div>{{ . }}</div>
+            {{ end }}
+          </div>
+        {{ end }}
+
+        {{ with .Password }}
+          <div class="stack stack-small">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" />
+            {{ with .Message }}
+              <div>{{ . }}</div>
+            {{ end }}
+          </div>
+        {{ end }}
+
+
+        <input type="submit" value="Create User" />
+      </form>
+    {{ end }}
+  </div>
+{{ end }}

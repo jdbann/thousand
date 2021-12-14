@@ -45,6 +45,9 @@ func register(p RegisterParams) {
 	NewSkill(p.Router, p.Logger, p.Renderer, p.Repository)
 	CreateSkill(p.Router, p.Logger, p.Repository)
 
+	NewUser(p.Router, p.Logger, p.Renderer)
+	CreateUser(p.Router, p.Logger, p.Repository, p.Renderer)
+
 	ListVampires(p.Router, p.Logger, p.Renderer, p.Repository)
 	NewVampire(p.Router, p.Logger, p.Renderer)
 	CreateVampire(p.Router, p.Logger, p.Repository)

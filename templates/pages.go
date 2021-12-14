@@ -3,6 +3,7 @@ package templates
 import (
 	"net/http"
 
+	"emailaddress.horse/thousand/form"
 	"emailaddress.horse/thousand/models"
 )
 
@@ -44,6 +45,14 @@ func (r *Renderer) NewResource(w http.ResponseWriter, v models.Vampire) error {
 	}
 
 	return r.render(w, "resources/new", data)
+}
+
+func (r *Renderer) NewUser(w http.ResponseWriter, f *form.NewUserForm) error {
+	data := map[string]interface{}{
+		"form": f,
+	}
+
+	return r.render(w, "users/new", data)
 }
 
 func (r *Renderer) ShowVampires(w http.ResponseWriter, v []models.Vampire) error {

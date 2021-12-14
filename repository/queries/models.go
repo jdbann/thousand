@@ -78,6 +78,14 @@ type Skill struct {
 	UpdatedAt   sql.NullTime
 }
 
+type User struct {
+	ID           uuid.UUID
+	Email        string
+	PasswordHash string
+	CreatedAt    time.Time
+	UpdatedAt    sql.NullTime
+}
+
 type Vampire struct {
 	ID        uuid.UUID
 	Name      string
