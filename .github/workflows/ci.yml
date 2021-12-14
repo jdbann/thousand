@@ -42,6 +42,11 @@ jobs:
         with:
           go-version: "1.16.3"
 
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+          cache: "yarn"
+
       - run: make ci
         env:
           DATABASE_URL: postgres://vampire:vampire@localhost:5432/thousand_test?sslmode=disable

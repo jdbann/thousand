@@ -51,8 +51,12 @@ check: generate lint build build/docker local test routes build/clean
 
 ## ci: setup and run the CI process
 .PHONY: ci
-ci: lint test/db/migrate test/run
+ci: ci/setup lint test/db/migrate test/run
 
+# ci/setup: install dependencies
+.PHONY: ci/setup
+ci/setup:
+	yarn install
 ## dev: migrate and run the app (default dev task)
 .PHONY: dev
 dev: dev/db/migrate dev/run
