@@ -1,13 +1,21 @@
 {
   "private": true,
   "scripts": {
-    "lint:html": "yarn run prettier --check \"templates/**/*.tmpl\"",
-    "lint:css": "yarn run stylelint \"static/**/*.css\""
+    "build": "node assets.js",
+    "lint:css": "yarn run stylelint \"css/**/*.css\"",
+    "lint:js": "yarn run prettier --check \"js/**/*.js\"",
+    "lint:tmpl": "yarn run prettier --check \"templates/**/*.tmpl\""
   },
   "devDependencies": {
+    "esbuild": "^0.14.3",
     "prettier": "^2.3.2",
     "prettier-plugin-go-template": "^0.0.11",
     "stylelint": "^13.13.1",
     "stylelint-config-standard": "^22.0.0"
+  },
+  "dependencies": {
+    "@hotwired/stimulus": "^3.0.1",
+    "@hotwired/turbo": "^7.1.0",
+    "modern-css-reset": "^1.4.0"
   }
 }

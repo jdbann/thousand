@@ -1,0 +1,14 @@
+#!/usr/bin/env node
+
+require("esbuild")
+  .build({
+    bundle: true,
+    entryPoints: ["css/main.css", "js/main.js"],
+    logLevel: "info",
+    minify: true,
+    outdir: "static",
+    platform: "browser",
+    sourcemap: true,
+    target: ["chrome58", "firefox57", "safari11", "edge18"],
+  })
+  .catch(() => process.exit(1));

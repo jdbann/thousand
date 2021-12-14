@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+  web:
+    build: .
+    image: thousand
+    depends_on:
+      - migrate
+      - postgres
+    ports:
+      - '4000:4000'
+      - '9091:9091'
+    environment:
+      DATABASE_URL: postgres://postgres:password@postgres:5432/thousand?sslmode=disable
+
+  postgres:
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_USERNAME: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: thousand
+
+  migrate:
+    build: .
+    image: thousand
+    command: /docker/wait-for.sh postgres:5432 -t 15 -- ./bin/thousand migrate run
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgres://postgres:password@postgres:5432/thousand?sslmode=disable
+    volumes:
+      - ./.docker:/docker

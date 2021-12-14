@@ -6,10 +6,11 @@ tmp_dir = "tmp"
   cmd = "make build"
   delay = 1000
   exclude_dir = ["vendor", "node_modules"]
+  exclude_unchanged = true
   include_ext = ["go", "tpl", "tmpl", "html", "css", "js"]
+  kill_delay = 500
   log = "air.log"
   send_interrupt = true
-  kill_delay = 500
   stop_on_error = true
 
 [color]
@@ -23,3 +24,6 @@ tmp_dir = "tmp"
 
 [misc]
   clean_on_exit = false
+
+[screen]
+  clear_on_rebuild = true

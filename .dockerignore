@@ -1,0 +1,16 @@
+**/*_test.go
+.DS_Store
+.air.toml
+.docker
+.git
+.github
+.gitignore
+.stylelintrc.json
+Makefile
+bin/verify-makefile
+coverage.out
+docker-compose.yml
+fly.toml
+node_modules
+sqlc.json
+tmp
