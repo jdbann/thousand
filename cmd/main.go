@@ -10,6 +10,7 @@ import (
 	"emailaddress.horse/thousand/registry"
 	"emailaddress.horse/thousand/repository"
 	"emailaddress.horse/thousand/server"
+	"emailaddress.horse/thousand/session"
 	"emailaddress.horse/thousand/templates"
 	"github.com/go-chi/chi/v5"
 	"github.com/urfave/cli/v2"
@@ -67,6 +68,7 @@ func BuildCLIApp() *cli.App {
 				registry.Module,
 				repository.Module,
 				server.Module,
+				session.Module,
 				templates.Module,
 
 				fx.Invoke(func(s *server.Server) {}),

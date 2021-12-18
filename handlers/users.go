@@ -7,6 +7,7 @@ import (
 
 	"emailaddress.horse/thousand/form"
 	"emailaddress.horse/thousand/models"
+	"emailaddress.horse/thousand/session"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 )
@@ -29,7 +30,7 @@ type userCreator interface {
 	CreateUser(context.Context, *form.NewUserForm) (models.User, error)
 }
 
-func CreateUser(r chi.Router, l *zap.Logger, uc userCreator, t newUserRenderer) {
+func CreateUser(r chi.Router, l *zap.Logger, uc userCreator, t newUserRenderer, s *session.Store) {
 	r.Post("/user", func(w http.ResponseWriter, r *http.Request) {
 		form := form.NewUser(
 			r.FormValue("email"),
@@ -46,7 +47,7 @@ func CreateUser(r chi.Router, l *zap.Logger, uc userCreator, t newUserRenderer) 
 			return
 		}
 
-		_, err := uc.CreateUser(r.Context(), form)
+		user, err := uc.CreateUser(r.Context(), form)
 		if errors.Is(err, models.ErrEmailAlreadyInUse) {
 			form.Email.Message = "Email already in use."
 
@@ -62,6 +63,8 @@ func CreateUser(r chi.Router, l *zap.Logger, uc userCreator, t newUserRenderer) 
 			handleError(w, err)
 			return
 		}
+
+		s.SetCurrentUserID(r, w, user.ID)
 
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	})

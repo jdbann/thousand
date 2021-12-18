@@ -4,3 +4,12 @@ INSERT INTO users (email, password_hash)
 RETURNING
     id, email;
 
+-- name: GetUser :one
+SELECT
+    *
+FROM
+    users
+WHERE
+    id = @id
+LIMIT 1;
+

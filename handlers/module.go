@@ -3,6 +3,7 @@ package handlers
 import (
 	"emailaddress.horse/thousand/health"
 	"emailaddress.horse/thousand/repository"
+	"emailaddress.horse/thousand/session"
 	"emailaddress.horse/thousand/static"
 	"emailaddress.horse/thousand/templates"
 	"github.com/go-chi/chi/v5"
@@ -22,6 +23,7 @@ type RegisterParams struct {
 	Renderer   *templates.Renderer
 	Repository *repository.Repository
 	Router     chi.Router
+	Store      *session.Store
 }
 
 func register(p RegisterParams) {
@@ -30,26 +32,30 @@ func register(p RegisterParams) {
 
 	Root(p.Router)
 
-	NewCharacter(p.Router, p.Logger, p.Renderer, p.Repository)
-	CreateCharacter(p.Router, p.Logger, p.Repository)
-
-	NewExperience(p.Router, p.Logger, p.Renderer, p.Repository)
-	CreateExperience(p.Router, p.Logger, p.Repository)
-
-	NewMark(p.Router, p.Logger, p.Renderer, p.Repository)
-	CreateMark(p.Router, p.Logger, p.Repository)
-
-	NewResource(p.Router, p.Logger, p.Renderer, p.Repository)
-	CreateResource(p.Router, p.Logger, p.Repository)
-
-	NewSkill(p.Router, p.Logger, p.Renderer, p.Repository)
-	CreateSkill(p.Router, p.Logger, p.Repository)
-
 	NewUser(p.Router, p.Logger, p.Renderer)
-	CreateUser(p.Router, p.Logger, p.Repository, p.Renderer)
+	CreateUser(p.Router, p.Logger, p.Repository, p.Renderer, p.Store)
 
-	ListVampires(p.Router, p.Logger, p.Renderer, p.Repository)
-	NewVampire(p.Router, p.Logger, p.Renderer)
-	CreateVampire(p.Router, p.Logger, p.Repository)
-	ShowVampire(p.Router, p.Logger, p.Renderer, p.Repository)
+	p.Router.Group(func(r chi.Router) {
+		EnsureLoggedIn(r, p.Store)
+
+		NewCharacter(r, p.Logger, p.Renderer, p.Repository)
+		CreateCharacter(r, p.Logger, p.Repository)
+
+		NewExperience(r, p.Logger, p.Renderer, p.Repository)
+		CreateExperience(r, p.Logger, p.Repository)
+
+		NewMark(r, p.Logger, p.Renderer, p.Repository)
+		CreateMark(r, p.Logger, p.Repository)
+
+		NewResource(r, p.Logger, p.Renderer, p.Repository)
+		CreateResource(r, p.Logger, p.Repository)
+
+		NewSkill(r, p.Logger, p.Renderer, p.Repository)
+		CreateSkill(r, p.Logger, p.Repository)
+
+		ListVampires(r, p.Logger, p.Renderer, p.Repository, p.Store)
+		NewVampire(r, p.Logger, p.Renderer)
+		CreateVampire(r, p.Logger, p.Repository)
+		ShowVampire(r, p.Logger, p.Renderer, p.Repository)
+	})
 }
