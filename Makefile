@@ -57,6 +57,7 @@ ci: ci/setup lint test/db/migrate test/run
 .PHONY: ci/setup
 ci/setup:
 	yarn install
+
 ## dev: migrate and run the app (default dev task)
 .PHONY: dev
 dev: dev/db/migrate dev/run
@@ -103,6 +104,7 @@ local: local/deps build dev/setup test/setup
 ## local/deps: install tools required to work on the project
 .PHONY: local/deps
 local/deps: local/deps/sqlc tmp/bin/air
+	yarn install
 
 # local/deps/sqlc: installs sqlc for db querying code generation
 .PHONY: local/deps/sqlc
