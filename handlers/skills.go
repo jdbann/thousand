@@ -11,7 +11,7 @@ import (
 )
 
 type newSkillRenderer interface {
-	NewSkill(http.ResponseWriter, models.Vampire) error
+	NewSkill(http.ResponseWriter, *http.Request, models.Vampire) error
 }
 
 func NewSkill(r chi.Router, l *zap.Logger, t newSkillRenderer, vg vampireGetter) {
@@ -34,7 +34,7 @@ func NewSkill(r chi.Router, l *zap.Logger, t newSkillRenderer, vg vampireGetter)
 			return
 		}
 
-		err = t.NewSkill(w, vampire)
+		err = t.NewSkill(w, r, vampire)
 		if err != nil {
 			l.Error("failed to render", zap.Error(err))
 			handleError(w, err)

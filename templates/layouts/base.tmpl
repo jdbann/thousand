@@ -13,8 +13,18 @@
       <body>
         <div class="centre stack max-width:measure">
           <header>
-            <h1>Thousand</h1>
+            <span class="brand">Thousand</span>
           </header>
+
+          {{ with .flashes }}
+            <div id="flashes">
+              {{ range . }}
+                <div>
+                  {{ .Message }}
+                </div>
+              {{ end }}
+            </div>
+          {{ end }}
 
           {{ template "main" . }}
         </div>

@@ -11,7 +11,7 @@ import (
 )
 
 type newExperienceRenderer interface {
-	NewExperience(http.ResponseWriter, models.Memory) error
+	NewExperience(http.ResponseWriter, *http.Request, models.Memory) error
 }
 
 func NewExperience(r chi.Router, l *zap.Logger, t newExperienceRenderer, mg memoryGetter) {
@@ -41,7 +41,7 @@ func NewExperience(r chi.Router, l *zap.Logger, t newExperienceRenderer, mg memo
 			return
 		}
 
-		err = t.NewExperience(w, memory)
+		err = t.NewExperience(w, r, memory)
 		if err != nil {
 			l.Error("failed to render", zap.Error(err))
 			handleError(w, err)

@@ -3,6 +3,7 @@ package session
 import (
 	"net/http"
 
+	"emailaddress.horse/thousand/errors"
 	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
 )
@@ -10,6 +11,10 @@ import (
 const (
 	sessionKey       = "thousand"
 	currentUserIDKey = "currentUserID"
+)
+
+var (
+	ErrFlashInvalid = errors.New("failed to parse flash")
 )
 
 type Store struct {

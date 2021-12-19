@@ -12,7 +12,7 @@ import (
 )
 
 type newResourceRenderer interface {
-	NewResource(http.ResponseWriter, models.Vampire) error
+	NewResource(http.ResponseWriter, *http.Request, models.Vampire) error
 }
 
 func NewResource(r chi.Router, l *zap.Logger, t newResourceRenderer, vg vampireGetter) {
@@ -35,7 +35,7 @@ func NewResource(r chi.Router, l *zap.Logger, t newResourceRenderer, vg vampireG
 			return
 		}
 
-		err = t.NewResource(w, vampire)
+		err = t.NewResource(w, r, vampire)
 		if err != nil {
 			l.Error("failed to render", zap.Error(err))
 			handleError(w, err)

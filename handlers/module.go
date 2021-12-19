@@ -12,7 +12,7 @@ import (
 )
 
 var Module = fx.Options(
-	fx.Invoke(register),
+	fx.Invoke(fxRegister),
 )
 
 type RegisterParams struct {
@@ -26,7 +26,7 @@ type RegisterParams struct {
 	Store      *session.Store
 }
 
-func register(p RegisterParams) {
+func fxRegister(p RegisterParams) {
 	Assets(p.Router, static.Assets)
 	Health(p.Router, p.Logger, p.Health)
 
@@ -36,7 +36,7 @@ func register(p RegisterParams) {
 	CreateUser(p.Router, p.Logger, p.Repository, p.Renderer, p.Store)
 
 	p.Router.Group(func(r chi.Router) {
-		EnsureLoggedIn(r, p.Store)
+		EnsureLoggedIn(r, p.Store, p.Repository)
 
 		NewCharacter(r, p.Logger, p.Renderer, p.Repository)
 		CreateCharacter(r, p.Logger, p.Repository)
@@ -53,7 +53,7 @@ func register(p RegisterParams) {
 		NewSkill(r, p.Logger, p.Renderer, p.Repository)
 		CreateSkill(r, p.Logger, p.Repository)
 
-		ListVampires(r, p.Logger, p.Renderer, p.Repository, p.Store)
+		ListVampires(r, p.Logger, p.Renderer, p.Repository)
 		NewVampire(r, p.Logger, p.Renderer)
 		CreateVampire(r, p.Logger, p.Repository)
 		ShowVampire(r, p.Logger, p.Renderer, p.Repository)

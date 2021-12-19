@@ -11,7 +11,7 @@ import (
 )
 
 type newMarkRenderer interface {
-	NewMark(http.ResponseWriter, models.Vampire) error
+	NewMark(http.ResponseWriter, *http.Request, models.Vampire) error
 }
 
 func NewMark(r chi.Router, l *zap.Logger, t newMarkRenderer, vg vampireGetter) {
@@ -34,7 +34,7 @@ func NewMark(r chi.Router, l *zap.Logger, t newMarkRenderer, vg vampireGetter) {
 			return
 		}
 
-		err = t.NewMark(w, vampire)
+		err = t.NewMark(w, r, vampire)
 		if err != nil {
 			l.Error("failed to render", zap.Error(err))
 			handleError(w, err)

@@ -4,10 +4,12 @@ import (
 	"embed"
 	"fmt"
 	"html/template"
-	"io"
 	"io/fs"
 	"log"
+	"net/http"
 	"strings"
+
+	"emailaddress.horse/thousand/session"
 )
 
 //go:embed views
@@ -17,10 +19,15 @@ var viewTemplates embed.FS
 var layoutTemplates embed.FS
 
 type Renderer struct {
+	store       *session.Store
 	templateMap map[string]*template.Template
 }
 
-func NewRenderer() *Renderer {
+type RendererOptions struct {
+	Store *session.Store
+}
+
+func NewRenderer(opts RendererOptions) *Renderer {
 	templateMap := map[string]*template.Template{}
 
 	// Traverse the views directory, descending into each folder
@@ -74,11 +81,19 @@ func NewRenderer() *Renderer {
 	}
 
 	return &Renderer{
+		store:       opts.Store,
 		templateMap: templateMap,
 	}
 }
 
-func (r *Renderer) render(w io.Writer, name string, data interface{}) error {
+func (r *Renderer) render(w http.ResponseWriter, req *http.Request, name string, data map[string]interface{}) error {
+	flashes, err := r.store.GetFlashes(req, w)
+	if err != nil {
+		return err
+	}
+
+	data["flashes"] = flashes
+
 	view, ok := r.templateMap[name]
 	if !ok {
 		return fmt.Errorf("No template found with name: %q", name)

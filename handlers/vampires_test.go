@@ -18,7 +18,7 @@ type mockShowVampiresRenderer struct {
 	err error
 }
 
-func (m *mockShowVampiresRenderer) ShowVampires(w http.ResponseWriter, vampires []models.Vampire) error {
+func (m *mockShowVampiresRenderer) ShowVampires(w http.ResponseWriter, _ *http.Request, vampires []models.Vampire) error {
 	if m.err != nil {
 		return m.err
 	}
@@ -120,7 +120,7 @@ type mockNewVampireRenderer struct {
 	err error
 }
 
-func (m *mockNewVampireRenderer) NewVampire(w http.ResponseWriter) error {
+func (m *mockNewVampireRenderer) NewVampire(w http.ResponseWriter, _ *http.Request) error {
 	if m.err != nil {
 		return m.err
 	}
@@ -259,7 +259,7 @@ type mockShowVampireRenderer struct {
 	err error
 }
 
-func (m *mockShowVampireRenderer) ShowVampire(w http.ResponseWriter, vampire models.Vampire) error {
+func (m *mockShowVampireRenderer) ShowVampire(w http.ResponseWriter, _ *http.Request, vampire models.Vampire) error {
 	if m.err != nil {
 		return m.err
 	}

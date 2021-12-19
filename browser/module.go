@@ -9,6 +9,7 @@ import (
 	"emailaddress.horse/thousand/middleware"
 	"emailaddress.horse/thousand/repository"
 	"emailaddress.horse/thousand/server"
+	"emailaddress.horse/thousand/session"
 	"emailaddress.horse/thousand/templates"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/fx"
@@ -32,6 +33,7 @@ var testModule = fx.Options(
 	handlers.Module,
 	health.Module,
 	server.Module,
+	session.Module,
 	templates.Module,
 
 	fx.Provide(func(t *testing.T) *zap.Logger {

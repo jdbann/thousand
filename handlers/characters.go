@@ -11,7 +11,7 @@ import (
 )
 
 type newCharacterRenderer interface {
-	NewCharacter(http.ResponseWriter, models.Vampire) error
+	NewCharacter(http.ResponseWriter, *http.Request, models.Vampire) error
 }
 
 func NewCharacter(r chi.Router, l *zap.Logger, t newCharacterRenderer, vg vampireGetter) {
@@ -34,7 +34,7 @@ func NewCharacter(r chi.Router, l *zap.Logger, t newCharacterRenderer, vg vampir
 			return
 		}
 
-		err = t.NewCharacter(w, vampire)
+		err = t.NewCharacter(w, r, vampire)
 		if err != nil {
 			l.Error("failed to render", zap.Error(err))
 			handleError(w, err)

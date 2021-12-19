@@ -12,13 +12,14 @@ import (
 	"emailaddress.horse/thousand/handlers"
 	"emailaddress.horse/thousand/models"
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 )
 
 type mockNewUserRenderer struct {
 	err error
 }
 
-func (m *mockNewUserRenderer) NewUser(w http.ResponseWriter, form *form.NewUserForm) error {
+func (m *mockNewUserRenderer) NewUser(w http.ResponseWriter, _ *http.Request, form *form.NewUserForm) error {
 	if m.err != nil {
 		return m.err
 	}
@@ -90,6 +91,31 @@ func (m *mockUserCreator) CreateUser(_ context.Context, form *form.NewUserForm) 
 	return m.user, m.err
 }
 
+type mockCurrentUserIDSetter struct {
+	id  uuid.UUID
+	err error
+}
+
+func (m *mockCurrentUserIDSetter) SetCurrentUserID(_ *http.Request, _ http.ResponseWriter, id uuid.UUID) error {
+	m.id = id
+	return m.err
+}
+
+type mockFlashSetter struct {
+	message string
+	err     error
+}
+
+func (m *mockFlashSetter) SetFlash(_ *http.Request, _ http.ResponseWriter, message string) error {
+	m.message = message
+	return m.err
+}
+
+type mockSetter struct {
+	*mockCurrentUserIDSetter
+	*mockFlashSetter
+}
+
 func TestCreateUser(t *testing.T) {
 	t.Parallel()
 
@@ -98,6 +124,7 @@ func TestCreateUser(t *testing.T) {
 		body             url.Values
 		creator          *mockUserCreator
 		renderer         *mockNewUserRenderer
+		setter           *mockSetter
 		expectedStatus   int
 		expectedBody     string
 		expectedLocation string
@@ -110,6 +137,7 @@ func TestCreateUser(t *testing.T) {
 			},
 			creator:          &mockUserCreator{},
 			renderer:         &mockNewUserRenderer{},
+			setter:           &mockSetter{&mockCurrentUserIDSetter{}, &mockFlashSetter{}},
 			expectedStatus:   http.StatusSeeOther,
 			expectedLocation: "/",
 		},
@@ -120,6 +148,7 @@ func TestCreateUser(t *testing.T) {
 			},
 			creator:        &mockUserCreator{},
 			renderer:       &mockNewUserRenderer{},
+			setter:         &mockSetter{&mockCurrentUserIDSetter{}, &mockFlashSetter{}},
 			expectedStatus: http.StatusUnprocessableEntity,
 			expectedBody:   `{"Email":{"Message":"","Value":"john@bannister.com"},"Password":{"Message":"Please provide a password.","Value":""}}`,
 		},
@@ -133,6 +162,7 @@ func TestCreateUser(t *testing.T) {
 				err: models.ErrEmailAlreadyInUse,
 			},
 			renderer:       &mockNewUserRenderer{},
+			setter:         &mockSetter{&mockCurrentUserIDSetter{}, &mockFlashSetter{}},
 			expectedStatus: http.StatusUnprocessableEntity,
 			expectedBody:   `{"Email":{"Message":"Email already in use.","Value":"john@bannister.com"},"Password":{"Message":"","Value":"password"}}`,
 		},
@@ -146,6 +176,24 @@ func TestCreateUser(t *testing.T) {
 				err: errors.New("mock error"),
 			},
 			renderer:       &mockNewUserRenderer{},
+			setter:         &mockSetter{&mockCurrentUserIDSetter{}, &mockFlashSetter{}},
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   "500: Internal Server Error",
+		},
+		{
+			name: "error from creator",
+			body: url.Values{
+				"email":    []string{"john@bannister.com"},
+				"password": []string{"password"},
+			},
+			creator:  &mockUserCreator{},
+			renderer: &mockNewUserRenderer{},
+			setter: &mockSetter{
+				&mockCurrentUserIDSetter{
+					err: errors.New("mock error"),
+				},
+				&mockFlashSetter{},
+			},
 			expectedStatus: http.StatusInternalServerError,
 			expectedBody:   "500: Internal Server Error",
 		},
@@ -159,7 +207,7 @@ func TestCreateUser(t *testing.T) {
 
 			r := chi.NewMux()
 
-			handlers.CreateUser(r, testLogger(t), tt.creator, tt.renderer)
+			handlers.CreateUser(r, testLogger(t), tt.creator, tt.renderer, tt.setter)
 
 			status, headers, body := post(r, "/user", tt.body.Encode())
 

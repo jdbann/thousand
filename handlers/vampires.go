@@ -11,7 +11,7 @@ import (
 )
 
 type showVampiresRenderer interface {
-	ShowVampires(http.ResponseWriter, []models.Vampire) error
+	ShowVampires(http.ResponseWriter, *http.Request, []models.Vampire) error
 }
 
 func ListVampires(r chi.Router, l *zap.Logger, t showVampiresRenderer, vg vampiresGetter) {
@@ -23,7 +23,7 @@ func ListVampires(r chi.Router, l *zap.Logger, t showVampiresRenderer, vg vampir
 			return
 		}
 
-		err = t.ShowVampires(w, vampires)
+		err = t.ShowVampires(w, r, vampires)
 		if err != nil {
 			l.Error("failed to render", zap.Error(err))
 			handleError(w, err)
@@ -32,12 +32,12 @@ func ListVampires(r chi.Router, l *zap.Logger, t showVampiresRenderer, vg vampir
 }
 
 type newVampireRenderer interface {
-	NewVampire(http.ResponseWriter) error
+	NewVampire(http.ResponseWriter, *http.Request) error
 }
 
 func NewVampire(r chi.Router, l *zap.Logger, t newVampireRenderer) {
 	r.Get("/vampires/new", func(w http.ResponseWriter, r *http.Request) {
-		err := t.NewVampire(w)
+		err := t.NewVampire(w, r)
 		if err != nil {
 			l.Error("failed to render", zap.Error(err))
 			handleError(w, err)
@@ -61,7 +61,7 @@ func CreateVampire(r chi.Router, l *zap.Logger, vc vampireCreator) {
 }
 
 type showVampireRenderer interface {
-	ShowVampire(http.ResponseWriter, models.Vampire) error
+	ShowVampire(http.ResponseWriter, *http.Request, models.Vampire) error
 }
 
 func ShowVampire(r chi.Router, l *zap.Logger, t showVampireRenderer, vg vampireGetter) {
@@ -84,7 +84,7 @@ func ShowVampire(r chi.Router, l *zap.Logger, t showVampireRenderer, vg vampireG
 			return
 		}
 
-		err = t.ShowVampire(w, vampire)
+		err = t.ShowVampire(w, r, vampire)
 		if err != nil {
 			l.Error("failed to render", zap.Error(err))
 			handleError(w, err)

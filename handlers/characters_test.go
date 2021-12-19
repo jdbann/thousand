@@ -17,7 +17,7 @@ type mockNewCharacterRenderer struct {
 	err error
 }
 
-func (m *mockNewCharacterRenderer) NewCharacter(w http.ResponseWriter, vampire models.Vampire) error {
+func (m *mockNewCharacterRenderer) NewCharacter(w http.ResponseWriter, _ *http.Request, vampire models.Vampire) error {
 	if m.err != nil {
 		return m.err
 	}

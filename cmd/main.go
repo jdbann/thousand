@@ -88,6 +88,7 @@ func BuildCLIApp() *cli.App {
 
 						fx.Provide(func() *health.Health { return nil }),
 						fx.Provide(func() *repository.Repository { return nil }),
+						fx.Provide(func() *session.Store { return nil }),
 						fx.Provide(func() *templates.Renderer { return nil }),
 						fx.Provide(func() *zap.Logger { return nil }),
 

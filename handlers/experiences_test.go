@@ -17,7 +17,7 @@ type mockNewExperienceRenderer struct {
 	err error
 }
 
-func (m *mockNewExperienceRenderer) NewExperience(w http.ResponseWriter, memory models.Memory) error {
+func (m *mockNewExperienceRenderer) NewExperience(w http.ResponseWriter, _ *http.Request, memory models.Memory) error {
 	if m.err != nil {
 		return m.err
 	}

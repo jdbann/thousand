@@ -17,7 +17,7 @@ type mockNewSkillRenderer struct {
 	err error
 }
 
-func (m *mockNewSkillRenderer) NewSkill(w http.ResponseWriter, vampire models.Vampire) error {
+func (m *mockNewSkillRenderer) NewSkill(w http.ResponseWriter, _ *http.Request, vampire models.Vampire) error {
 	if m.err != nil {
 		return m.err
 	}

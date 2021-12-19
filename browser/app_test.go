@@ -6,75 +6,63 @@ import (
 	"testing"
 )
 
-func TestAppTitle(t *testing.T) {
-	t.Parallel()
-
+func TestSignUp(t *testing.T) {
 	bt := NewBrowserTest(t)
 
 	bt.Run(
+		// Register
 		bt.Navigate("/"),
-		bt.Text("h1").Equals("Thousand"),
-	)
-}
+		bt.Text("header .brand").Equals("Thousand"),
+		bt.SendKeys(`#newUser input[name="email"]`, "john@bannister.com"),
+		bt.SendKeys(`#newUser input[name="password"]`, "password"),
+		bt.Submit(`#newUser input[type="submit"]`),
+		bt.Text(`#flashes`).Equals("Thank you for signing up!"),
 
-func TestShowVampires(t *testing.T) {
-	t.Parallel()
-
-	bt := NewBrowserTest(t)
-
-	if _, err := bt.Repository().CreateVampire(context.Background(), "Gruffudd"); err != nil {
-		t.Fatal(err)
-	}
-
-	bt.Run(
-		bt.Navigate("/vampires"),
-		bt.WaitVisible(`#vampires`),
-		bt.Text(`#vampires`).Contains("Gruffudd"),
-	)
-}
-
-func TestCreateVampire(t *testing.T) {
-	t.Parallel()
-
-	bt := NewBrowserTest(t)
-
-	newLinkSelector := `#newVampire a`
-	nameFieldSelector := `#newVampire input[name="name"]`
-
-	bt.Run(
-		bt.Navigate("/vampires"),
-		bt.WaitVisible(newLinkSelector),
-		bt.Click(newLinkSelector),
-		bt.WaitVisible(nameFieldSelector),
-		bt.SendKeys(nameFieldSelector, "Gruffudd"),
-		bt.Submit(nameFieldSelector),
+		// Create vampire
+		bt.Click(`#newVampire a`),
+		bt.WaitVisible(`#newVampire input[name="name"]`),
+		bt.SendKeys(`#newVampire input[name="name"]`, "Gruffudd"),
+		bt.Submit(`#newVampire input[name="name"]`),
 		bt.Text(`#details`).Equals("Gruffudd"),
-	)
-}
 
-func TestAddExperience(t *testing.T) {
-	t.Parallel()
+		// Add experience
+		bt.Click(`#memories a`),
+		bt.WaitVisible(`#memories input[name="description"]`),
+		bt.SendKeys(`#memories input[name="description"]`, "I am Gruffudd, a Welsh farmer in the valleys of Pembroke; I am a recluse, fond of nature and withdrawn from the village."),
+		bt.Submit(`#memories input[name="description"]`),
+		bt.Text(`#memories`).Contains("I am Gruffudd, a Welsh farmer in the valleys of Pembroke; I am a recluse, fond of nature and withdrawn from the village."),
 
-	bt := NewBrowserTest(t)
+		// Add skill
+		bt.Click(`#skills a`),
+		bt.WaitVisible(`#skills input[name="description"]`),
+		bt.SendKeys(`#skills input[name="description"]`, "Navigating forests"),
+		bt.Submit(`#skills input[name="description"]`),
+		bt.Text(`#skills`).Contains("Navigating forests"),
 
-	vampire, err := bt.Repository().CreateVampire(context.Background(), "Gruffudd")
-	if err != nil {
-		t.Fatal(err)
-	}
+		// Add resources
+		bt.Click(`#resources a`),
+		bt.WaitVisible(`#resources input[name="description"]`),
+		bt.SendKeys(`#resources input[name="description"]`, "Calweddyn Farm, rich but challenging soils"),
+		bt.Click(`#resources input[name="stationary"]`),
+		bt.Submit(`#resources input[name="description"]`),
+		bt.Text(`#resources`).Contains("Calweddyn Farm, rich but challenging soils"),
+		bt.Text(`#resources`).Contains("Stationary"),
 
-	newExperienceLinkSelector := `#memories a[href$="/experiences/new"]`
-	experienceFieldSelector := `#memories input[name="description"]`
-	expectedExperience := "I am Gruffudd, a Welsh farmer in the valleys of Pembroke; I am a recluse, fond of nature and withdrawn from the village."
+		// Add character
+		bt.Click(`#characters a`),
+		bt.WaitVisible(`#characters input[name="name"]`),
+		bt.SendKeys(`#characters input[name="name"]`, "Lord Othian, English gentry visiting a cathedral in St. Davids."),
+		bt.SendKeys(`#characters select[name="type"]`, "Immortal"),
+		bt.Submit(`#characters input[name="name"]`),
+		bt.Text(`#characters`).Contains("Lord Othian, English gentry visiting a cathedral in St. Davids."),
+		bt.Text(`#characters`).Contains("Immortal"),
 
-	bt.Run(
-		bt.Navigate(fmt.Sprintf("/vampires/%s", vampire.ID.String())),
-		bt.WaitForTurbo(),
-		bt.WaitVisible(newExperienceLinkSelector),
-		bt.Click(newExperienceLinkSelector),
-		bt.WaitVisible(experienceFieldSelector),
-		bt.SendKeys(experienceFieldSelector, expectedExperience),
-		bt.Submit(experienceFieldSelector),
-		bt.Text(`#memories`).Contains(expectedExperience),
+		// Add mark
+		bt.Click(`#marks a`),
+		bt.WaitVisible(`#marks input[name="description"]`),
+		bt.SendKeys(`#marks input[name="description"]`, "Muddy footprints, muddy handprints, muddy sheets - I leave a trail of dirt wherever I travel."),
+		bt.Submit(`#marks input[name="description"]`),
+		bt.Text(`#marks`).Contains("Muddy footprints, muddy handprints, muddy sheets - I leave a trail of dirt wherever I travel."),
 	)
 }
 
@@ -94,14 +82,20 @@ func TestAddExperienceFormDismisses(t *testing.T) {
 	experienceFieldSelector := fmt.Sprintf(`#memory-%s input[name="description"]`, memory.ID.String())
 
 	bt.Run(
+		// Register
+		bt.Navigate("/"),
+		bt.Text("header .brand").Equals("Thousand"),
+		bt.SendKeys(`#newUser input[name="email"]`, "john@bannister.com"),
+		bt.SendKeys(`#newUser input[name="password"]`, "password"),
+		bt.Submit(`#newUser input[type="submit"]`),
+		bt.Text(`#flashes`).Equals("Thank you for signing up!"),
 		bt.Navigate(fmt.Sprintf("/vampires/%s", vampire.ID.String())),
-		bt.WaitForTurbo(),
 
 		// Clicking outside the form should dismiss it
 		bt.WaitVisible(newExperienceLinkSelector),
 		bt.Click(newExperienceLinkSelector),
 		bt.WaitVisible(experienceFieldSelector),
-		bt.Click("h1"),
+		bt.Click("body"),
 		bt.WaitNotPresent(experienceFieldSelector),
 
 		// Clicking outside the form should not dismiss it if user has started
@@ -110,12 +104,12 @@ func TestAddExperienceFormDismisses(t *testing.T) {
 		bt.Click(newExperienceLinkSelector),
 		bt.WaitVisible(experienceFieldSelector),
 		bt.SendKeys(experienceFieldSelector, "Sta"),
-		bt.Click("h1"),
+		bt.Click("body"),
 		bt.WaitVisible(experienceFieldSelector),
 
 		// Clicking outside the form should dismiss it if user has cleared input
 		bt.SendKeys(experienceFieldSelector, "\b\b\b"), // \b => Backspace
-		bt.Click("h1"),
+		bt.Click("body"),
 		bt.WaitNotPresent(experienceFieldSelector),
 	)
 }
@@ -145,8 +139,15 @@ func TestCannotAddFourExperiences(t *testing.T) {
 	expectedExperience := "I am Gruffudd, a Welsh farmer in the valleys of Pembroke; I am a recluse, fond of nature and withdrawn from the village."
 
 	bt.Run(
+		// Register
+		bt.Navigate("/"),
+		bt.Text("header .brand").Equals("Thousand"),
+		bt.SendKeys(`#newUser input[name="email"]`, "john@bannister.com"),
+		bt.SendKeys(`#newUser input[name="password"]`, "password"),
+		bt.Submit(`#newUser input[type="submit"]`),
+		bt.Text(`#flashes`).Equals("Thank you for signing up!"),
 		bt.Navigate(fmt.Sprintf("/vampires/%s", vampire.ID.String())),
-		bt.WaitForTurbo(),
+
 		bt.WaitVisible(newExperienceLinkSelector),
 		bt.Click(newExperienceLinkSelector),
 		bt.WaitVisible(experienceFieldSelector),
@@ -154,115 +155,5 @@ func TestCannotAddFourExperiences(t *testing.T) {
 		bt.Submit(experienceFieldSelector),
 		bt.Text(fmt.Sprintf("#memory-%s", memory.ID.String())).Contains(expectedExperience),
 		bt.Text(fmt.Sprintf("#memory-%s", memory.ID.String())).Not().Contains("New Experience"),
-	)
-}
-
-func TestAddSkill(t *testing.T) {
-	t.Parallel()
-
-	bt := NewBrowserTest(t)
-
-	vampire, err := bt.Repository().CreateVampire(context.Background(), "Gruffudd")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	newSkillLinkSelector := `#skills a[href$="/skills/new"]`
-	skillFieldSelector := `#skills input[name="description"]`
-	expectedSkill := "Navigating forests"
-
-	bt.Run(
-		bt.Navigate(fmt.Sprintf("/vampires/%s", vampire.ID.String())),
-		bt.WaitForTurbo(),
-		bt.WaitVisible(newSkillLinkSelector),
-		bt.Click(newSkillLinkSelector),
-		bt.WaitVisible(skillFieldSelector),
-		bt.SendKeys(skillFieldSelector, expectedSkill),
-		bt.Submit(skillFieldSelector),
-		bt.Text(`#skills`).Contains(expectedSkill),
-	)
-}
-
-func TestAddResource(t *testing.T) {
-	t.Parallel()
-
-	bt := NewBrowserTest(t)
-
-	vampire, err := bt.Repository().CreateVampire(context.Background(), "Gruffudd")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	newResourceLinkSelector := `#resources a[href$="/resources/new"]`
-	resourceDescriptionSelector := `#resources input[name="description"]`
-	resourceStationarySelector := `#resources input[name="stationary"]`
-	expectedResource := "Calweddyn Farm, rich but challenging soils"
-
-	bt.Run(
-		bt.Navigate(fmt.Sprintf("/vampires/%s", vampire.ID.String())),
-		bt.WaitForTurbo(),
-		bt.WaitVisible(newResourceLinkSelector),
-		bt.Click(newResourceLinkSelector),
-		bt.WaitVisible(resourceDescriptionSelector),
-		bt.SendKeys(resourceDescriptionSelector, expectedResource),
-		bt.Click(resourceStationarySelector),
-		bt.Submit(resourceDescriptionSelector),
-		bt.Text(`#resources`).Contains(expectedResource),
-		bt.Text(`#resources`).Contains("Stationary"),
-	)
-}
-
-func TestAddCharacter(t *testing.T) {
-	t.Parallel()
-
-	bt := NewBrowserTest(t)
-
-	vampire, err := bt.Repository().CreateVampire(context.Background(), "Gruffudd")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	newCharacterLinkSelector := `#characters a[href$="/characters/new"]`
-	characterNameSelector := `#characters input[name="name"]`
-	characterTypeSelector := `#characters select[name="type"]`
-	expectedCharacter := "Lord Othian, English gentry visiting a cathedral in St. Davids."
-
-	bt.Run(
-		bt.Navigate(fmt.Sprintf("/vampires/%s", vampire.ID.String())),
-		bt.WaitForTurbo(),
-		bt.WaitVisible(newCharacterLinkSelector),
-		bt.Click(newCharacterLinkSelector),
-		bt.WaitVisible(characterNameSelector),
-		bt.SendKeys(characterNameSelector, expectedCharacter),
-		bt.SendKeys(characterTypeSelector, "Immortal"),
-		bt.Submit(characterNameSelector),
-		bt.Text(`#characters`).Contains(expectedCharacter),
-		bt.Text(`#characters`).Contains("Immortal"),
-	)
-}
-
-func TestAddMark(t *testing.T) {
-	t.Parallel()
-
-	bt := NewBrowserTest(t)
-
-	vampire, err := bt.Repository().CreateVampire(context.Background(), "Gruffudd")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	newMarkLinkSelector := `#marks a[href$="/marks/new"]`
-	markDescriptionSelector := `#marks input[name="description"]`
-	expectedMark := "Muddy footprints, muddy handprints, muddy sheets - I leave a trail of dirt wherever I travel."
-
-	bt.Run(
-		bt.Navigate(fmt.Sprintf("/vampires/%s", vampire.ID.String())),
-		bt.WaitForTurbo(),
-		bt.WaitVisible(newMarkLinkSelector),
-		bt.Click(newMarkLinkSelector),
-		bt.WaitVisible(markDescriptionSelector),
-		bt.SendKeys(markDescriptionSelector, expectedMark),
-		bt.Submit(markDescriptionSelector),
-		bt.Text(`#marks`).Contains(expectedMark),
 	)
 }
