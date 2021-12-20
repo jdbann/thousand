@@ -1,13 +1,12 @@
 {
   "private": true,
   "scripts": {
-    "build": "node assets.js",
     "lint:css": "yarn run stylelint \"css/**/*.css\"",
     "lint:js": "yarn run prettier --check \"js/**/*.js\"",
     "lint:tmpl": "yarn run prettier --check \"templates/**/*.tmpl\""
   },
   "devDependencies": {
-    "esbuild": "^0.14.3",
+    "esbuild": "^0.14.5",
     "prettier": "^2.3.2",
     "prettier-plugin-go-template": "^0.0.11",
     "stylelint": "^13.13.1",

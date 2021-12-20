@@ -1,3 +1,5 @@
 @import "modern-css-reset";
 @import "base/index.css";
 @import "compositions/index.css";
+@import "utilities/index.css";
+@import "blocks/index.css";

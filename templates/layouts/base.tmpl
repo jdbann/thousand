@@ -10,25 +10,23 @@
       <script src="/assets/js/main.js"></script>
     </head>
     <body>
-      <body>
-        <div class="centre stack max-width:measure">
-          <header>
-            <span class="brand">Thousand</span>
-          </header>
+      <header class="p-0">
+        <span class="brand">Thousand</span>
+      </header>
 
-          {{ with .flashes }}
-            <div id="flashes">
-              {{ range . }}
-                <div>
-                  {{ .Message }}
-                </div>
-              {{ end }}
-            </div>
-          {{ end }}
+      <div class="centre stack max-width:measure | p-0">
+        {{ with .flashes }}
+          <div id="flashes">
+            {{ range . }}
+              <div>
+                {{ .Message }}
+              </div>
+            {{ end }}
+          </div>
+        {{ end }}
 
-          {{ template "main" . }}
-        </div>
-      </body>
+        {{ template "main" . }}
+      </div>
     </body>
   </html>
 {{ end }}

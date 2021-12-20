@@ -1,0 +1,18 @@
+:root {
+  --white: #f5f3f6;
+  --light-grey: #d9d9df;
+  --grey: #bdbfc8;
+  --dark-grey: #3f4960;
+  --blue: #384e77;
+  --navy: #14213d;
+}
+
+body {
+  --bg: var(--white);
+  --fg: var(--navy);
+}
+
+* {
+  background: var(--bg);
+  color: var(--fg);
+}

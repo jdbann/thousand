@@ -1,8 +1,12 @@
 {{ template "base" . }}
 
 {{ define "main" }}
+  <h1>Your vampires</h1>
+
   <turbo-frame id="newVampire">
-    <a href="{{ newVampirePath }}">New Vampire</a>
+    <a href="{{ newVampirePath }}" class="button with-icon"
+      ><span class="icon icon-plus"></span>New Vampire</a
+    >
   </turbo-frame>
 
   <div id="vampires">

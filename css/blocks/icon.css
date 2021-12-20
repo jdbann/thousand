@@ -1,0 +1,20 @@
+.icon {
+  width: 1em;
+  height: 1em;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.with-icon {
+  display: inline-flex;
+  align-items: center;
+}
+
+.with-icon .icon {
+  margin-inline-end: var(--s-1);
+}
+
+.icon-plus {
+  background-image: url("../../svg/icons/plus.svg");
+}

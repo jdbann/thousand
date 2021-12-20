@@ -4,6 +4,7 @@ require("esbuild")
   .build({
     bundle: true,
     entryPoints: ["css/main.css", "js/main.js"],
+    loader: { ".svg": "dataurl" },
     logLevel: "info",
     minify: true,
     outdir: "static",

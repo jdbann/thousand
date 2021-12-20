@@ -5,6 +5,7 @@ RUN yarn install
 COPY bin/build-assets bin/
 COPY css/ css/
 COPY js/ js/
+COPY svg/ svg/
 RUN bin/build-assets
 
 FROM golang:1.16-alpine AS build-app

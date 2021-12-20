@@ -1,6 +1,8 @@
 {{ template "base" . }}
 
 {{ define "main" }}
+  <h1>Sign up</h1>
+
   <div id="newUser">
     {{ with .form }}
       <form method="POST" action="{{ userPath }}" class="stack">
@@ -14,7 +16,7 @@
               {{ with .Value }}value="{{ . }}"{{ end }}
             />
             {{ with .Message }}
-              <div>{{ . }}</div>
+              <small class="input-error">{{ . }}</small>
             {{ end }}
           </div>
         {{ end }}
@@ -24,13 +26,15 @@
             <label for="password">Password</label>
             <input id="password" name="password" type="password" />
             {{ with .Message }}
-              <div>{{ . }}</div>
+              <small class="input-error">{{ . }}</small>
             {{ end }}
           </div>
         {{ end }}
 
 
-        <input type="submit" value="Create User" />
+        <div class="cluster cluster-end">
+          <button type="submit">Create User</button>
+        </div>
       </form>
     {{ end }}
   </div>

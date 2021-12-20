@@ -15,7 +15,7 @@ func TestSignUp(t *testing.T) {
 		bt.Text("header .brand").Equals("Thousand"),
 		bt.SendKeys(`#newUser input[name="email"]`, "john@bannister.com"),
 		bt.SendKeys(`#newUser input[name="password"]`, "password"),
-		bt.Submit(`#newUser input[type="submit"]`),
+		bt.Submit(`#newUser button[type="submit"]`),
 		bt.Text(`#flashes`).Equals("Thank you for signing up!"),
 
 		// Create vampire
@@ -87,7 +87,7 @@ func TestAddExperienceFormDismisses(t *testing.T) {
 		bt.Text("header .brand").Equals("Thousand"),
 		bt.SendKeys(`#newUser input[name="email"]`, "john@bannister.com"),
 		bt.SendKeys(`#newUser input[name="password"]`, "password"),
-		bt.Submit(`#newUser input[type="submit"]`),
+		bt.Submit(`#newUser button[type="submit"]`),
 		bt.Text(`#flashes`).Equals("Thank you for signing up!"),
 		bt.Navigate(fmt.Sprintf("/vampires/%s", vampire.ID.String())),
 
@@ -144,7 +144,7 @@ func TestCannotAddFourExperiences(t *testing.T) {
 		bt.Text("header .brand").Equals("Thousand"),
 		bt.SendKeys(`#newUser input[name="email"]`, "john@bannister.com"),
 		bt.SendKeys(`#newUser input[name="password"]`, "password"),
-		bt.Submit(`#newUser input[type="submit"]`),
+		bt.Submit(`#newUser button[type="submit"]`),
 		bt.Text(`#flashes`).Equals("Thank you for signing up!"),
 		bt.Navigate(fmt.Sprintf("/vampires/%s", vampire.ID.String())),
 

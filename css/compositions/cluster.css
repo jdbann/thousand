@@ -9,3 +9,11 @@
 .cluster-grow {
   flex-grow: 1;
 }
+
+.cluster-end {
+  justify-content: flex-end;
+}
+
+.cluster-space {
+  justify-content: space-between;
+}
