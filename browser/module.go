@@ -21,6 +21,7 @@ type params struct {
 
 	DatabaseURL string `name:"databaseURL"`
 	Port        int    `name:"port"`
+	SecretKey   string `name:"secretKey"`
 
 	T *testing.T
 }

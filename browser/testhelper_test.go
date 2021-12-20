@@ -42,6 +42,7 @@ func NewBrowserTest(t *testing.T) *BrowserTest {
 		fx.Supply(params{
 			DatabaseURL: databaseURL,
 			Port:        0,
+			SecretKey:   "secret",
 			T:           t,
 		}),
 

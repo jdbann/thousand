@@ -6,8 +6,14 @@ var Module = fx.Options(
 	fx.Provide(newFX),
 )
 
-func newFX() *Store {
+type Params struct {
+	fx.In
+
+	SecretKey string `name:"secretKey"`
+}
+
+func newFX(params Params) *Store {
 	return NewStore(StoreOptions{
-		Key: "secret",
+		Key: params.SecretKey,
 	})
 }

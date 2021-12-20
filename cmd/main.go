@@ -41,6 +41,12 @@ func BuildCLIApp() *cli.App {
 				Value:   4000,
 				EnvVars: []string{"PORT"},
 			},
+			&cli.StringFlag{
+				Name:    "secret-key",
+				Usage:   "secret key for encrypting session",
+				Value:   "secret",
+				EnvVars: []string{"SECRET_KEY"},
+			},
 		},
 		Action: func(c *cli.Context) error {
 			a := fx.New(
@@ -52,10 +58,12 @@ func BuildCLIApp() *cli.App {
 						Host        string `name:"host" optional:"true"`
 						LogFormat   string `name:"logFormat" optional:"true"`
 						Port        int    `name:"port"`
+						SecretKey   string `name:"secretKey"`
 					}{
 						DatabaseURL: c.String("database-url"),
 						LogFormat:   c.String("log-format"),
 						Port:        c.Int("port"),
+						SecretKey:   c.String("secret-key"),
 					},
 				),
 
