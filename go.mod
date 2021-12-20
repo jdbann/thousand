@@ -14,7 +14,7 @@ require (
 	github.com/jackc/pgerrcode v0.0.0-20201024163028-a0d42d470451
 	github.com/jackc/pgx/v4 v4.14.1
 	github.com/jdbann/browsertest v0.1.5
-	github.com/pressly/goose/v3 v3.4.1
+	github.com/pressly/goose/v3 v3.5.0
 	github.com/prometheus/client_golang v1.11.0
 	github.com/prometheus/common v0.32.1 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect
