@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"testing"
+
+	"emailaddress.horse/thousand/form"
 )
 
 func TestSignUp(t *testing.T) {
@@ -63,6 +65,25 @@ func TestSignUp(t *testing.T) {
 		bt.SendKeys(`#marks input[name="description"]`, "Muddy footprints, muddy handprints, muddy sheets - I leave a trail of dirt wherever I travel."),
 		bt.Submit(`#marks input[name="description"]`),
 		bt.Text(`#marks`).Contains("Muddy footprints, muddy handprints, muddy sheets - I leave a trail of dirt wherever I travel."),
+	)
+}
+
+func TestLogIn(t *testing.T) {
+	t.Parallel()
+
+	bt := NewBrowserTest(t)
+
+	_, err := bt.Repository().CreateUser(context.Background(), form.NewUser("john@bannister.com", "password"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	bt.Run(
+		bt.Navigate("/session/new"),
+		bt.SendKeys(`#newSession input[name="email"]`, "john@bannister.com"),
+		bt.SendKeys(`#newSession input[name="password"]`, "password"),
+		bt.Submit(`#newSession button[type="submit"]`),
+		bt.Text(`#flashes`).Equals("Welcome back!"),
 	)
 }
 

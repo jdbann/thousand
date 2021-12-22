@@ -9,6 +9,35 @@ import (
 	"github.com/google/uuid"
 )
 
+const authenticateUser = `-- name: AuthenticateUser :one
+SELECT
+    id, email, password_hash, created_at, updated_at
+FROM
+    users
+WHERE
+    email = $1
+    AND password_hash = crypt($2::text, password_hash)
+LIMIT 1
+`
+
+type AuthenticateUserParams struct {
+	Email    string
+	Password string
+}
+
+func (q *Queries) AuthenticateUser(ctx context.Context, arg AuthenticateUserParams) (User, error) {
+	row := q.db.QueryRow(ctx, authenticateUser, arg.Email, arg.Password)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.PasswordHash,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (email, password_hash)
     VALUES (lower($1), crypt($2::text, gen_salt('bf', 8)))

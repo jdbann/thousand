@@ -32,6 +32,9 @@ func fxRegister(p RegisterParams) {
 
 	Root(p.Router)
 
+	NewSession(p.Router, p.Logger, p.Renderer)
+	CreateSession(p.Router, p.Logger, p.Repository, p.Renderer, p.Store)
+
 	NewUser(p.Router, p.Logger, p.Renderer)
 	CreateUser(p.Router, p.Logger, p.Repository, p.Renderer, p.Store)
 

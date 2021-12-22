@@ -47,6 +47,14 @@ func (r *Renderer) NewResource(w http.ResponseWriter, req *http.Request, v model
 	return r.render(w, req, "resources/new", data)
 }
 
+func (r *Renderer) NewSession(w http.ResponseWriter, req *http.Request, f *form.NewSessionForm) error {
+	data := map[string]interface{}{
+		"form": f,
+	}
+
+	return r.render(w, req, "sessions/new", data)
+}
+
 func (r *Renderer) NewUser(w http.ResponseWriter, req *http.Request, f *form.NewUserForm) error {
 	data := map[string]interface{}{
 		"form": f,

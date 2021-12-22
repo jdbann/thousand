@@ -1,0 +1,41 @@
+{{ template "base" . }}
+
+{{ define "main" }}
+  <h1>Log in</h1>
+
+  <div id="newSession">
+    {{ with .form }}
+      <form method="POST" action="{{ sessionPath }}" class="stack">
+        {{ with .Email }}
+          <div class="stack stack-small">
+            <label for="email">Email</label>
+            <input
+              id="email"
+              name="email"
+              type="text"
+              {{ with .Value }}value="{{ . }}"{{ end }}
+            />
+            {{ with .Message }}
+              <small class="input-error">{{ . }}</small>
+            {{ end }}
+          </div>
+        {{ end }}
+
+        {{ with .Password }}
+          <div class="stack stack-small">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" />
+            {{ with .Message }}
+              <small class="input-error">{{ . }}</small>
+            {{ end }}
+          </div>
+        {{ end }}
+
+
+        <div class="cluster cluster-end">
+          <button type="submit">Log in</button>
+        </div>
+      </form>
+    {{ end }}
+  </div>
+{{ end }}

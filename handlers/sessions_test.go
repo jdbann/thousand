@@ -15,11 +15,11 @@ import (
 	"github.com/google/uuid"
 )
 
-type mockNewUserRenderer struct {
+type mockNewSessionRenderer struct {
 	err error
 }
 
-func (m *mockNewUserRenderer) NewUser(w http.ResponseWriter, _ *http.Request, form *form.NewUserForm) error {
+func (m *mockNewSessionRenderer) NewSession(w http.ResponseWriter, _ *http.Request, form *form.NewSessionForm) error {
 	if m.err != nil {
 		return m.err
 	}
@@ -32,24 +32,24 @@ func (m *mockNewUserRenderer) NewUser(w http.ResponseWriter, _ *http.Request, fo
 	return nil
 }
 
-func TestNewUser(t *testing.T) {
+func TestNewSession(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
 		name           string
-		renderer       *mockNewUserRenderer
+		renderer       *mockNewSessionRenderer
 		expectedStatus int
 		expectedBody   string
 	}{
 		{
 			name:           "successful",
-			renderer:       &mockNewUserRenderer{},
+			renderer:       &mockNewSessionRenderer{},
 			expectedStatus: http.StatusOK,
 			expectedBody:   `{"Email":{"Message":"","Value":""},"Password":{"Message":"","Value":""}}`,
 		},
 		{
 			name: "error from renderer",
-			renderer: &mockNewUserRenderer{
+			renderer: &mockNewSessionRenderer{
 				err: errors.New("mock error"),
 			},
 			expectedStatus: http.StatusInternalServerError,
@@ -65,9 +65,9 @@ func TestNewUser(t *testing.T) {
 
 			r := chi.NewMux()
 
-			handlers.NewUser(r, testLogger(t), tt.renderer)
+			handlers.NewSession(r, testLogger(t), tt.renderer)
 
-			status, _, body := get(r, "/user/new")
+			status, _, body := get(r, "/session/new")
 
 			if tt.expectedStatus != status {
 				t.Errorf("expected status %d; got %d", tt.expectedStatus, status)
@@ -80,50 +80,25 @@ func TestNewUser(t *testing.T) {
 	}
 }
 
-type mockUserCreator struct {
-	form *form.NewUserForm
+type mockUserAuthenticator struct {
+	form *form.NewSessionForm
 	user models.User
 	err  error
 }
 
-func (m *mockUserCreator) CreateUser(_ context.Context, form *form.NewUserForm) (models.User, error) {
+func (m *mockUserAuthenticator) AuthenticateUser(_ context.Context, form *form.NewSessionForm) (models.User, error) {
 	m.form = form
 	return m.user, m.err
 }
 
-type mockCurrentUserIDSetter struct {
-	id  uuid.UUID
-	err error
-}
-
-func (m *mockCurrentUserIDSetter) SetCurrentUserID(_ *http.Request, _ http.ResponseWriter, id uuid.UUID) error {
-	m.id = id
-	return m.err
-}
-
-type mockFlashSetter struct {
-	message string
-	err     error
-}
-
-func (m *mockFlashSetter) SetFlash(_ *http.Request, _ http.ResponseWriter, message string) error {
-	m.message = message
-	return m.err
-}
-
-type mockSetter struct {
-	*mockCurrentUserIDSetter
-	*mockFlashSetter
-}
-
-func TestCreateUser(t *testing.T) {
+func TestCreateSession(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
 		name             string
 		body             url.Values
-		creator          *mockUserCreator
-		renderer         *mockNewUserRenderer
+		authenticator    *mockUserAuthenticator
+		renderer         *mockNewSessionRenderer
 		setter           *mockSetter
 		expectedStatus   int
 		expectedBody     string
@@ -135,8 +110,10 @@ func TestCreateUser(t *testing.T) {
 				"email":    []string{"john@bannister.com"},
 				"password": []string{"password"},
 			},
-			creator:          &mockUserCreator{},
-			renderer:         &mockNewUserRenderer{},
+			authenticator: &mockUserAuthenticator{
+				user: models.User{ID: uuid.New()},
+			},
+			renderer:         &mockNewSessionRenderer{},
 			setter:           &mockSetter{&mockCurrentUserIDSetter{}, &mockFlashSetter{}},
 			expectedStatus:   http.StatusSeeOther,
 			expectedLocation: "/",
@@ -146,36 +123,36 @@ func TestCreateUser(t *testing.T) {
 			body: url.Values{
 				"email": []string{"john@bannister.com"},
 			},
-			creator:        &mockUserCreator{},
-			renderer:       &mockNewUserRenderer{},
+			authenticator:  &mockUserAuthenticator{},
+			renderer:       &mockNewSessionRenderer{},
 			setter:         &mockSetter{&mockCurrentUserIDSetter{}, &mockFlashSetter{}},
 			expectedStatus: http.StatusUnprocessableEntity,
 			expectedBody:   `{"Email":{"Message":"","Value":"john@bannister.com"},"Password":{"Message":"Please provide a password.","Value":""}}`,
 		},
 		{
-			name: "email already in use from creator",
+			name: "no user from authenticator",
 			body: url.Values{
 				"email":    []string{"john@bannister.com"},
 				"password": []string{"password"},
 			},
-			creator: &mockUserCreator{
-				err: models.ErrEmailAlreadyInUse,
+			authenticator: &mockUserAuthenticator{
+				user: models.User{},
 			},
-			renderer:       &mockNewUserRenderer{},
+			renderer:       &mockNewSessionRenderer{},
 			setter:         &mockSetter{&mockCurrentUserIDSetter{}, &mockFlashSetter{}},
 			expectedStatus: http.StatusUnprocessableEntity,
-			expectedBody:   `{"Email":{"Message":"Email already in use.","Value":"john@bannister.com"},"Password":{"Message":"","Value":"password"}}`,
+			expectedBody:   `{"Email":{"Message":"No user found with this email address and password.","Value":"john@bannister.com"},"Password":{"Message":"","Value":"password"}}`,
 		},
 		{
-			name: "error from creator",
+			name: "error from authenticator",
 			body: url.Values{
 				"email":    []string{"john@bannister.com"},
 				"password": []string{"password"},
 			},
-			creator: &mockUserCreator{
+			authenticator: &mockUserAuthenticator{
 				err: errors.New("mock error"),
 			},
-			renderer:       &mockNewUserRenderer{},
+			renderer:       &mockNewSessionRenderer{},
 			setter:         &mockSetter{&mockCurrentUserIDSetter{}, &mockFlashSetter{}},
 			expectedStatus: http.StatusInternalServerError,
 			expectedBody:   "500: Internal Server Error",
@@ -186,8 +163,10 @@ func TestCreateUser(t *testing.T) {
 				"email":    []string{"john@bannister.com"},
 				"password": []string{"password"},
 			},
-			creator:  &mockUserCreator{},
-			renderer: &mockNewUserRenderer{},
+			authenticator: &mockUserAuthenticator{
+				user: models.User{ID: uuid.New()},
+			},
+			renderer: &mockNewSessionRenderer{},
 			setter: &mockSetter{
 				&mockCurrentUserIDSetter{
 					err: errors.New("mock error"),
@@ -207,9 +186,9 @@ func TestCreateUser(t *testing.T) {
 
 			r := chi.NewMux()
 
-			handlers.CreateUser(r, testLogger(t), tt.creator, tt.renderer, tt.setter)
+			handlers.CreateSession(r, testLogger(t), tt.authenticator, tt.renderer, tt.setter)
 
-			status, headers, body := post(r, "/user", tt.body.Encode())
+			status, headers, body := post(r, "/session", tt.body.Encode())
 
 			if tt.expectedStatus != status {
 				t.Errorf("expected status %d; got %d", tt.expectedStatus, status)
