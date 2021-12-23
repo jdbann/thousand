@@ -38,7 +38,7 @@ func TestCreateVampire(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			m := newTestRepository(t)
 
-			actualVampire, err := m.CreateVampire(context.Background(), tt.vampireName)
+			actualVampire, err := m.CreateVampire(context.Background(), m.UserID(), tt.vampireName)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -77,8 +77,10 @@ func TestGetVampire(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 			m := newTestRepository(t)
+			userID := m.UserID()
+
 			err := m.WithSavepoint(func(m *repository.Repository) error {
-				vampire, err := m.CreateVampire(context.Background(), "test vampire")
+				vampire, err := m.CreateVampire(context.Background(), userID, "test vampire")
 				if err != nil {
 					t.Fatal(err)
 				}

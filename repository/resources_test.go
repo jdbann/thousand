@@ -33,7 +33,7 @@ func TestCreateResource(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			m := newTestRepository(t)
 
-			vampire, err := m.CreateVampire(context.Background(), "test vampire")
+			vampire, err := m.CreateVampire(context.Background(), m.UserID(), "test vampire")
 			if err != nil {
 				t.Fatal(err)
 			}

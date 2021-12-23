@@ -10,27 +10,33 @@ import (
 )
 
 const createVampire = `-- name: CreateVampire :one
-INSERT INTO vampires (name)
-    VALUES ($1)
+INSERT INTO vampires (name, user_id)
+    VALUES ($1, $2::uuid)
 RETURNING
-    id, name, created_at, updated_at
+    id, name, created_at, updated_at, user_id
 `
 
-func (q *Queries) CreateVampire(ctx context.Context, name string) (Vampire, error) {
-	row := q.db.QueryRow(ctx, createVampire, name)
+type CreateVampireParams struct {
+	Name   string
+	UserID uuid.UUID
+}
+
+func (q *Queries) CreateVampire(ctx context.Context, arg CreateVampireParams) (Vampire, error) {
+	row := q.db.QueryRow(ctx, createVampire, arg.Name, arg.UserID)
 	var i Vampire
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.UserID,
 	)
 	return i, err
 }
 
 const getVampire = `-- name: GetVampire :one
 SELECT
-    id, name, created_at, updated_at
+    id, name, created_at, updated_at, user_id
 FROM
     vampires
 WHERE
@@ -46,13 +52,14 @@ func (q *Queries) GetVampire(ctx context.Context, id uuid.UUID) (Vampire, error)
 		&i.Name,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.UserID,
 	)
 	return i, err
 }
 
 const getVampires = `-- name: GetVampires :many
 SELECT
-    id, name, created_at, updated_at
+    id, name, created_at, updated_at, user_id
 FROM
     vampires
 `
@@ -71,6 +78,7 @@ func (q *Queries) GetVampires(ctx context.Context) ([]Vampire, error) {
 			&i.Name,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.UserID,
 		); err != nil {
 			return nil, err
 		}

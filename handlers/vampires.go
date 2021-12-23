@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 
+	"emailaddress.horse/thousand/middleware"
 	"emailaddress.horse/thousand/models"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -47,9 +48,10 @@ func NewVampire(r chi.Router, l *zap.Logger, t newVampireRenderer) {
 
 func CreateVampire(r chi.Router, l *zap.Logger, vc vampireCreator) {
 	r.Post("/vampires", func(w http.ResponseWriter, r *http.Request) {
+		user := middleware.CurrentUser(r.Context())
 		name := r.FormValue("name")
 
-		vampire, err := vc.CreateVampire(r.Context(), name)
+		vampire, err := vc.CreateVampire(r.Context(), user.ID, name)
 		if err != nil {
 			l.Error("failed to create vampire", zap.Error(err))
 			handleError(w, err)

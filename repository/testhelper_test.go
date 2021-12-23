@@ -5,7 +5,9 @@ import (
 	"os"
 	"testing"
 
+	"emailaddress.horse/thousand/form"
 	"emailaddress.horse/thousand/repository"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
 )
 
@@ -46,15 +48,15 @@ func newTestRepository(t *testing.T) testRepository {
 	return testRepository{repo, tx, t}
 }
 
-func (tc testRepository) WithSavepoint(query func(*repository.Repository) error) error {
-	spRepo, spTx, err := tc.Repository.WithSavepoint(context.Background())
+func (r testRepository) WithSavepoint(query func(*repository.Repository) error) error {
+	spRepo, spTx, err := r.Repository.WithSavepoint(context.Background())
 	if err != nil {
 		return err
 	}
 
 	if err := query(spRepo); err != nil {
 		if err := spTx.Rollback(context.Background()); err != nil {
-			tc.t.Fatal(err)
+			r.t.Fatal(err)
 		}
 
 		return err
@@ -62,4 +64,13 @@ func (tc testRepository) WithSavepoint(query func(*repository.Repository) error)
 
 	// Commit the savepoint TX to simulate individual transactions in the DB
 	return spTx.Commit(context.Background())
+}
+
+func (r testRepository) UserID() uuid.UUID {
+	user, err := r.CreateUser(context.Background(), form.NewUser("", ""))
+	if err != nil {
+		panic(err)
+	}
+
+	return user.ID
 }

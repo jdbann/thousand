@@ -12,8 +12,13 @@ import (
 
 // CreateVampire attempts to create a new vampire in the DB with the provided
 // name.
-func (m *Repository) CreateVampire(ctx context.Context, name string) (models.Vampire, error) {
-	v, err := m.queries.CreateVampire(ctx, name)
+func (m *Repository) CreateVampire(ctx context.Context, userID uuid.UUID, name string) (models.Vampire, error) {
+	params := queries.CreateVampireParams{
+		Name:   name,
+		UserID: userID,
+	}
+
+	v, err := m.queries.CreateVampire(ctx, params)
 	if err != nil {
 		return models.Vampire{}, err
 	}

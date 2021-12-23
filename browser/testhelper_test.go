@@ -122,17 +122,21 @@ func (bt *BrowserTest) CaptureScreenshot(name string) browsertest.Action {
 }
 
 func (bt *BrowserTest) Authenticate() browsertest.Action {
+	_, err := bt.Repository().CreateUser(context.Background(), form.NewUser("john@bannister.com", "password"))
+	if err != nil {
+		bt.Fatal(err)
+	}
+
+	return bt.AuthenticateAs("john@bannister.com", "password")
+}
+
+func (bt *BrowserTest) AuthenticateAs(email, password string) browsertest.Action {
 	return bt.ActionFunc(
 		chromedp.ActionFunc(func(ctx context.Context) error {
-			_, err := bt.Repository().CreateUser(context.Background(), form.NewUser("john@bannister.com", "password"))
-			if err != nil {
-				bt.Fatal(err)
-			}
-
 			return chromedp.Run(ctx, chromedp.Tasks{
 				bt.Navigate("/session/new"),
-				bt.SendKeys(`#newSession input[name="email"]`, "john@bannister.com"),
-				bt.SendKeys(`#newSession input[name="password"]`, "password"),
+				bt.SendKeys(`#newSession input[name="email"]`, email),
+				bt.SendKeys(`#newSession input[name="password"]`, password),
 				bt.Submit(`#newSession button[type="submit"]`),
 				bt.Text(`#flashes`).Equals("Welcome back!"),
 			})

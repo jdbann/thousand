@@ -28,6 +28,34 @@ func testLogger(t *testing.T) *zap.Logger {
 	return zap.New(core)
 }
 
+type testRequest struct {
+	request  *http.Request
+	response *httptest.ResponseRecorder
+}
+
+func (r testRequest) perform(handler http.Handler) (int, http.Header, string) {
+	handler.ServeHTTP(r.response, r.request)
+	result := r.response.Result()
+
+	body, err := io.ReadAll(result.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	return result.StatusCode, result.Header, strings.TrimSpace(string(body))
+}
+
+func postRequest(path, data string) *testRequest {
+	request := httptest.NewRequest(http.MethodPost, path, strings.NewReader(data))
+	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	response := httptest.NewRecorder()
+
+	return &testRequest{
+		request:  request,
+		response: response,
+	}
+}
+
 func get(handler http.Handler, path string) (int, http.Header, string) {
 	request := httptest.NewRequest(http.MethodGet, path, nil)
 	response := httptest.NewRecorder()

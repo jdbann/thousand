@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"emailaddress.horse/thousand/health"
+	"emailaddress.horse/thousand/middleware"
 	"emailaddress.horse/thousand/repository"
 	"emailaddress.horse/thousand/session"
 	"emailaddress.horse/thousand/static"
@@ -40,7 +41,7 @@ func fxRegister(p RegisterParams) {
 	CreateUser(p.Router, p.Logger, p.Repository, p.Renderer, p.Store)
 
 	p.Router.Group(func(r chi.Router) {
-		EnsureLoggedIn(r, p.Store, p.Repository)
+		middleware.EnsureLoggedIn(r, p.Store, p.Repository)
 
 		NewCharacter(r, p.Logger, p.Renderer, p.Repository)
 		CreateCharacter(r, p.Logger, p.Repository)

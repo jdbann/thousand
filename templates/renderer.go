@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"strings"
 
-	"emailaddress.horse/thousand/models"
+	"emailaddress.horse/thousand/middleware"
 	"emailaddress.horse/thousand/session"
 )
 
@@ -87,10 +87,6 @@ func NewRenderer(opts RendererOptions) *Renderer {
 	}
 }
 
-const (
-	CurrentUserContextKey = "currentUser"
-)
-
 func (r *Renderer) render(w http.ResponseWriter, req *http.Request, name string, data map[string]interface{}) error {
 	flashes, err := r.store.GetFlashes(req, w)
 	if err != nil {
@@ -98,9 +94,9 @@ func (r *Renderer) render(w http.ResponseWriter, req *http.Request, name string,
 	}
 	data["flashes"] = flashes
 
-	currentUser, ok := req.Context().Value(currentUserContextKey).(models.User)
+	currentUser, ok := middleware.MaybeCurrentUser(req.Context())
 	if ok {
-		data[CurrentUserContextKey] = currentUser
+		data["currentUser"] = currentUser
 	}
 
 	view, ok := r.templateMap[name]

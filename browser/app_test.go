@@ -97,7 +97,12 @@ func TestAddExperienceFormDismisses(t *testing.T) {
 
 	bt := NewBrowserTest(t)
 
-	vampire, err := bt.Repository().CreateVampire(context.Background(), "Gruffudd")
+	user, err := bt.Repository().CreateUser(context.Background(), form.NewUser("john@bannister.com", "password"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	vampire, err := bt.Repository().CreateVampire(context.Background(), user.ID, "Gruffudd")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -108,7 +113,7 @@ func TestAddExperienceFormDismisses(t *testing.T) {
 	experienceFieldSelector := fmt.Sprintf(`#memory-%s input[name="description"]`, memory.ID.String())
 
 	bt.Run(
-		bt.Authenticate(),
+		bt.AuthenticateAs("john@bannister.com", "password"),
 		bt.Navigate(fmt.Sprintf("/vampires/%s", vampire.ID.String())),
 
 		// Clicking outside the form should dismiss it
@@ -139,7 +144,12 @@ func TestCannotAddFourExperiences(t *testing.T) {
 
 	bt := NewBrowserTest(t)
 
-	vampire, err := bt.Repository().CreateVampire(context.Background(), "Gruffudd")
+	user, err := bt.Repository().CreateUser(context.Background(), form.NewUser("john@bannister.com", "password"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	vampire, err := bt.Repository().CreateVampire(context.Background(), user.ID, "Gruffudd")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -159,7 +169,7 @@ func TestCannotAddFourExperiences(t *testing.T) {
 	expectedExperience := "I am Gruffudd, a Welsh farmer in the valleys of Pembroke; I am a recluse, fond of nature and withdrawn from the village."
 
 	bt.Run(
-		bt.Authenticate(),
+		bt.AuthenticateAs("john@bannister.com", "password"),
 		bt.Navigate(fmt.Sprintf("/vampires/%s", vampire.ID.String())),
 
 		bt.WaitVisible(newExperienceLinkSelector),

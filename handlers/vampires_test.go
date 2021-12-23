@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"emailaddress.horse/thousand/handlers"
+	"emailaddress.horse/thousand/middleware"
 	"emailaddress.horse/thousand/models"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -182,12 +183,14 @@ func TestNewVampire(t *testing.T) {
 }
 
 type mockVampireCreator struct {
+	userID  uuid.UUID
 	name    string
 	vampire models.Vampire
 	err     error
 }
 
-func (m *mockVampireCreator) CreateVampire(_ context.Context, name string) (models.Vampire, error) {
+func (m *mockVampireCreator) CreateVampire(_ context.Context, id uuid.UUID, name string) (models.Vampire, error) {
+	m.userID = id
 	m.name = name
 	return m.vampire, m.err
 }
@@ -199,8 +202,10 @@ func TestCreateVampire(t *testing.T) {
 		name             string
 		body             url.Values
 		creator          *mockVampireCreator
+		user             models.User
 		expectedStatus   int
 		expectedName     string
+		expectedUserID   uuid.UUID
 		expectedLocation string
 	}{
 		{
@@ -211,8 +216,12 @@ func TestCreateVampire(t *testing.T) {
 					ID: uuid.MustParse("12345678-90ab-cdef-1234-567890abcdef"),
 				},
 			},
+			user: models.User{
+				ID: uuid.MustParse("12345678-90ab-cdef-1234-567890abcdef"),
+			},
 			expectedStatus:   http.StatusSeeOther,
 			expectedName:     "Gruffudd",
+			expectedUserID:   uuid.MustParse("12345678-90ab-cdef-1234-567890abcdef"),
 			expectedLocation: "/vampires/12345678-90ab-cdef-1234-567890abcdef",
 		},
 		{
@@ -221,8 +230,12 @@ func TestCreateVampire(t *testing.T) {
 			creator: &mockVampireCreator{
 				err: errors.New("mock error"),
 			},
+			user: models.User{
+				ID: uuid.MustParse("12345678-90ab-cdef-1234-567890abcdef"),
+			},
 			expectedStatus:   http.StatusInternalServerError,
 			expectedName:     "Gruffudd",
+			expectedUserID:   uuid.MustParse("12345678-90ab-cdef-1234-567890abcdef"),
 			expectedLocation: "",
 		},
 	}
@@ -237,7 +250,10 @@ func TestCreateVampire(t *testing.T) {
 
 			handlers.CreateVampire(r, testLogger(t), tt.creator)
 
-			status, headers, _ := post(r, "/vampires", tt.body.Encode())
+			req := postRequest("/vampires", tt.body.Encode())
+			req.request = middleware.RequestWithCurrentUser(req.request, tt.user)
+
+			status, headers, _ := req.perform(r)
 
 			if tt.expectedStatus != status {
 				t.Errorf("expected status %d; got %d", tt.expectedStatus, status)
@@ -245,6 +261,10 @@ func TestCreateVampire(t *testing.T) {
 
 			if tt.expectedName != tt.creator.name {
 				t.Errorf("expected creator to receive name %q; got %q", tt.expectedName, tt.creator.name)
+			}
+
+			if tt.expectedUserID != tt.creator.userID {
+				t.Errorf("expected creator to receive name %q; got %q", tt.expectedUserID, tt.creator.userID)
 			}
 
 			actualLocation := headers.Get("Location")

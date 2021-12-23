@@ -4,23 +4,8 @@ import (
 	"context"
 
 	"emailaddress.horse/thousand/models"
-	"emailaddress.horse/thousand/repository"
 	"github.com/google/uuid"
 )
-
-type _totalInterface interface {
-	characterCreator
-	experienceCreator
-	markCreator
-	memoryGetter
-	resourceCreator
-	skillCreator
-	vampireCreator
-	vampireGetter
-	vampiresGetter
-}
-
-var _ _totalInterface = (*repository.Repository)(nil)
 
 type characterCreator interface {
 	CreateCharacter(context.Context, uuid.UUID, models.CreateCharacterParams) (models.Character, error)
@@ -47,7 +32,7 @@ type skillCreator interface {
 }
 
 type vampireCreator interface {
-	CreateVampire(context.Context, string) (models.Vampire, error)
+	CreateVampire(context.Context, uuid.UUID, string) (models.Vampire, error)
 }
 
 type vampireGetter interface {

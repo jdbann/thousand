@@ -8,8 +8,8 @@ WHERE
 LIMIT 1;
 
 -- name: CreateVampire :one
-INSERT INTO vampires (name)
-    VALUES ($1)
+INSERT INTO vampires (name, user_id)
+    VALUES (@name, @user_id::uuid)
 RETURNING
     *;
 

@@ -91,4 +91,5 @@ type Vampire struct {
 	Name      string
 	CreatedAt time.Time
 	UpdatedAt sql.NullTime
+	UserID    uuid.NullUUID
 }

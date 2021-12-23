@@ -1,12 +1,12 @@
-package handlers
+package middleware
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
 	"emailaddress.horse/thousand/models"
 	"emailaddress.horse/thousand/session"
-	"emailaddress.horse/thousand/templates"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )
@@ -31,7 +31,31 @@ func EnsureLoggedIn(r chi.Router, s *session.Store, ug userGetter) {
 				return
 			}
 
-			next.ServeHTTP(w, templates.RequestWithCurrentUser(r, user))
+			next.ServeHTTP(w, RequestWithCurrentUser(r, user))
 		})
 	})
+}
+
+type contextKey string
+
+const (
+	currentUserContextKey contextKey = "currentUser"
+)
+
+func RequestWithCurrentUser(r *http.Request, user models.User) *http.Request {
+	return r.WithContext(context.WithValue(r.Context(), currentUserContextKey, user))
+}
+
+func MaybeCurrentUser(ctx context.Context) (models.User, bool) {
+	user, ok := ctx.Value(currentUserContextKey).(models.User)
+	return user, ok
+}
+
+func CurrentUser(ctx context.Context) models.User {
+	user, ok := MaybeCurrentUser(ctx)
+	if !ok {
+		panic(errors.New("current user has not been set on context"))
+	}
+
+	return user
 }
