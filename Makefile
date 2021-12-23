@@ -16,6 +16,10 @@ TEST_DB = $(DATABASE_URL)
 ifeq ($(strip $(TEST_DB)),)
 TEST_DB = "postgres://localhost:5432/thousand_test?sslmode=disable"
 endif
+_GOLANGCI_LINT_ARGS = $(GOLANGCI_LINT_ARGS)
+ifeq ($(strip $(_GOLANGCI_LINT_ARGS)),)
+_GOLANGCI_LINT_ARGS = --new-from-rev=origin/main --out-format=colored-line-number
+endif
 
 ## build: build the application
 .PHONY: build
@@ -96,6 +100,7 @@ lint:
 	yarn lint:css
 	yarn lint:js
 	yarn lint:tmpl
+	golangci-lint run ./... $(_GOLANGCI_LINT_ARGS)
 
 ## local: setup a local developer environment (both dev and test)
 .PHONY: local
@@ -105,6 +110,11 @@ local: local/deps build dev/setup test/setup
 .PHONY: local/deps
 local/deps: local/deps/sqlc tmp/bin/air
 	yarn install
+
+# local/deps/golangci-lint: installs golangci-lint for linting go code
+.PHONY: local/deps/golangci-lint
+local/deps/golangci-lint:
+	golangci-lint --version || brew install golangci-lint
 
 # local/deps/sqlc: installs sqlc for db querying code generation
 .PHONY: local/deps/sqlc

@@ -1,5 +1,13 @@
 name: CI
-on: [push]
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: 
+      - synchronize
+
 jobs:
   run_tests:
     runs-on: ubuntu-latest
@@ -21,6 +29,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
 
       - uses: actions/cache@v2
         with:
@@ -47,20 +58,14 @@ jobs:
           node-version: "16"
           cache: "yarn"
 
+      - name: install golangci-lint
+        run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.43.0
+
       - run: make ci
         env:
           DATABASE_URL: postgres://vampire:vampire@localhost:5432/thousand_test?sslmode=disable
           TMPDIR: ${{ runner.temp }}
-
-  run_linter:
-    runs-on: ubuntu-latest
-    if: ${{ github.ref != 'refs/heads/main' }}
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v2
+          GOLANGCI_LINT_ARGS: --new-from-rev=origin/${{ github.base_ref }} --out-format=github-actions
 
   deploy:
     if: ${{ github.ref == 'refs/heads/main' }}
