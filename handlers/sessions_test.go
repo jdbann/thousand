@@ -205,3 +205,65 @@ func TestCreateSession(t *testing.T) {
 		})
 	}
 }
+
+type mockCurrentUserIDClearer struct {
+	err error
+}
+
+func (m *mockCurrentUserIDClearer) ClearCurrentUserID(_ http.ResponseWriter, _ *http.Request) error {
+	return m.err
+}
+
+func TestDestroySession(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name             string
+		clearer          *mockCurrentUserIDClearer
+		expectedStatus   int
+		expectedBody     string
+		expectedLocation string
+	}{
+		{
+			name:             "successful",
+			clearer:          &mockCurrentUserIDClearer{},
+			expectedStatus:   http.StatusSeeOther,
+			expectedLocation: "/",
+		},
+		{
+			name: "error from clearer",
+			clearer: &mockCurrentUserIDClearer{
+				err: errors.New("mock error"),
+			},
+			expectedStatus: http.StatusInternalServerError,
+			expectedBody:   "500: Internal Server Error",
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			r := chi.NewMux()
+
+			handlers.DestroySession(r, testLogger(t), tt.clearer)
+
+			status, headers, body := deleteRequest(r, "/session")
+
+			if tt.expectedStatus != status {
+				t.Errorf("expected status %d; got %d", tt.expectedStatus, status)
+			}
+
+			actualLocation := headers.Get("Location")
+			if tt.expectedLocation != actualLocation {
+				t.Errorf("expected location %q; got %q", tt.expectedLocation, actualLocation)
+			}
+
+			if tt.expectedBody != body {
+				t.Errorf("expected body %q; got %q", tt.expectedBody, body)
+			}
+		})
+	}
+}

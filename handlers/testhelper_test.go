@@ -58,3 +58,18 @@ func post(handler http.Handler, path, data string) (int, http.Header, string) {
 
 	return result.StatusCode, result.Header, strings.TrimSpace(string(body))
 }
+
+func deleteRequest(handler http.Handler, path string) (int, http.Header, string) {
+	request := httptest.NewRequest(http.MethodDelete, path, nil)
+	response := httptest.NewRecorder()
+
+	handler.ServeHTTP(response, request)
+	result := response.Result()
+
+	body, err := io.ReadAll(result.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	return result.StatusCode, result.Header, strings.TrimSpace(string(body))
+}

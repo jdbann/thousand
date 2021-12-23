@@ -1,16 +1,16 @@
 package templates
 
-type Data interface {
-	Add(string, interface{}) Data
-}
+import (
+	"context"
+	"net/http"
 
-func NewData() Data {
-	return make(data)
-}
+	"emailaddress.horse/thousand/models"
+)
 
-type data map[string]interface{}
+const (
+	currentUserContextKey = "currentUser"
+)
 
-func (d data) Add(k string, v interface{}) Data {
-	d[k] = v
-	return d
+func RequestWithCurrentUser(r *http.Request, user models.User) *http.Request {
+	return r.WithContext(context.WithValue(r.Context(), currentUserContextKey, user))
 }

@@ -80,3 +80,19 @@ func CreateSession(r chi.Router, l *zap.Logger, ua userAuthenticator, t newSessi
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	})
 }
+
+type currentUserIDClearer interface {
+	ClearCurrentUserID(http.ResponseWriter, *http.Request) error
+}
+
+func DestroySession(r chi.Router, l *zap.Logger, s currentUserIDClearer) {
+	r.Delete("/session", func(w http.ResponseWriter, r *http.Request) {
+		if err := s.ClearCurrentUserID(w, r); err != nil {
+			l.Error("failed to clear user id in session", zap.Error(err))
+			handleError(w, err)
+			return
+		}
+
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+	})
+}

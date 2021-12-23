@@ -13,6 +13,7 @@ import (
 	"github.com/jdbann/browsertest"
 	"go.uber.org/fx"
 
+	"emailaddress.horse/thousand/form"
 	"emailaddress.horse/thousand/repository"
 	"emailaddress.horse/thousand/server"
 )
@@ -117,5 +118,25 @@ func (bt *BrowserTest) CaptureScreenshot(name string) browsertest.Action {
 			return nil
 		}),
 		fmt.Sprintf("[CaptureScreenshot] Capturing %s", filename),
+	)
+}
+
+func (bt *BrowserTest) Authenticate() browsertest.Action {
+	return bt.ActionFunc(
+		chromedp.ActionFunc(func(ctx context.Context) error {
+			_, err := bt.Repository().CreateUser(context.Background(), form.NewUser("john@bannister.com", "password"))
+			if err != nil {
+				bt.Fatal(err)
+			}
+
+			return chromedp.Run(ctx, chromedp.Tasks{
+				bt.Navigate("/session/new"),
+				bt.SendKeys(`#newSession input[name="email"]`, "john@bannister.com"),
+				bt.SendKeys(`#newSession input[name="password"]`, "password"),
+				bt.Submit(`#newSession button[type="submit"]`),
+				bt.Text(`#flashes`).Equals("Welcome back!"),
+			})
+		}),
+		"[Authenticate]",
 	)
 }

@@ -10,8 +10,29 @@
       <script src="/assets/js/main.js"></script>
     </head>
     <body>
-      <header class="p-0">
+      <header class="cluster cluster-space | p-0">
         <span class="brand">Thousand</span>
+        <nav aria-label="User account">
+          <ul class="cluster | m-none p-none" role="list">
+            {{ with .currentUser }}
+              <li>
+                <form id="destroySession" action="/session" method="POST">
+                  <input type="hidden" name="_method" value="DELETE" />
+                  <button type="submit" class="button-text">Log out</button>
+                </form>
+              </li>
+            {{ else }}
+              <li>
+                <a href="{{ newSessionPath }}" class="button button-text">
+                  Log in
+                </a>
+              </li>
+              <li>
+                <a href="{{ newUserPath }}" class="button">Sign up</a>
+              </li>
+            {{ end }}
+          </ul>
+        </nav>
       </header>
 
       <div class="centre stack max-width:measure | p-0">

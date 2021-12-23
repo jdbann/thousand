@@ -39,6 +39,9 @@ var helpers = template.FuncMap{
 	"sessionPath": func() string {
 		return "/session"
 	},
+	"newSessionPath": func() string {
+		return "/session/new"
+	},
 
 	"newSkillPath": func(vampireID uuid.UUID) string {
 		return fmt.Sprintf("/vampires/%s/skills/new", vampireID)
@@ -49,6 +52,9 @@ var helpers = template.FuncMap{
 
 	"userPath": func() string {
 		return "/user"
+	},
+	"newUserPath": func() string {
+		return "/user/new"
 	},
 
 	"vampiresPath": func() string {

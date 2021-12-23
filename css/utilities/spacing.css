@@ -1,3 +1,11 @@
+.m-none {
+  margin: 0;
+}
+
+.p-none {
+  padding: 0;
+}
+
 .p-0 {
   padding: var(--s0);
 }

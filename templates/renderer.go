@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strings"
 
+	"emailaddress.horse/thousand/models"
 	"emailaddress.horse/thousand/session"
 )
 
@@ -86,13 +87,21 @@ func NewRenderer(opts RendererOptions) *Renderer {
 	}
 }
 
+const (
+	CurrentUserContextKey = "currentUser"
+)
+
 func (r *Renderer) render(w http.ResponseWriter, req *http.Request, name string, data map[string]interface{}) error {
 	flashes, err := r.store.GetFlashes(req, w)
 	if err != nil {
 		return err
 	}
-
 	data["flashes"] = flashes
+
+	currentUser, ok := req.Context().Value(currentUserContextKey).(models.User)
+	if ok {
+		data[CurrentUserContextKey] = currentUser
+	}
 
 	view, ok := r.templateMap[name]
 	if !ok {

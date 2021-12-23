@@ -1,0 +1,10 @@
+.button-text {
+  --bg: none;
+  --fg: var(--navy);
+  --shadow: none;
+}
+
+.button-text:hover {
+  --bg: none;
+  --shadow: var(--light-grey);
+}

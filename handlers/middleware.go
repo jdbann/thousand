@@ -6,6 +6,7 @@ import (
 
 	"emailaddress.horse/thousand/models"
 	"emailaddress.horse/thousand/session"
+	"emailaddress.horse/thousand/templates"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )
@@ -19,18 +20,18 @@ func EnsureLoggedIn(r chi.Router, s *session.Store, ug userGetter) {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			id, ok := s.GetCurrentUserID(r)
 			if !ok {
-				http.Redirect(w, r, "/user/new", http.StatusSeeOther)
+				http.Redirect(w, r, "/session/new", http.StatusSeeOther)
 				return
 			}
 
-			_, err := ug.GetUser(r.Context(), id)
+			user, err := ug.GetUser(r.Context(), id)
 			if err != nil {
-				_ = s.ClearCurrentUserID(r, w)
-				http.Redirect(w, r, "/user/new", http.StatusSeeOther)
+				_ = s.ClearCurrentUserID(w, r)
+				http.Redirect(w, r, "/session/new", http.StatusSeeOther)
 				return
 			}
 
-			next.ServeHTTP(w, r)
+			next.ServeHTTP(w, templates.RequestWithCurrentUser(r, user))
 		})
 	})
 }

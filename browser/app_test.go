@@ -8,12 +8,13 @@ import (
 	"emailaddress.horse/thousand/form"
 )
 
-func TestSignUp(t *testing.T) {
+func TestVampireFlow(t *testing.T) {
 	bt := NewBrowserTest(t)
 
 	bt.Run(
 		// Register
 		bt.Navigate("/"),
+		bt.Click(`#newSession a[href="/user/new"]`),
 		bt.Text("header .brand").Equals("Thousand"),
 		bt.SendKeys(`#newUser input[name="email"]`, "john@bannister.com"),
 		bt.SendKeys(`#newUser input[name="password"]`, "password"),
@@ -68,7 +69,7 @@ func TestSignUp(t *testing.T) {
 	)
 }
 
-func TestLogIn(t *testing.T) {
+func TestLogInAndOut(t *testing.T) {
 	t.Parallel()
 
 	bt := NewBrowserTest(t)
@@ -84,6 +85,10 @@ func TestLogIn(t *testing.T) {
 		bt.SendKeys(`#newSession input[name="password"]`, "password"),
 		bt.Submit(`#newSession button[type="submit"]`),
 		bt.Text(`#flashes`).Equals("Welcome back!"),
+
+		bt.Click(`#destroySession button[type="submit"]`),
+		bt.WaitNotPresent(`#destroySession`),
+		bt.Text(`h1`).Equals("Log in"),
 	)
 }
 
@@ -103,13 +108,7 @@ func TestAddExperienceFormDismisses(t *testing.T) {
 	experienceFieldSelector := fmt.Sprintf(`#memory-%s input[name="description"]`, memory.ID.String())
 
 	bt.Run(
-		// Register
-		bt.Navigate("/"),
-		bt.Text("header .brand").Equals("Thousand"),
-		bt.SendKeys(`#newUser input[name="email"]`, "john@bannister.com"),
-		bt.SendKeys(`#newUser input[name="password"]`, "password"),
-		bt.Submit(`#newUser button[type="submit"]`),
-		bt.Text(`#flashes`).Equals("Thank you for signing up!"),
+		bt.Authenticate(),
 		bt.Navigate(fmt.Sprintf("/vampires/%s", vampire.ID.String())),
 
 		// Clicking outside the form should dismiss it
@@ -160,13 +159,7 @@ func TestCannotAddFourExperiences(t *testing.T) {
 	expectedExperience := "I am Gruffudd, a Welsh farmer in the valleys of Pembroke; I am a recluse, fond of nature and withdrawn from the village."
 
 	bt.Run(
-		// Register
-		bt.Navigate("/"),
-		bt.Text("header .brand").Equals("Thousand"),
-		bt.SendKeys(`#newUser input[name="email"]`, "john@bannister.com"),
-		bt.SendKeys(`#newUser input[name="password"]`, "password"),
-		bt.Submit(`#newUser button[type="submit"]`),
-		bt.Text(`#flashes`).Equals("Thank you for signing up!"),
+		bt.Authenticate(),
 		bt.Navigate(fmt.Sprintf("/vampires/%s", vampire.ID.String())),
 
 		bt.WaitVisible(newExperienceLinkSelector),

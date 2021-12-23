@@ -59,7 +59,7 @@ func (s *Store) GetCurrentUserID(r *http.Request) (uuid.UUID, bool) {
 	return idAsUUID, true
 }
 
-func (s *Store) ClearCurrentUserID(r *http.Request, w http.ResponseWriter) error {
+func (s *Store) ClearCurrentUserID(w http.ResponseWriter, r *http.Request) error {
 	session, _ := s.store.Get(r, sessionKey)
 
 	delete(session.Values, currentUserIDKey)

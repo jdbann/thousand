@@ -7,10 +7,12 @@ button,
 input[type="submit"],
 input[type="text"],
 input[type="password"] {
+  --shadow: var(--grey);
+
   border-radius: var(--radius-sm);
   border-width: 0;
-  transition: box-shadow 0.4s;
-  margin: 0;
+  display: block;
+  transition: box-shadow 0.4s, border 0.4s;
   text-decoration: none;
 }
 
@@ -20,28 +22,28 @@ input[type="submit"] {
   --bg: var(--blue);
   --fg: var(--white);
 
-  box-shadow: 0 3px 3px var(--grey);
+  box-shadow: 0 3px 3px var(--shadow);
+  cursor: default;
   padding: var(--s-2) var(--s1);
 }
 
 button:hover,
 .button:hover,
 input[type="submit"]:hover {
-  box-shadow: 0 4px 5px var(--grey);
+  box-shadow: 0 4px 5px var(--shadow);
 }
 
 input[type="text"],
 input[type="password"] {
   --bg: var(--light-grey);
 
-  box-shadow: inset 0 3px 3px var(--grey);
+  box-shadow: inset 0 3px 3px var(--shadow);
   padding: var(--s-3) var(--s-2);
-  transition: box-shadow 0.4s;
 }
 
 input[type="text"]:hover,
 input[type="password"]:hover {
-  box-shadow: inset 0 4px 5px var(--grey);
+  box-shadow: inset 0 4px 5px var(--shadow);
 }
 
 li > form,
