@@ -19,3 +19,7 @@ footer {
 .max-width\:measure {
   max-width: var(--measure);
 }
+
+.width\:measure {
+  width: var(--measure);
+}

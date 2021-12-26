@@ -17,3 +17,8 @@
 .cluster-space {
   justify-content: space-between;
 }
+
+.cluster-vertical {
+  align-items: stretch;
+  flex-direction: column;
+}

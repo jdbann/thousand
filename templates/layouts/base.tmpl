@@ -9,45 +9,58 @@
       <link href="/assets/css/main.css" rel="stylesheet" />
       <script src="/assets/js/main.js"></script>
     </head>
-    <body>
-      <header class="cluster cluster-space | p-0">
-        <span class="brand">Thousand</span>
-        <nav aria-label="User account">
-          <ul class="cluster | m-none p-none" role="list">
-            {{ with .currentUser }}
-              <li>
-                <form id="destroySession" action="/session" method="POST">
-                  <input type="hidden" name="_method" value="DELETE" />
-                  <button type="submit" class="button-text">Log out</button>
-                </form>
-              </li>
-            {{ else }}
-              <li>
-                <a href="{{ newSessionPath }}" class="button button-text">
-                  Log in
-                </a>
-              </li>
-              <li>
-                <a href="{{ newUserPath }}" class="button">Sign up</a>
-              </li>
-            {{ end }}
-          </ul>
-        </nav>
-      </header>
+    <body class="cluster cluster-vertical cluster-space">
+      <div>
+        <header class="cluster cluster-space | p-0">
+          <span class="brand">Thousand</span>
+          <nav aria-label="User account">
+            <ul class="cluster | m-none p-none" role="list">
+              {{ with .currentUser }}
+                <li>
+                  <form id="destroySession" action="/session" method="POST">
+                    <input type="hidden" name="_method" value="DELETE" />
+                    <button type="submit" class="button-text">Log out</button>
+                  </form>
+                </li>
+              {{ else }}
+                <li>
+                  <a href="{{ newSessionPath }}" class="button button-text">
+                    Log in
+                  </a>
+                </li>
+                <li>
+                  <a href="{{ newUserPath }}" class="button">Sign up</a>
+                </li>
+              {{ end }}
+            </ul>
+          </nav>
+        </header>
 
-      <div class="centre stack max-width:measure | p-0">
-        {{ with .flashes }}
-          <div id="flashes">
-            {{ range . }}
-              <div>
-                {{ .Message }}
-              </div>
-            {{ end }}
-          </div>
-        {{ end }}
+        <div class="centre stack max-width:measure | p-0">
+          {{ with .flashes }}
+            <div id="flashes">
+              {{ range . }}
+                <div>
+                  {{ .Message }}
+                </div>
+              {{ end }}
+            </div>
+          {{ end }}
 
-        {{ template "main" . }}
+          {{ template "main" . }}
+        </div>
       </div>
+
+      <footer class="centre stack width:measure | p-0">
+        <small>
+          Thousand was created by
+          <a href="https://twitter.com/jdbannister">John Bannister</a>.<br />
+          <a href="https://thousandyearoldvampire.com"
+            >Thousand Year Old Vampire</a
+          >
+          was created by Tim Hutchings.
+        </small>
+      </footer>
     </body>
   </html>
 {{ end }}
