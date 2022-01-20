@@ -7,7 +7,7 @@ require (
 	github.com/chromedp/chromedp v0.7.6
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/golang/protobuf v1.5.2 // indirect
-	github.com/google/go-cmp v0.5.6
+	github.com/google/go-cmp v0.5.7
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/sessions v1.2.1
 	github.com/jackc/pgconn v1.10.1
