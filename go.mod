@@ -13,7 +13,7 @@ require (
 	github.com/jackc/pgx/v4 v4.14.1
 	github.com/jdbann/browsertest v0.1.5
 	github.com/pressly/goose/v3 v3.5.0
-	github.com/prometheus/client_golang v1.12.0
+	github.com/prometheus/client_golang v1.12.1
 	github.com/urfave/cli/v2 v2.3.0
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/dig v1.13.0 // indirect
