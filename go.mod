@@ -8,9 +8,9 @@ require (
 	github.com/google/go-cmp v0.5.7
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/sessions v1.2.1
-	github.com/jackc/pgconn v1.10.1
+	github.com/jackc/pgconn v1.11.0
 	github.com/jackc/pgerrcode v0.0.0-20201024163028-a0d42d470451
-	github.com/jackc/pgx/v4 v4.14.1
+	github.com/jackc/pgx/v4 v4.15.0
 	github.com/jdbann/browsertest v0.1.5
 	github.com/pressly/goose/v3 v3.5.1
 	github.com/prometheus/client_golang v1.12.1
